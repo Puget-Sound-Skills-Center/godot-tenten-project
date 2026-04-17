@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://coq3lpednaggl" path="res://script/player.gd" id="1_g2els"]
 [ext_resource type="Texture2D" uid="uid://cymjdohtxtdh0" path="res://art/characters/player.png" id="2_qhqgy"]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_g2els"]
+radius = 4.0
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_dqkch"]
 atlas = ExtResource("2_qhqgy")
 region = Rect2(0, 384, 48, 48)
@@ -417,8 +420,10 @@ animations = [{
 script = ExtResource("1_g2els")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1675831679]
+y_sort_enabled = true
+shape = SubResource("CircleShape2D_g2els")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1763111215]
 sprite_frames = SubResource("SpriteFrames_apa73")
-animation = &"back_attack"
-frame_progress = 0.34720203
+animation = &"front_idle"
+offset = Vector2(0, -15)
