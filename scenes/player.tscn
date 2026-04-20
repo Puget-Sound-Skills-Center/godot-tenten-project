@@ -446,8 +446,8 @@ wait_time = 0.5
 wait_time = 0.5
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=987621391]
-limit_left = -1
-limit_top = -1
+limit_left = 0
+limit_top = 0
 limit_right = 399
 limit_bottom = 207
 limit_smoothed = true

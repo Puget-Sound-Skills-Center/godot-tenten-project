@@ -1,5 +1,6 @@
 [gd_scene format=4 uid="uid://4dxremnukxl2"]
 
+[ext_resource type="Script" uid="uid://bgrya2x8lijh1" path="res://script/world.gd" id="1_i7141"]
 [ext_resource type="Texture2D" uid="uid://bv0bnud5x534k" path="res://art/tilesets/plains.png" id="1_k0juu"]
 [ext_resource type="Texture2D" uid="uid://try0pdlvg5h5" path="res://art/tilesets/grass.png" id="2_71j4m"]
 [ext_resource type="Texture2D" uid="uid://cwa5njkj4ggvx" path="res://art/objects/objects.png" id="3_qfnet"]
@@ -104,8 +105,12 @@ sources/1 = SubResource("TileSetAtlasSource_7r4gi")
 sources/2 = SubResource("TileSetAtlasSource_w7kh3")
 sources/3 = SubResource("TileSetAtlasSource_e3hyu")
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4mrxx"]
+size = Vector2(35, 15)
+
 [node name="world" type="Node2D" unique_id=1132998546]
 y_sort_enabled = true
+script = ExtResource("1_i7141")
 
 [node name="TileMap" type="Node2D" parent="." unique_id=1677578065]
 y_sort_enabled = true
@@ -131,3 +136,20 @@ position = Vector2(107, 96)
 
 [node name="enemy" parent="." unique_id=915246282 instance=ExtResource("6_qfnet")]
 position = Vector2(58, 78)
+
+[node name="collisions_map" type="StaticBody2D" parent="." unique_id=21408436]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="collisions_map" unique_id=1287717236]
+polygon = PackedVector2Array(-1, 0, 154, 0, 154, -16, 189, -16, 189, 0, 257, 0, 258, 41, 261, 46, 265, 47, 400, 46, 400, 165, 427, 165, 427, 193, 400, 192, 400, 209, 240, 208, 239, 172, 232, 162, 0, 163, 0, 44, -17, 44, -17, 19, 0, 19, 0, -13, -50, 16, -38, 238, 199, 293, 426, 269, 455, 216, 446, 56, 439, -1, 425, -43, 196, -43, 61, -29)
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="collisions_map" unique_id=1988973342]
+polygon = PackedVector2Array(290, 158, 291, 187, 297, 191, 330, 191, 335, 186, 335, 166, 334, 157, 329, 147, 295, 148)
+
+[node name="Cliffside_trasition_point" type="Area2D" parent="." unique_id=88907879]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Cliffside_trasition_point" unique_id=826356014]
+position = Vector2(171.5, -8.5)
+shape = SubResource("RectangleShape2D_4mrxx")
+
+[connection signal="body_entered" from="Cliffside_trasition_point" to="." method="_on_cliffside_trasition_point_body_entered"]
+[connection signal="body_exited" from="Cliffside_trasition_point" to="." method="_on_cliffside_trasition_point_body_exited"]
