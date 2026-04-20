@@ -3,19 +3,22 @@
 [ext_resource type="Script" uid="uid://coq3lpednaggl" path="res://script/player.gd" id="1_g2els"]
 [ext_resource type="Texture2D" uid="uid://cymjdohtxtdh0" path="res://art/characters/player.png" id="2_qhqgy"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_dqkch"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_g2els"]
+radius = 4.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2els"]
 atlas = ExtResource("2_qhqgy")
 region = Rect2(0, 384, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_qlg0r"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_qhqgy"]
 atlas = ExtResource("2_qhqgy")
 region = Rect2(48, 384, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_tuyoq"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_dqkch"]
 atlas = ExtResource("2_qhqgy")
 region = Rect2(96, 384, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_fjrip"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_qlg0r"]
 atlas = ExtResource("2_qhqgy")
 region = Rect2(144, 384, 48, 48)
 
@@ -211,16 +214,16 @@ region = Rect2(240, 192, 48, 48)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_g2els")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qhqgy")
+}, {
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_dqkch")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_qlg0r")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_tuyoq")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fjrip")
 }],
 "loop": true,
 "name": &"back_attack",
@@ -413,12 +416,36 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_qhqgy"]
+radius = 11.0
+
 [node name="player" type="CharacterBody2D" unique_id=1145790712]
+collision_layer = 3
 script = ExtResource("1_g2els")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1675831679]
+y_sort_enabled = true
+shape = SubResource("CircleShape2D_g2els")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1763111215]
 sprite_frames = SubResource("SpriteFrames_apa73")
-animation = &"back_attack"
-frame_progress = 0.34720203
+animation = &"front_attack"
+frame_progress = 0.7718783
+offset = Vector2(0, -15)
+
+[node name="player_hitbox" type="Area2D" parent="." unique_id=361800356]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="player_hitbox" unique_id=1238094582]
+position = Vector2(0, -6)
+shape = SubResource("CircleShape2D_qhqgy")
+
+[node name="attack_cooldown" type="Timer" parent="." unique_id=953798505]
+wait_time = 0.5
+
+[node name="deal_attack_timer" type="Timer" parent="." unique_id=1890536918]
+wait_time = 0.5
+
+[connection signal="body_entered" from="player_hitbox" to="." method="_on_player_hitbox_body_entered"]
+[connection signal="body_exited" from="player_hitbox" to="." method="_on_player_hitbox_body_exited"]
+[connection signal="timeout" from="attack_cooldown" to="." method="_on_attack_cooldown_timeout"]
+[connection signal="timeout" from="deal_attack_timer" to="." method="_on_deal_attack_timer_timeout"]
