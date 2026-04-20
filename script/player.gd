@@ -22,7 +22,7 @@ func _physics_process(delta):
 		player_alive = false
 		health = 0
 
-func player_movement(delta):
+func player_movement(_delta):
 	if Input.is_action_pressed("move_right"):
 		current_dir = "right"
 		play_anim(1)
@@ -69,19 +69,17 @@ func play_anim(movement):
 			if attack_ip == false:
 				anim.play("side_idle")
 	if dir == "down":
-		anim.flip_h = true
 		if movement == 1:
 			anim.play("front_walk")
 		elif movement == 0:
 			if attack_ip == false:
 				anim.play("front_idle")
 	if dir == "up":
-		anim.flip_h = true
 		if movement == 1:
-			if attack_ip == false:
-				anim.play("back_walk")
+			anim.play("back_walk")
 		elif movement == 0:
-			anim.play("back_idle")
+			if attack_ip == false:
+				anim.play("back_idle")
 			
 func player():
 	pass
