@@ -17,6 +17,7 @@ func _physics_process(delta):
 	player_movement(delta)
 	enemy_attack()
 	attack()
+	update_health()
 	
 	if health <= 0:
 		player_alive = false
@@ -129,3 +130,17 @@ func _on_deal_attack_timer_timeout():
 	$deal_attack_timer.stop()
 	global.player_current_attack = false
 	attack_ip = false
+
+func update_health():
+	var healthbar = $healthbar
+	healthbar.value = health
+	if health >= 100:
+		healthbar.visible = false
+	else:
+		healthbar.visible = true
+
+func _on_regen_timer_timeout() -> void:
+	if health < 100 and health > 0:
+		health = health + 10
+		if health >= 100:
+			health = 100
