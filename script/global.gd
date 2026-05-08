@@ -44,3 +44,78 @@ func finish_changescenes():
 			current_scene = "cliff_side"
 		else:
 			current_scene = "world"
+
+# --- Save system ---
+
+const SAVE_SLOT_COUNT := 4
+
+var loaded_from_save := false
+var player_loaded_pos := Vector2.ZERO
+
+func reset_for_new_game() -> void:
+	money = 0
+	player_damage_level = 0
+	player_health_level = 0
+	player_defense_level = 0
+	player_current_health = -1
+	current_floor = 0
+	dungeon_resume_floor = 1
+	came_from_dungeon = false
+	current_scene = "world"
+	game_first_loading = true
+	enter_dungeon = false
+	exit_dungeon = false
+	next_floor = false
+	transition_scene = false
+	loaded_from_save = false
+
+func _slot_path(slot: int) -> String:
+	return "user://save_slot_%d.cfg" % slot
+
+func save_to_slot(slot: int, player_pos: Vector2) -> void:
+	var cfg := ConfigFile.new()
+	cfg.set_value("game", "scene", current_scene)
+	cfg.set_value("game", "current_floor", current_floor)
+	cfg.set_value("game", "dungeon_resume_floor", dungeon_resume_floor)
+	cfg.set_value("game", "money", money)
+	cfg.set_value("player", "damage_level", player_damage_level)
+	cfg.set_value("player", "health_level", player_health_level)
+	cfg.set_value("player", "defense_level", player_defense_level)
+	cfg.set_value("player", "current_health", player_current_health)
+	cfg.set_value("player", "pos_x", player_pos.x)
+	cfg.set_value("player", "pos_y", player_pos.y)
+	cfg.set_value("meta", "saved_at", Time.get_datetime_string_from_system())
+	cfg.save(_slot_path(slot))
+
+func load_from_slot(slot: int) -> bool:
+	var cfg := ConfigFile.new()
+	if cfg.load(_slot_path(slot)) != OK:
+		return false
+	current_scene = cfg.get_value("game", "scene", "world")
+	current_floor = cfg.get_value("game", "current_floor", 0)
+	dungeon_resume_floor = cfg.get_value("game", "dungeon_resume_floor", 1)
+	money = cfg.get_value("game", "money", 0)
+	player_damage_level = cfg.get_value("player", "damage_level", 0)
+	player_health_level = cfg.get_value("player", "health_level", 0)
+	player_defense_level = cfg.get_value("player", "defense_level", 0)
+	player_current_health = cfg.get_value("player", "current_health", -1)
+	player_loaded_pos = Vector2(
+		cfg.get_value("player", "pos_x", 167.0),
+		cfg.get_value("player", "pos_y", 110.0)
+	)
+	game_first_loading = false
+	came_from_dungeon = false
+	loaded_from_save = (current_scene != "dungeon")
+	return true
+
+func slot_preview(slot: int) -> Dictionary:
+	var cfg := ConfigFile.new()
+	if cfg.load(_slot_path(slot)) != OK:
+		return {"empty": true}
+	return {
+		"empty": false,
+		"scene": cfg.get_value("game", "scene", "world"),
+		"floor": cfg.get_value("game", "current_floor", 0),
+		"money": cfg.get_value("game", "money", 0),
+		"saved_at": cfg.get_value("meta", "saved_at", ""),
+	}

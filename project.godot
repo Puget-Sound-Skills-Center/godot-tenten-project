@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="GodotTentenProject"
-run/main_scene="uid://4dxremnukxl2"
+run/main_scene="res://scenes/home_screen.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
 [autoload]
 
 global="*uid://neut6i1kx728"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+pause_menu="*res://script/pause_menu.gd"
 
 [display]
 

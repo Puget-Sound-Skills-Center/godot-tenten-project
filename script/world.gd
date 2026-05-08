@@ -2,7 +2,10 @@ extends Node2D
 
 
 func _ready() -> void:
-	if global.game_first_loading == true:
+	if global.loaded_from_save:
+		$player.position = global.player_loaded_pos
+		global.loaded_from_save = false
+	elif global.game_first_loading == true:
 		$player.position.x = global.player_start_posx
 		$player.position.y = global.player_start_posy
 	else:

@@ -2,7 +2,10 @@ extends Node2D
 
 func _ready() -> void:
 	_spawn_dungeon_npc()
-	if global.came_from_dungeon:
+	if global.loaded_from_save:
+		$player.position = global.player_loaded_pos
+		global.loaded_from_save = false
+	elif global.came_from_dungeon:
 		var p = $player
 		p.position.x = global.player_exit_dungeon_posx
 		p.position.y = global.player_exit_dungeon_posy

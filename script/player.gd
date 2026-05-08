@@ -24,6 +24,7 @@ var _hp_btn: Button
 var _def_btn: Button
 
 func _ready():
+	add_to_group("player")
 	$AnimatedSprite2D.play("front_idle")
 	if global.player_current_health >= 0:
 		health = global.player_current_health

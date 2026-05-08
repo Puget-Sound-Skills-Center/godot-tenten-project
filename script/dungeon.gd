@@ -60,6 +60,7 @@ func _ready() -> void:
 	_build_floor_background()
 	_build_outer_walls()
 	var obstacles := _build_random_obstacles(floor_no)
+	_setup_navigation(obstacles)
 	_spawn_player()
 	_spawn_enemies(floor_no, obstacles)
 	var exit_pos := _build_floor_exit(floor_no, obstacles)
@@ -97,6 +98,34 @@ func _exit_to_cliffside(resume_floor: int) -> void:
 	get_tree().change_scene_to_file("res://scenes/cliff_side.tscn")
 
 # --- Build helpers ---
+
+func _setup_navigation(obstacles: Array) -> void:
+	var geo := NavigationMeshSourceGeometryData2D.new()
+
+	# Walkable floor: room interior minus the wall border
+	geo.add_traversable_outline(PackedVector2Array([
+		Vector2(TILE, TILE),
+		Vector2(TILE, room_h - TILE),
+		Vector2(room_w - TILE, room_h - TILE),
+		Vector2(room_w - TILE, TILE),
+	]))
+
+	# Each obstacle rect punched out as a hole
+	for rect in obstacles:
+		geo.add_obstruction_outline(PackedVector2Array([
+			rect.position,
+			Vector2(rect.position.x, rect.end.y),
+			rect.end,
+			Vector2(rect.end.x, rect.position.y),
+		]))
+
+	var nav_poly := NavigationPolygon.new()
+	nav_poly.agent_radius = 5.0
+	NavigationServer2D.bake_from_source_geometry_data(nav_poly, geo)
+
+	var nav_region := NavigationRegion2D.new()
+	nav_region.navigation_polygon = nav_poly
+	add_child(nav_region)
 
 func _build_floor_background() -> void:
 	var bg := ColorRect.new()
