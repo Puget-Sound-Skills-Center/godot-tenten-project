@@ -1,7 +1,6 @@
 extends Node2D
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	if global.game_first_loading == true:
 		$player.position.x = global.player_start_posx
@@ -9,6 +8,12 @@ func _ready() -> void:
 	else:
 		$player.position.x = global.player_exit_cliffside_posx
 		$player.position.y = global.player_exit_cliffside_posy
+	_spawn_shop_npc()
+
+func _spawn_shop_npc():
+	var npc = load("res://script/npc.gd").new()
+	npc.position = Vector2(167, 110)
+	add_child(npc)
 
 func _process(_delta):
 	change_scene()

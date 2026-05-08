@@ -1,0 +1,6 @@
+[gd_scene format=4 uid="uid://bptsuak3xnq2v"]
+
+[ext_resource type="Script" uid="uid://cptst7m4xnq2v" path="res://script/puzzle_test.gd" id="1_ptst0"]
+
+[node name="puzzle_test" type="Node2D"]
+script = ExtResource("1_ptst0")
