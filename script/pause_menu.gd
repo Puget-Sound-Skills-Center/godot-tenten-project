@@ -7,8 +7,14 @@ var _save_slot_buttons: Array = []
 
 func _ready() -> void:
 	layer = 50
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_pause_panel()
 	_build_save_panel()
+
+# Stamps PROCESS_MODE_ALWAYS on a node and returns it.
+func _pa(node: Node) -> Node:
+	node.process_mode = Node.PROCESS_MODE_ALWAYS
+	return node
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.is_action_pressed("ui_cancel"):
@@ -32,14 +38,15 @@ func _resume() -> void:
 	get_tree().paused = false
 
 func _build_pause_panel() -> void:
-	var overlay := ColorRect.new()
+	var overlay := _pa(ColorRect.new()) as ColorRect
 	overlay.color = Color(0, 0, 0, 0.60)
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.visible = false
 	add_child(overlay)
 	_pause_panel = overlay
 
-	var panel := Panel.new()
+	var panel := _pa(Panel.new()) as Panel
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.offset_left = -90
 	panel.offset_right = 90
@@ -47,7 +54,7 @@ func _build_pause_panel() -> void:
 	panel.offset_bottom = 82
 	overlay.add_child(panel)
 
-	var margin := MarginContainer.new()
+	var margin := _pa(MarginContainer.new()) as MarginContainer
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_right", 14)
@@ -55,42 +62,43 @@ func _build_pause_panel() -> void:
 	margin.add_theme_constant_override("margin_bottom", 12)
 	panel.add_child(margin)
 
-	var vbox := VBoxContainer.new()
+	var vbox := _pa(VBoxContainer.new()) as VBoxContainer
 	vbox.add_theme_constant_override("separation", 10)
 	margin.add_child(vbox)
 
-	var title := Label.new()
+	var title := _pa(Label.new()) as Label
 	title.text = "PAUSED"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color.WHITE)
 	vbox.add_child(title)
-	vbox.add_child(HSeparator.new())
+	vbox.add_child(_pa(HSeparator.new()))
 
-	var resume_btn := Button.new()
+	var resume_btn := _pa(Button.new()) as Button
 	resume_btn.text = "Resume"
 	resume_btn.pressed.connect(_resume)
 	vbox.add_child(resume_btn)
 
-	var save_btn := Button.new()
+	var save_btn := _pa(Button.new()) as Button
 	save_btn.text = "Save Game"
 	save_btn.pressed.connect(_open_save_panel)
 	vbox.add_child(save_btn)
 
-	var home_btn := Button.new()
+	var home_btn := _pa(Button.new()) as Button
 	home_btn.text = "Home Screen"
 	home_btn.pressed.connect(_go_home)
 	vbox.add_child(home_btn)
 
 func _build_save_panel() -> void:
-	var overlay := ColorRect.new()
+	var overlay := _pa(ColorRect.new()) as ColorRect
 	overlay.color = Color(0, 0, 0, 0.50)
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.visible = false
 	add_child(overlay)
 	_save_panel = overlay
 
-	var panel := Panel.new()
+	var panel := _pa(Panel.new()) as Panel
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.offset_left = -140
 	panel.offset_right = 140
@@ -98,7 +106,7 @@ func _build_save_panel() -> void:
 	panel.offset_bottom = 115
 	overlay.add_child(panel)
 
-	var margin := MarginContainer.new()
+	var margin := _pa(MarginContainer.new()) as MarginContainer
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_right", 14)
@@ -106,19 +114,19 @@ func _build_save_panel() -> void:
 	margin.add_theme_constant_override("margin_bottom", 12)
 	panel.add_child(margin)
 
-	var vbox := VBoxContainer.new()
+	var vbox := _pa(VBoxContainer.new()) as VBoxContainer
 	vbox.add_theme_constant_override("separation", 7)
 	margin.add_child(vbox)
 
-	var title := Label.new()
+	var title := _pa(Label.new()) as Label
 	title.text = "Save to Slot"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 13)
 	title.add_theme_color_override("font_color", Color.WHITE)
 	vbox.add_child(title)
-	vbox.add_child(HSeparator.new())
+	vbox.add_child(_pa(HSeparator.new()))
 
-	_feedback_lbl = Label.new()
+	_feedback_lbl = _pa(Label.new()) as Label
 	_feedback_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_feedback_lbl.add_theme_font_size_override("font_size", 9)
 	_feedback_lbl.add_theme_color_override("font_color", Color(0.40, 1.0, 0.50))
@@ -126,13 +134,13 @@ func _build_save_panel() -> void:
 	vbox.add_child(_feedback_lbl)
 
 	for i in global.SAVE_SLOT_COUNT:
-		var btn := Button.new()
+		var btn := _pa(Button.new()) as Button
 		btn.custom_minimum_size = Vector2(0, 26)
 		btn.pressed.connect(_on_save_to_slot.bind(i + 1))
 		vbox.add_child(btn)
 		_save_slot_buttons.append(btn)
 
-	var cancel_btn := Button.new()
+	var cancel_btn := _pa(Button.new()) as Button
 	cancel_btn.text = "Cancel"
 	cancel_btn.pressed.connect(func(): _save_panel.visible = false)
 	vbox.add_child(cancel_btn)
@@ -162,7 +170,6 @@ func _on_save_to_slot(slot: int) -> void:
 	global.save_to_slot(slot, player_pos)
 	_feedback_lbl.text = "Saved to Slot %d!" % slot
 	_feedback_lbl.visible = true
-	# Refresh button text to reflect new save
 	var preview := global.slot_preview(slot)
 	var scene_str: String = preview.get("scene", "world")
 	var gold: int = preview.get("money", 0)
