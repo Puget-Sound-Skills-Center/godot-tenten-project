@@ -265,7 +265,7 @@ func _setup_shop():
 
 	var def_row = HBoxContainer.new()
 	_def_btn = Button.new()
-	_def_btn.text = "Defense +1%%  (50g)"
+	_def_btn.text = "Defense +1%  (50g)"
 	_def_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_def_btn.pressed.connect(_upgrade_defense)
 	def_row.add_child(_def_btn)
@@ -301,7 +301,7 @@ func _update_hud():
 			_dmg_level_label.text = "MAX"
 		else:
 			var cost = _upgrade_cost(dmg_lvl)
-			_dmg_btn.text = "Attack +1%  (%dg)" % cost
+			_dmg_btn.text = "Attack +1%%  (%dg)" % cost
 			_dmg_btn.disabled = global.money < cost
 			_dmg_level_label.text = "Lv %d/50" % dmg_lvl
 
@@ -311,12 +311,12 @@ func _update_hud():
 			_hp_level_label.text = "MAX"
 		else:
 			var cost = _upgrade_cost(hp_lvl)
-			_hp_btn.text = "Max HP +1%  (%dg)" % cost
+			_hp_btn.text = "Max HP +1%%  (%dg)" % cost
 			_hp_btn.disabled = global.money < cost
 			_hp_level_label.text = "Lv %d/50" % hp_lvl
 
 		if def_lvl >= MAX_UPGRADE_LEVEL:
-			_def_btn.text = "Defense +1%%  (MAXED)"
+			_def_btn.text = "Defense +1%  (MAXED)"
 			_def_btn.disabled = true
 			_def_level_label.text = "MAX"
 		else:

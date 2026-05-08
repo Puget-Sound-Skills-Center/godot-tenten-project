@@ -393,6 +393,7 @@ func _pick_puzzle_tile_position(obstacles: Array, exit_pos: Vector2) -> Vector2:
 func _make_tile_base(pos: Vector2, color: Color, label_text: String) -> Area2D:
 	var area := Area2D.new()
 	area.position = pos
+	area.z_index = -1
 	var shape_node := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
 	shape.size = Vector2(TILE, TILE)
