@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-05-08)
 ## Current Position
 
 Phase: 1 of 4 (Enemy Enhancement + Dungeon Theming Foundation)
-Plan: 1 of 4 in current phase
-Status: Executing — Wave 1 complete, Wave 2 starting
-Last activity: 2026-05-08 — PLAN-A executed: PRE bug fixes + enemy_base.gd + player.take_damage()
+Plan: 3 of 4 in current phase
+Status: Executing — Wave 2 complete, Wave 3 starting
+Last activity: 2026-05-08 — PLAN-B executed: enemy_ranged.gd, enemy_fast.gd, enemy_tank.gd; PLAN-D executed: pack alert hardening
 
-Progress: [██░░░░░░░░] 25%
+Progress: [██████░░░░] 75%
 
 ## Performance Metrics
 
