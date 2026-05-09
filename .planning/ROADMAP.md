@@ -27,7 +27,12 @@ Four phases that build the game's active systems on top of the existing working 
   3. When one enemy spots the player, nearby enemies activate — without per-frame polling
   4. The dungeon's color palette or tileset visibly changes at floor 34 and floor 67
   5. Health bars show correct max health for every enemy type; no freed-reference crashes occur
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 01-PLAN-A.md — PRE fixes (freed-ref crash, health bar max, spawn cap) + enemy_base.gd + player.gd take_damage
+- [ ] 01-PLAN-B.md — Enemy variant scripts: enemy_ranged.gd, enemy_fast.gd, enemy_tank.gd
+- [ ] 01-PLAN-C.md — dungeon.gd: variant spawning, stat scaling, dungeon themes (cave/ruins/abyss)
+- [ ] 01-PLAN-D.md — Pack alert system verification and hardening in enemy_base.gd
 
 ### Phase 2: Dialogue System
 **Goal**: Players can have stateful, branching conversations with NPCs — including quest offer/decline — with the game pausing during dialogue
@@ -73,7 +78,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Enemy Enhancement + Dungeon Theming Foundation | 0/TBD | Not started | - |
+| 1. Enemy Enhancement + Dungeon Theming Foundation | 0/4 | Not started | - |
 | 2. Dialogue System | 0/TBD | Not started | - |
 | 3. Quest System | 0/TBD | Not started | - |
 | 4. Dungeon Depth | 0/TBD | Not started | - |
