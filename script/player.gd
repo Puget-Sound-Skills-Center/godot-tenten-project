@@ -135,13 +135,9 @@ func enemy_attack():
 		$attack_cooldown.start()
 
 func take_damage(amount: int) -> void:
-	if enemy_attack_cooldown == false:
-		return
 	var reduction = global.player_defense_level / 100.0
 	var damage = max(1, int(amount * (1.0 - reduction)))
 	health -= damage
-	enemy_attack_cooldown = false
-	$attack_cooldown.start()
 
 func _on_attack_cooldown_timeout():
 	enemy_attack_cooldown = true
