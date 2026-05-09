@@ -67,8 +67,8 @@ func _fire_projectile() -> void:
 	proj.add_child(visual)
 
 	proj.position = global_position
-	proj.collision_layer = 0
-	proj.collision_mask = 0
+	proj.collision_layer = 0  # projectile on no layer
+	proj.collision_mask = 1   # detect bodies on layer 1 (player)
 	proj.set_meta("direction", (player.global_position - global_position).normalized())
 	proj.set_meta("speed", 80.0)
 	proj.set_meta("damage", damage)
