@@ -22,6 +22,7 @@ must_haves:
     - "enemy_tank.gd has 300 max_health, speed 22, and uses a red-tinted enlarged slime sprite"
     - "All three variant scripts set stats BEFORE calling super._ready() so health = max_health is correct"
     - "Projectiles self-destruct after 2s if they do not hit the player"
+    - "Each ranged enemy moves only its own projectiles — no cross-enemy interference"
   artifacts:
     - path: "script/enemy_ranged.gd"
       provides: "Ranged enemy — maintains distance, fires orange projectile Area2D"
@@ -46,6 +47,10 @@ must_haves:
       to: "script/enemy_base.gd"
       via: "_nav_agent.radius = 10.0 after super._ready() creates _nav_agent"
       pattern: "_nav_agent\\.radius"
+    - from: "script/enemy_ranged.gd _fire_projectile()"
+      to: "_my_projectiles array"
+      via: "append proj to _my_projectiles after get_parent().add_child(proj)"
+      pattern: "_my_projectiles\\.append"
 ---
 
 <objective>
@@ -151,6 +156,8 @@ func _ready() -> void:
   <action>
 Create `script/enemy_ranged.gd`. This variant overrides `_move_toward_player()` to maintain standoff distance and fires an orange projectile Area2D on a 2s cooldown.
 
+Each instance tracks its own projectiles in `_my_projectiles: Array`. `_update_projectiles()` iterates ONLY that array — never `get_parent().get_children()`. This prevents cross-enemy interference: with N ranged enemies, each projectile moves exactly once per physics frame regardless of how many ranged enemies are alive.
+
 **Full file:**
 ```gdscript
 extends "res://script/enemy_base.gd"
@@ -160,6 +167,7 @@ const FIRE_RANGE := 160.0
 
 var _shoot_cooldown: Timer
 var _shoot_ready := true
+var _my_projectiles: Array = []
 
 func _ready() -> void:
     max_health = 60
@@ -224,6 +232,7 @@ func _fire_projectile() -> void:
     proj.set_meta("damage", damage)
     proj.body_entered.connect(_on_projectile_hit.bind(proj))
     get_parent().add_child(proj)
+    _my_projectiles.append(proj)
 
     var t := Timer.new()
     t.wait_time = 2.0
@@ -246,17 +255,18 @@ func _physics_process(_delta) -> void:
     _update_projectiles()
 
 func _update_projectiles() -> void:
-    for child in get_parent().get_children():
-        if child is Area2D and child.has_meta("direction"):
-            var dir: Vector2 = child.get_meta("direction")
-            var spd: float = child.get_meta("speed")
-            child.position += dir * spd * get_physics_process_delta_time()
+    _my_projectiles = _my_projectiles.filter(func(p): return is_instance_valid(p))
+    for proj in _my_projectiles:
+        var dir: Vector2 = proj.get_meta("direction")
+        var spd: float = proj.get_meta("speed")
+        proj.position += dir * spd * get_physics_process_delta_time()
 ```
 
 **Notes:**
+- `_my_projectiles` is an instance variable — each `enemy_ranged` instance owns its own list. With N ranged enemies, each projectile is moved exactly once per physics frame by its owning enemy, not N times.
+- `filter(func(p): return is_instance_valid(p))` purges freed refs at the start of every frame. No stale pointer accumulation.
 - `collision_layer = 0` and `collision_mask = 0` on the projectile Area2D means it does not physically collide with walls; it only uses `body_entered` for player detection. The `body_entered` signal on Area2D fires when physics bodies (CharacterBody2D) enter the area — player's CharacterBody2D will trigger it.
-- Projectile movement is driven by `_update_projectiles()` in `_physics_process` — iterates children of the dungeon scene that have the "direction" meta. This avoids attaching a separate script to each projectile node.
-- The 2s Timer on each projectile is the leak-prevention mechanism. If projectile does not hit within 2s, it is freed.
+- The 2s Timer on each projectile is the leak-prevention mechanism. If projectile does not hit within 2s, it is freed. The `filter()` call then removes the dead ref from `_my_projectiles` on the next frame.
   </action>
 
   <verify>
@@ -265,6 +275,7 @@ func _update_projectiles() -> void:
     <automated>grep -n "take_damage" D:/Unity/godot-tenten-project/script/enemy_ranged.gd</automated>
     <automated>grep -n "queue_free" D:/Unity/godot-tenten-project/script/enemy_ranged.gd</automated>
     <automated>grep -n "collision_mask = 0" D:/Unity/godot-tenten-project/script/enemy_ranged.gd</automated>
+    <automated>grep -n "_my_projectiles" D:/Unity/godot-tenten-project/script/enemy_ranged.gd</automated>
   </verify>
 
   <acceptance_criteria>
@@ -277,10 +288,14 @@ func _update_projectiles() -> void:
     - script/enemy_ranged.gd contains `body.take_damage(proj.get_meta("damage"))`
     - script/enemy_ranged.gd contains `t.wait_time = 2.0` (auto-free timer)
     - script/enemy_ranged.gd contains `collision_mask = 0` on projectile
+    - script/enemy_ranged.gd contains `var _my_projectiles: Array = []`
+    - script/enemy_ranged.gd contains `_my_projectiles.append(proj)` in `_fire_projectile()`
+    - script/enemy_ranged.gd contains `_my_projectiles.filter(` in `_update_projectiles()`
+    - script/enemy_ranged.gd does NOT contain `get_parent().get_children()` in `_update_projectiles`
     - script/enemy_ranged.gd does NOT contain `_shoot_ready = true` inside `_fire_projectile` (must be in `_on_shoot_ready`)
   </acceptance_criteria>
 
-  <done>enemy_ranged.gd created with distance-keeping movement, projectile firing on cooldown, auto-free timer, and player take_damage() integration.</done>
+  <done>enemy_ranged.gd created with distance-keeping movement, projectile firing on cooldown, instance-owned _my_projectiles array, auto-free timer, and player take_damage() integration. No cross-enemy projectile interference possible.</done>
 </task>
 
 </tasks>
@@ -291,16 +306,16 @@ func _update_projectiles() -> void:
 | Boundary | Description |
 |----------|-------------|
 | projectile Area2D → player CharacterBody2D | body_entered fires; calls take_damage() on body |
-| enemy_ranged._update_projectiles → dungeon scene children | Iterates all Area2D children with "direction" meta — no filtering beyond meta presence |
+| enemy_ranged._update_projectiles → _my_projectiles array | Iterates only this instance's projectiles — no access to other enemies' projectiles or dungeon children |
 
 ## STRIDE Threat Register
 
 | Threat ID | Category | Component | Disposition | Mitigation Plan |
 |-----------|----------|-----------|-------------|-----------------|
 | T-01B-01 | Denial of Service | Projectile node leak if player dies before hit | mitigate | 2s Timer auto-queues projectile free regardless of hit; implemented in _fire_projectile |
-| T-01B-02 | Denial of Service | _update_projectiles iterates all dungeon Area2D children | accept | At most 30 enemies × 1 active projectile each = 30 Area2D nodes; linear scan is O(n) acceptable |
+| T-01B-02 | Denial of Service | _update_projectiles iterates stale freed refs in _my_projectiles | mitigate | filter(is_instance_valid) at start of _update_projectiles purges dead refs every frame |
 | T-01B-03 | Denial of Service | Freed player reference in _fire_projectile | mitigate | `is_instance_valid(player)` guard in `_move_toward_player()` before calling `_fire_projectile()` — projectile only fires when player is valid |
-| T-01B-04 | Spoofing | Non-player Area2D with "direction" meta moved by _update_projectiles | accept | Only enemy_ranged creates such nodes; no external input path exists in single-player game |
+| T-01B-04 | Denial of Service | N ranged enemies each move all projectiles N× per frame | mitigate | _my_projectiles is instance-scoped; each enemy moves only its own projectiles — O(1) per enemy regardless of N |
 </threat_model>
 
 <verification>
@@ -310,10 +325,11 @@ After all tasks complete:
 3. enemy_ranged.gd `_fire_projectile` calls `body.take_damage()` on player hit
 4. enemy_tank.gd `_nav_agent.radius = 10.0` appears after `super._ready()`
 5. No file contains `class_name` declaration (CLAUDE.md requirement)
+6. enemy_ranged.gd contains `_my_projectiles` — no `get_parent().get_children()` in `_update_projectiles`
 </verification>
 
 <success_criteria>
-- ENM-01: enemy_ranged.gd backs away at < 100px, fires projectile at < 160px on 2s cooldown, projectile calls player.take_damage()
+- ENM-01: enemy_ranged.gd backs away at < 100px, fires projectile at < 160px on 2s cooldown, projectile calls player.take_damage(); each instance tracks its own projectiles in _my_projectiles
 - ENM-02: enemy_fast.gd overrides speed = 90.0 and detection radius to 150px; inherits all base movement
 - ENM-03: enemy_tank.gd overrides max_health = 300, speed = 22.0, damage = 15; tank uses red-tinted enlarged sprite
 - All three variants extend enemy_base.gd, set stats before super._ready()
