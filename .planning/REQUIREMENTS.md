@@ -13,10 +13,10 @@
 
 ### Dialogue
 
-- [ ] **DLG-01**: Player can interact with NPCs to open a dialogue panel (portrait, name, text, advance-on-input; game pauses during dialogue)
-- [ ] **DLG-02**: Dialogue supports branching trees with up to 2 choices per node
-- [ ] **DLG-03**: NPCs remember state across interactions (quest accepted, quest complete, deepest floor reached)
-- [ ] **DLG-04**: Dialogue system supports quest offer / decline flow inline (accept → quest starts; decline → NPC responds)
+- [x] **DLG-01**: Player can interact with NPCs to open a dialogue panel (portrait, name, text, advance-on-input; game pauses during dialogue)
+- [x] **DLG-02**: Dialogue supports branching trees with up to 2 choices per node
+- [x] **DLG-03**: NPCs remember state across interactions (quest accepted, quest complete, deepest floor reached)
+- [x] **DLG-04**: Dialogue system supports quest offer / decline flow inline (accept → quest starts; decline → NPC responds)
 - [ ] **DLG-05**: At least one dungeon NPC exists (merchant or lore figure spawned inside dungeon rooms)
 
 ### Quests
@@ -87,10 +87,10 @@
 | PRE-01 | Phase 1 | Pending |
 | PRE-02 | Phase 1 | Pending |
 | PRE-03 | Phase 1 | Pending |
-| DLG-01 | Phase 2 | Pending |
-| DLG-02 | Phase 2 | Pending |
-| DLG-03 | Phase 2 | Pending |
-| DLG-04 | Phase 2 | Pending |
+| DLG-01 | Phase 2 | Complete |
+| DLG-02 | Phase 2 | Complete |
+| DLG-03 | Phase 2 | Complete |
+| DLG-04 | Phase 2 | Complete |
 | DLG-05 | Phase 2 | Pending |
 | QST-01 | Phase 3 | Pending |
 | QST-02 | Phase 3 | Pending |
