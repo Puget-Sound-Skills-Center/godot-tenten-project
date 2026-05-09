@@ -89,6 +89,7 @@ func _ready() -> void:
 	_setup_navigation(obstacles)
 	_spawn_player()
 	_spawn_enemies(floor_no, obstacles)
+	_spawn_dungeon_dialogue_npc(floor_no, obstacles)
 	var exit_pos := _build_floor_exit(floor_no, obstacles)
 	_add_exit_barrier(exit_pos, obstacles)
 	if floor_no % 10 == 0:
@@ -110,6 +111,7 @@ func _check_next_floor() -> void:
 		_exit_to_cliffside(1)
 		return
 	global.current_floor += 1
+	DialogueManager.force_close()
 	get_tree().reload_current_scene()
 
 func _save_and_exit() -> void:
@@ -267,6 +269,12 @@ func _spawn_enemies(floor_no: int, obstacles: Array) -> void:
 		add_child(enemy)
 		enemy.health = enemy.max_health
 		spawned += 1
+
+func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
+	var pos := _pick_save_position(obstacles)
+	var npc := load("res://script/dungeon_dialogue_npc.gd").new()
+	npc.position = pos
+	add_child(npc)
 
 func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
 	var pos := _pick_exit_position(obstacles)
