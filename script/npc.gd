@@ -37,8 +37,18 @@ func _build_interaction_area():
 
 func _process(_delta):
 	if player_nearby and Input.is_action_just_pressed("interact"):
-		if is_instance_valid(player_ref) and player_ref.has_method("open_shop"):
+		if not is_instance_valid(player_ref):
+			return
+		# Guard: if shop is already open, pressing E closes it (existing behavior)
+		if player_ref.shop_open:
 			player_ref.open_shop()
+			return
+		# Dialogue trigger — select start_node based on quest state (DLG-03)
+		var start := "greeting"
+		var state: Dictionary = global.npc_state.get("elder", {})
+		if state.get("quest_accepted_reach_floor_10", false):
+			start = "quest_follow_up"
+		DialogueManager.open("elder", start)
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("player"):
