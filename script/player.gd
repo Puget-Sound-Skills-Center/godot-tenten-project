@@ -12,6 +12,8 @@ const MAX_UPGRADE_LEVEL = 50
 const speed = 100
 var current_dir = "none"
 
+var _attacking_enemy: Node2D = null
+
 var _hud_layer: CanvasLayer
 var _shop_layer: CanvasLayer
 var _hud_money_label: Label
@@ -114,18 +116,32 @@ func player():
 func _on_player_hitbox_body_entered(body):
 	if body.has_method("enemy"):
 		enemy_inattack_range = true
+		_attacking_enemy = body
 
 func _on_player_hitbox_body_exited(body):
 	if body.has_method("enemy"):
 		enemy_inattack_range = false
+		_attacking_enemy = null
 
 func enemy_attack():
 	if enemy_inattack_range and enemy_attack_cooldown == true:
+		var raw := 5
+		if is_instance_valid(_attacking_enemy) and _attacking_enemy.get("damage") != null:
+			raw = _attacking_enemy.damage
 		var reduction = global.player_defense_level / 100.0
-		var damage = max(1, int(5 * (1.0 - reduction)))
+		var damage = max(1, int(raw * (1.0 - reduction)))
 		health -= damage
 		enemy_attack_cooldown = false
 		$attack_cooldown.start()
+
+func take_damage(amount: int) -> void:
+	if enemy_attack_cooldown == false:
+		return
+	var reduction = global.player_defense_level / 100.0
+	var damage = max(1, int(amount * (1.0 - reduction)))
+	health -= damage
+	enemy_attack_cooldown = false
+	$attack_cooldown.start()
 
 func _on_attack_cooldown_timeout():
 	enemy_attack_cooldown = true
