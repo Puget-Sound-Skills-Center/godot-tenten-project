@@ -74,6 +74,7 @@ func _on_pack_alerted(origin_position: Vector2) -> void:
 		player = players[0] as Node2D
 		player_chase = true
 
+
 func _on_enemy_hitbox_body_entered(body: Node2D) -> void:
 	if body.has_method("player"):
 		player_inattack_range = true
