@@ -219,7 +219,7 @@ func _spawn_player() -> void:
 	player_node.add_child(cam)
 
 func _spawn_enemies(floor_no: int, obstacles: Array) -> void:
-	var max_count := 5 + floor_no
+	var max_count := mini(5 + floor_no, 30)
 	var count := rng.randi_range(1, max_count)
 	var packed: PackedScene = load(ENEMY_SCENE)
 	var spawned := 0

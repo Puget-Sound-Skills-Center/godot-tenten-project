@@ -37,7 +37,7 @@ func _build_interaction_area():
 
 func _process(_delta):
 	if player_nearby and Input.is_action_just_pressed("interact"):
-		if player_ref and player_ref.has_method("open_shop"):
+		if is_instance_valid(player_ref) and player_ref.has_method("open_shop"):
 			player_ref.open_shop()
 
 func _on_body_entered(body: Node2D) -> void:

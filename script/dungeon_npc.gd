@@ -36,7 +36,7 @@ func _build_interaction_area():
 	add_child(area)
 
 func _process(_delta):
-	if player_nearby and Input.is_action_just_pressed("interact"):
+	if player_nearby and is_instance_valid(player_ref) and Input.is_action_just_pressed("interact"):
 		global.enter_dungeon = true
 
 func _on_body_entered(body: Node2D) -> void:
