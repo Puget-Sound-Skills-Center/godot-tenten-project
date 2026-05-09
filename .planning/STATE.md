@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-05-08)
 ## Current Position
 
 Phase: 1 of 4 (Enemy Enhancement + Dungeon Theming Foundation)
-Plan: 3 of 4 in current phase
-Status: Executing — Wave 2 complete, Wave 3 starting
-Last activity: 2026-05-08 — PLAN-B executed: enemy_ranged.gd, enemy_fast.gd, enemy_tank.gd; PLAN-D executed: pack alert hardening
+Plan: 4 of 4 in current phase
+Status: Executing — all waves complete, pending verification
+Last activity: 2026-05-08 — PLAN-C executed: dungeon variant spawning, stat scaling, cave/ruins/abyss themes
 
-Progress: [██████░░░░] 75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
