@@ -31,6 +31,8 @@ var player_health_level = 0
 var player_defense_level = 0
 var player_current_health = -1
 
+var npc_state: Dictionary = {}
+
 func get_max_health() -> int:
 	return int(100.0 * (1.0 + player_health_level * 0.01))
 
@@ -67,6 +69,7 @@ func reset_for_new_game() -> void:
 	exit_dungeon = false
 	next_floor = false
 	transition_scene = false
+	npc_state = {}
 	loaded_from_save = false
 
 func _slot_path(slot: int) -> String:
@@ -85,6 +88,7 @@ func save_to_slot(slot: int, player_pos: Vector2) -> void:
 	cfg.set_value("player", "pos_x", player_pos.x)
 	cfg.set_value("player", "pos_y", player_pos.y)
 	cfg.set_value("meta", "saved_at", Time.get_datetime_string_from_system())
+	cfg.set_value("dialogue", "npc_state", var_to_str(npc_state))
 	cfg.save(_slot_path(slot))
 
 func load_from_slot(slot: int) -> bool:
@@ -103,6 +107,10 @@ func load_from_slot(slot: int) -> bool:
 		cfg.get_value("player", "pos_x", 167.0),
 		cfg.get_value("player", "pos_y", 110.0)
 	)
+	var raw := cfg.get_value("dialogue", "npc_state", "{}")
+	npc_state = str_to_var(raw) if raw != "{}" else {}
+	if npc_state == null:
+		npc_state = {}
 	game_first_loading = false
 	came_from_dungeon = false
 	loaded_from_save = (current_scene != "dungeon")
