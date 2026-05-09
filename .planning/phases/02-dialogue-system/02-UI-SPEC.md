@@ -43,17 +43,17 @@ Declared values (multiples of 4):
 | Token | Value | Usage |
 |-------|-------|-------|
 | xs | 4px | Icon gaps, inline padding |
-| sm | 8px | Compact element spacing, button row gaps |
-| md | 12px | Margin inner padding (matches existing 12–14px margin pattern) |
+| sm | 8px | Compact element spacing, button row gaps, choice button VBox separation, MarginContainer top/bottom |
+| md | 12px | Margin inner padding left/right (matches existing 12–14px margin pattern) |
 | lg | 16px | Section separation |
 | xl | 24px | Panel internal section breaks |
 | 2xl | 32px | Not used in this phase |
 | 3xl | 64px | Not used in this phase |
 
 Exceptions:
-- VBoxContainer separation for choice buttons: 6px (matches shop vbox separation — source: player.gd line 240)
+- VBoxContainer separation for choice buttons: 8px (grid-aligned; existing player.gd line 240 uses 6px which is non-conformant — spec corrects to nearest multiple of 4)
 - VBoxContainer separation for dialogue elements: 8px (matches pause menu mid-range — source: pause_menu.gd line 66)
-- MarginContainer inner margins: 12px left/right, 10px top/bottom (matches player.gd lines 233–236)
+- MarginContainer inner margins: 12px left/right, 8px top/bottom (existing player.gd lines 233–236 use 10px top/bottom which is non-conformant — spec corrects to 8px, nearest grid-aligned value)
 - NPC name/body label vertical gap: 4px (xs — tighter grouping within single speaker block)
 
 ---
@@ -113,7 +113,7 @@ Position: Bottom strip, full viewport width.
             size: Vector2(480, 96)
             anchor_left=0, anchor_right=1, anchor_top=1, anchor_bottom=1
             offset_top=-96, offset_bottom=0
-            └─ MarginContainer (full-rect, margins: 10 all sides)
+            └─ MarginContainer (full-rect, margins: 12px left/right, 8px top/bottom)
                  └─ HBoxContainer (separation=8)
                       ├─ ColorRect (portrait placeholder)
                       │    size: Vector2(72, 72)
@@ -134,9 +134,9 @@ Advance prompt: right-aligned within the vbox, hidden when choice buttons are sh
 When `choices` array is non-empty, advance_prompt is hidden and a VBoxContainer of Buttons replaces it:
 
 ```
-VBoxContainer (choice_container, separation=6)
-  ├─ Button ("Accept", size_flags_horizontal=EXPAND_FILL)
-  └─ Button ("Decline", size_flags_horizontal=EXPAND_FILL)
+VBoxContainer (choice_container, separation=8)
+  ├─ Button ("Accept Quest", size_flags_horizontal=EXPAND_FILL)
+  └─ Button ("Decline Quest", size_flags_horizontal=EXPAND_FILL)
 ```
 
 Button layout: stacked vertically inside the same right-column VBoxContainer, below the dialogue text label.
@@ -198,8 +198,8 @@ Transition: instant show/hide. No fade animation in v1 (deferred — matches exi
 | Advance prompt | "Press E to continue" |
 | NPC name (world guide) | "Elder" |
 | NPC name (dungeon merchant) | "Merchant" |
-| Quest accept button | "Accept" |
-| Quest decline button | "Decline" |
+| Quest accept button | "Accept Quest" |
+| Quest decline button | "Decline Quest" |
 | Close button (terminal nodes) | none — panel closes automatically on advance |
 | Empty dialogue fallback | "..." (single node with text "...", no choices, closes on advance) |
 | No-NPC error state | not surfaced to player — dialogue only opens when NPC triggers it |
