@@ -5,6 +5,10 @@ const ROOM_W_BASE := 480
 const ROOM_H_BASE := 320
 const PLAYER_SCENE := "res://scenes/player.tscn"
 const ENEMY_SCENE := "res://scenes/enemy.tscn"
+const ENEMY_SCRIPT_BASE   := "res://script/enemy_base.gd"
+const ENEMY_SCRIPT_RANGED := "res://script/enemy_ranged.gd"
+const ENEMY_SCRIPT_FAST   := "res://script/enemy_fast.gd"
+const ENEMY_SCRIPT_TANK   := "res://script/enemy_tank.gd"
 
 const FLOOR_COLOR := Color(0.07, 0.06, 0.09)
 const WALL_COLOR := Color(0.18, 0.16, 0.22)
@@ -142,7 +146,7 @@ func _setup_navigation(obstacles: Array) -> void:
 		]))
 
 	var nav_poly := NavigationPolygon.new()
-	nav_poly.agent_radius = 5.0
+	nav_poly.agent_radius = 10.0
 	NavigationServer2D.bake_from_source_geometry_data(nav_poly, geo)
 
 	var nav_region := NavigationRegion2D.new()
@@ -254,8 +258,14 @@ func _spawn_enemies(floor_no: int, obstacles: Array) -> void:
 		if not _is_position_clear(pos, obstacles, 14):
 			continue
 		var enemy: Node2D = packed.instantiate()
+		enemy.set_script(load(_pick_enemy_script(floor_no)))
 		enemy.position = pos
 		add_child(enemy)
+		var mult := _get_floor_multiplier(floor_no)
+		enemy.max_health = int(enemy.max_health * mult)
+		enemy.health = enemy.max_health
+		enemy.speed = enemy.speed * mult
+		enemy.money_drop = int(enemy.money_drop * mult)
 		spawned += 1
 
 func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
@@ -330,6 +340,19 @@ func _get_dungeon_theme(floor_no: int) -> Dictionary:
 		return THEME_RUINS
 	else:
 		return THEME_CAVE
+
+func _pick_enemy_script(floor_no: int) -> String:
+	if floor_no < 10:
+		return ENEMY_SCRIPT_BASE
+	elif floor_no < 34:
+		return [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_FAST].pick_random()
+	elif floor_no < 67:
+		return [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_RANGED, ENEMY_SCRIPT_FAST].pick_random()
+	else:
+		return [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_RANGED, ENEMY_SCRIPT_FAST, ENEMY_SCRIPT_TANK].pick_random()
+
+func _get_floor_multiplier(floor_no: int) -> float:
+	return 1.0 + (floor_no - 1) / 99.0 * 2.0
 
 func _on_exit_body_entered(body: Node2D) -> void:
 	if not body.has_method("player"):
