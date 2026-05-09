@@ -66,11 +66,11 @@ func _on_detection_area_body_exited(body) -> void:
 		player = null
 		player_chase = false
 
-func _on_pack_alerted(origin_position: Vector2) -> void:
+func _on_pack_alerted(_origin_position: Vector2) -> void:
 	if player_chase:
 		return
 	var players := get_tree().get_nodes_in_group("player")
-	if players.size() > 0:
+	if players.size() > 0 and is_instance_valid(players[0]):
 		player = players[0] as Node2D
 		player_chase = true
 
