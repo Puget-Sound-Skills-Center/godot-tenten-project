@@ -37,7 +37,10 @@ func _build_interaction_area():
 
 func _process(_delta):
 	if player_nearby and is_instance_valid(player_ref) and Input.is_action_just_pressed("interact"):
-		DialogueManager.open("dungeon_merchant", "greeting")
+		# Guard: if dialogue is already open, do not retrigger (WR-01 mitigation)
+		if dialogue_manager._panel != null and dialogue_manager._panel.visible:
+			return
+		dialogue_manager.open("dungeon_merchant", "greeting")
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("player"):

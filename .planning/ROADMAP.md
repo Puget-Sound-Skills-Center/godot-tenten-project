@@ -11,7 +11,7 @@ Four phases that build the game's active systems on top of the existing working 
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [ ] **Phase 1: Enemy Enhancement + Dungeon Theming Foundation** - Bug fixes, enemy_base refactor, 3 new enemy types, pack alert, stat scaling, visual themes
-- [ ] **Phase 2: Dialogue System** - Dialogue data/UI autoloads, NPC wiring, branching trees, quest offer/decline flow
+- [x] **Phase 2: Dialogue System** - Dialogue data/UI autoloads, NPC wiring, branching trees, quest offer/decline flow (completed 2026-05-09)
 - [ ] **Phase 3: Quest System** - Quest data/manager autoloads, all 4 quest types, quest log UI, all reward types, save/load integration
 - [ ] **Phase 4: Dungeon Depth** - Hidden rooms, boss floors, lore objects
 
@@ -79,6 +79,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Enemy Enhancement + Dungeon Theming Foundation | 4/4 | In Progress | - |
-| 2. Dialogue System | 3/4 | In Progress|  |
+| 2. Dialogue System | 4/4 | Complete   | 2026-05-09 |
 | 3. Quest System | 0/TBD | Not started | - |
 | 4. Dungeon Depth | 0/TBD | Not started | - |

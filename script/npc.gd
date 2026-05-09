@@ -38,6 +38,12 @@ func _build_interaction_area():
 func _process(_delta):
 	if player_nearby and Input.is_action_just_pressed("interact"):
 		if not is_instance_valid(player_ref):
+			player_nearby = false
+			player_ref = null
+			_prompt_label.visible = false
+			return
+		# Guard: if dialogue is already open, do not retrigger (WR-01 mitigation)
+		if dialogue_manager._panel != null and dialogue_manager._panel.visible:
 			return
 		# Guard: if shop is already open, pressing E closes it (existing behavior)
 		if player_ref.shop_open:
@@ -48,7 +54,7 @@ func _process(_delta):
 		var state: Dictionary = global.npc_state.get("elder", {})
 		if state.get("quest_accepted_reach_floor_10", false):
 			start = "quest_follow_up"
-		DialogueManager.open("elder", start)
+		dialogue_manager.open("elder", start)
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("player"):

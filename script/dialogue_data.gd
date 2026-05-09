@@ -1,7 +1,7 @@
 extends Node
 
 # All NPC dialogue trees as nested GDScript dicts.
-# Accessed globally via DialogueData.get_node(npc_id, node_id).
+# Accessed globally via dialogue_data.get_dialogue_node(npc_id, node_id).
 #
 # Schema fields (per-node dict):
 #   speaker  : String  - NPC display name shown in panel header
@@ -62,7 +62,7 @@ const DIALOGUES := {
 	}
 }
 
-func get_node(npc_id: String, node_id: String) -> Dictionary:
+func get_dialogue_node(npc_id: String, node_id: String) -> Dictionary:
 	if DIALOGUES.has(npc_id) and DIALOGUES[npc_id].has(node_id):
 		return DIALOGUES[npc_id][node_id]
 	return {}

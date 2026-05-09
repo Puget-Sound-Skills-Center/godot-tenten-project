@@ -111,7 +111,7 @@ func _check_next_floor() -> void:
 		_exit_to_cliffside(1)
 		return
 	global.current_floor += 1
-	DialogueManager.force_close()
+	dialogue_manager.force_close()
 	get_tree().reload_current_scene()
 
 func _save_and_exit() -> void:
@@ -119,6 +119,8 @@ func _save_and_exit() -> void:
 	_exit_to_cliffside(resume)
 
 func _exit_to_cliffside(resume_floor: int) -> void:
+	# Defensive force_close so a paused tree never carries across scene change (IN-04)
+	dialogue_manager.force_close()
 	global.dungeon_resume_floor = clampi(resume_floor, 1, global.DUNGEON_MAX_FLOOR)
 	global.came_from_dungeon = true
 	global.current_floor = 0

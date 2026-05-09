@@ -109,6 +109,12 @@ func _build_dialogue_panel() -> void:
 # --- Public API ---
 
 func open(npc_id: String, start_node: String = "root") -> void:
+	# Defer to pause menu if it owns the pause state (CR-03 mitigation).
+	if pause_menu._pause_panel != null and pause_menu._pause_panel.visible:
+		return
+	# No-op if already open — re-entering from start_node would clobber state mid-flow.
+	if _panel.visible:
+		return
 	_current_npc = npc_id
 	_current_node = start_node
 	_panel.visible = true
@@ -135,7 +141,7 @@ func force_close() -> void:
 # --- Internals ---
 
 func _render_node() -> void:
-	var node := DialogueData.get_node(_current_npc, _current_node)
+	var node := dialogue_data.get_dialogue_node(_current_npc, _current_node)
 	if node.is_empty():
 		# Unknown node id — fail-safe close (T-2B-01 mitigation).
 		close()
@@ -186,6 +192,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not event.is_action_pressed("interact"):
 		return
+	# Consume the input so NPC pollers (npc.gd, dungeon_dialogue_npc.gd) do not
+	# also see the same E press as another interact (WR-03 mitigation).
+	get_viewport().set_input_as_handled()
 	if _advance_lbl.visible:
 		if _next_node.is_empty():
 			close()
