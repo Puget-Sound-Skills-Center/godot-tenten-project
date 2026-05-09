@@ -5,6 +5,10 @@ const ROOM_W_BASE := 480
 const ROOM_H_BASE := 320
 const PLAYER_SCENE := "res://scenes/player.tscn"
 const ENEMY_SCENE := "res://scenes/enemy.tscn"
+const ENEMY_SCRIPT_BASE   := "res://script/enemy_base.gd"
+const ENEMY_SCRIPT_RANGED := "res://script/enemy_ranged.gd"
+const ENEMY_SCRIPT_FAST   := "res://script/enemy_fast.gd"
+const ENEMY_SCRIPT_TANK   := "res://script/enemy_tank.gd"
 
 const FLOOR_COLOR := Color(0.07, 0.06, 0.09)
 const WALL_COLOR := Color(0.18, 0.16, 0.22)
@@ -19,6 +23,27 @@ const MATH_TILE_COLOR := Color(0.30, 0.50, 0.85)
 const MATH_WRONG_COLOR := Color(0.85, 0.20, 0.25)
 const ECHO_TILE_COLOR := Color(0.35, 0.30, 0.55)
 const ECHO_FLASH_COLOR := Color(1.0, 1.0, 1.0)
+
+const THEME_CAVE := {
+	"floor": Color(0.07, 0.06, 0.09),
+	"wall":  Color(0.18, 0.16, 0.22),
+	"exit":  Color(0.20, 0.85, 0.30),
+	"accent": Color(0.35, 0.30, 0.55),
+}
+const THEME_RUINS := {
+	"floor": Color(0.10, 0.08, 0.05),
+	"wall":  Color(0.30, 0.22, 0.14),
+	"exit":  Color(0.85, 0.75, 0.20),
+	"accent": Color(0.55, 0.40, 0.20),
+}
+const THEME_ABYSS := {
+	"floor": Color(0.02, 0.02, 0.08),
+	"wall":  Color(0.08, 0.06, 0.20),
+	"exit":  Color(0.60, 0.20, 0.90),
+	"accent": Color(0.30, 0.10, 0.60),
+}
+
+var _theme: Dictionary
 
 const PUZZLE_PROBABILITY := 0.2
 const PUZZLE_TYPES := ["order", "math", "trap", "echo", "switches"]
@@ -52,6 +77,7 @@ func _ready() -> void:
 	rng.randomize()
 	var floor_no := clampi(global.current_floor, 1, global.DUNGEON_MAX_FLOOR)
 	global.current_floor = floor_no
+	_theme = _get_dungeon_theme(floor_no)
 	global.current_scene = "dungeon"
 
 	room_w = ROOM_W_BASE + floor_no * 8
@@ -120,7 +146,7 @@ func _setup_navigation(obstacles: Array) -> void:
 		]))
 
 	var nav_poly := NavigationPolygon.new()
-	nav_poly.agent_radius = 5.0
+	nav_poly.agent_radius = 10.0
 	NavigationServer2D.bake_from_source_geometry_data(nav_poly, geo)
 
 	var nav_region := NavigationRegion2D.new()
@@ -129,7 +155,7 @@ func _setup_navigation(obstacles: Array) -> void:
 
 func _build_floor_background() -> void:
 	var bg := ColorRect.new()
-	bg.color = FLOOR_COLOR
+	bg.color = _theme.floor
 	bg.position = Vector2.ZERO
 	bg.size = Vector2(room_w, room_h)
 	bg.z_index = -10
@@ -144,7 +170,7 @@ func _make_wall(rect: Rect2) -> void:
 	shape_node.shape = shape
 	body.add_child(shape_node)
 	var visual := ColorRect.new()
-	visual.color = WALL_COLOR
+	visual.color = _theme.wall
 	visual.position = -rect.size / 2.0
 	visual.size = rect.size
 	body.add_child(visual)
@@ -232,8 +258,14 @@ func _spawn_enemies(floor_no: int, obstacles: Array) -> void:
 		if not _is_position_clear(pos, obstacles, 14):
 			continue
 		var enemy: Node2D = packed.instantiate()
+		enemy.set_script(load(_pick_enemy_script(floor_no)))
 		enemy.position = pos
 		add_child(enemy)
+		var mult := _get_floor_multiplier(floor_no)
+		enemy.max_health = int(enemy.max_health * mult)
+		enemy.health = enemy.max_health
+		enemy.speed = enemy.speed * mult
+		enemy.money_drop = int(enemy.money_drop * mult)
 		spawned += 1
 
 func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
@@ -246,7 +278,7 @@ func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
 	shape_node.shape = shape
 	area.add_child(shape_node)
 	var visual := ColorRect.new()
-	visual.color = EXIT_COLOR
+	visual.color = _theme.exit
 	visual.position = Vector2(-TILE / 2.0, -TILE / 2.0)
 	visual.size = Vector2(TILE, TILE)
 	area.add_child(visual)
@@ -300,6 +332,27 @@ func _add_exit_barrier(exit_pos: Vector2, obstacles: Array) -> void:
 		_make_wall(rect)
 		obstacles.append(rect)
 		added += 1
+
+func _get_dungeon_theme(floor_no: int) -> Dictionary:
+	if floor_no >= 67:
+		return THEME_ABYSS
+	elif floor_no >= 34:
+		return THEME_RUINS
+	else:
+		return THEME_CAVE
+
+func _pick_enemy_script(floor_no: int) -> String:
+	if floor_no < 10:
+		return ENEMY_SCRIPT_BASE
+	elif floor_no < 34:
+		return [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_FAST].pick_random()
+	elif floor_no < 67:
+		return [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_RANGED, ENEMY_SCRIPT_FAST].pick_random()
+	else:
+		return [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_RANGED, ENEMY_SCRIPT_FAST, ENEMY_SCRIPT_TANK].pick_random()
+
+func _get_floor_multiplier(floor_no: int) -> float:
+	return 1.0 + (floor_no - 1) / 99.0 * 2.0
 
 func _on_exit_body_entered(body: Node2D) -> void:
 	if not body.has_method("player"):
@@ -626,7 +679,7 @@ func _build_puzzle_echo(floor_no: int, obstacles: Array, exit_pos: Vector2) -> v
 	var tile_count := maxi(seq_len + 1, 4)
 	for i in tile_count:
 		var pos := _pick_puzzle_tile_position(obstacles, exit_pos)
-		var tile := _make_tile_base(pos, ECHO_TILE_COLOR, "")
+		var tile := _make_tile_base(pos, _theme.accent, "")
 		tile.set_meta("index", i)
 		puzzle_tiles.append(tile)
 		add_child(tile)
@@ -642,14 +695,14 @@ func _play_echo_demo() -> void:
 	echo_demo_active = true
 	echo_input_index = 0
 	for t in puzzle_tiles:
-		_set_tile_color(t, ECHO_TILE_COLOR)
+		_set_tile_color(t, _theme.accent)
 	var tween := create_tween()
 	tween.tween_interval(0.5)
 	for seq_idx in echo_sequence:
 		var tile: Area2D = puzzle_tiles[seq_idx]
 		tween.tween_callback(_set_tile_color.bind(tile, ECHO_FLASH_COLOR))
 		tween.tween_interval(0.4)
-		tween.tween_callback(_set_tile_color.bind(tile, ECHO_TILE_COLOR))
+		tween.tween_callback(_set_tile_color.bind(tile, _theme.accent))
 		tween.tween_interval(0.2)
 	tween.tween_callback(_finish_echo_demo)
 
