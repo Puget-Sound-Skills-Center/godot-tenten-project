@@ -21,7 +21,8 @@
       "Bash(git branch *)",
       "Skill(gsd:code-review)",
       "mcp__plugin_context-mode_context-mode__ctx_search",
-      "mcp__plugin_context-mode_context-mode__ctx_execute"
+      "mcp__plugin_context-mode_context-mode__ctx_execute",
+      "Skill(gsd:review)"
     ]
   }
 }

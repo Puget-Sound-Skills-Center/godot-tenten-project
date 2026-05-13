@@ -17,10 +17,10 @@ config/features=PackedStringArray("4.6", "Forward Plus")
 [autoload]
 
 global="*uid://neut6i1kx728"
-_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 pause_menu="*res://script/pause_menu.gd"
 dialogue_data="*res://script/dialogue_data.gd"
 dialogue_manager="*res://script/dialogue_manager.gd"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 
