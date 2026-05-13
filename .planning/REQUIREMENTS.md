@@ -17,7 +17,7 @@
 - [x] **DLG-02**: Dialogue supports branching trees with up to 2 choices per node
 - [x] **DLG-03**: NPCs remember state across interactions (quest accepted, quest complete, deepest floor reached)
 - [x] **DLG-04**: Dialogue system supports quest offer / decline flow inline (accept → quest starts; decline → NPC responds)
-- [ ] **DLG-05**: At least one dungeon NPC exists (merchant or lore figure spawned inside dungeon rooms)
+- [x] **DLG-05**: At least one dungeon NPC exists (merchant or lore figure spawned inside dungeon rooms)
 
 ### Quests
 
@@ -91,7 +91,7 @@
 | DLG-02 | Phase 2 | Complete |
 | DLG-03 | Phase 2 | Complete |
 | DLG-04 | Phase 2 | Complete |
-| DLG-05 | Phase 2 | Pending |
+| DLG-05 | Phase 2 | Complete |
 | QST-01 | Phase 3 | Pending |
 | QST-02 | Phase 3 | Pending |
 | QST-03 | Phase 3 | Pending |
