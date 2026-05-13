@@ -263,12 +263,12 @@ func _spawn_enemies(floor_no: int, obstacles: Array) -> void:
 			continue
 		var enemy: Node2D = packed.instantiate()
 		enemy.set_script(load(_pick_enemy_script(floor_no)))
+		enemy.position = pos
+		add_child(enemy)
 		var mult := _get_floor_multiplier(floor_no)
 		enemy.max_health = int(enemy.max_health * mult)
 		enemy.speed = float(enemy.speed) * mult
 		enemy.money_drop = int(enemy.money_drop * mult)
-		enemy.position = pos
-		add_child(enemy)
 		enemy.health = enemy.max_health
 		spawned += 1
 
