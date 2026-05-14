@@ -77,7 +77,11 @@ Plans:
   1. Player can find and enter a hidden room via a secret passage or inspectable trigger — and find bonus treasure or lore inside
   2. Every 25th floor is a boss floor with a tougher enemy combination; player must clear the room to advance
   3. Player can inspect a lore object in a dungeon room and read a story fragment via the dialogue UI
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 04-01-PLAN.md — Wave 1: lore_object.gd + 6 dialogue fragments in dialogue_data.gd + _spawn_lore_object in dungeon.gd (DNG-04)
+- [ ] 04-02-PLAN.md — Wave 2: boss floor system — _is_boss_floor(), _spawn_boss_enemies(), _check_boss_clear(), exit gate, puzzle suppression (DNG-03)
+- [ ] 04-03-PLAN.md — Wave 3: hidden room trigger — _spawn_hidden_room(), _on_secret_wall_activated(), gold reward (DNG-02)
 
 ## Progress
 
