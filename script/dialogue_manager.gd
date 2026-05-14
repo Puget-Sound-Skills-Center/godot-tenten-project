@@ -175,6 +175,12 @@ func _on_choice_picked(choice: Dictionary) -> void:
 		if not global.npc_state.has(_current_npc):
 			global.npc_state[_current_npc] = {}
 		global.npc_state[_current_npc]["quest_accepted_" + qid] = true
+		quest_manager.accept_quest(qid)
+	elif action == "quest_complete":
+		var qid2: String = choice.get("quest_id", "")
+		quest_manager.complete_quest(qid2)
+	elif action == "story_chain_advance":
+		quest_manager.advance_story_chain()
 	var next: String = choice.get("next", "")
 	if next.is_empty():
 		close()

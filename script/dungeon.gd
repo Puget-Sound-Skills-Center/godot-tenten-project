@@ -95,6 +95,7 @@ func _ready() -> void:
 	if floor_no % 10 == 0:
 		_build_save_point(obstacles)
 	_build_hud(floor_no)
+	_spawn_fetch_chest_if_needed(obstacles)
 	if rng.randf() < PUZZLE_PROBABILITY:
 		_setup_puzzle(floor_no, obstacles, exit_pos)
 
@@ -102,10 +103,20 @@ func _process(_delta: float) -> void:
 	if save_point_active and Input.is_action_just_pressed("interact"):
 		_save_and_exit()
 	_check_next_floor()
+	for child in get_children():
+		if child is Area2D and child.has_meta("item_id") and child.has_meta("player_near"):
+			if bool(child.get_meta("player_near")) and Input.is_action_just_pressed("interact"):
+				if dialogue_manager._panel != null and dialogue_manager._panel.visible:
+					continue
+				var iid: String = String(child.get_meta("item_id"))
+				global.items[iid] = int(global.items.get(iid, 0)) + 1
+				child.queue_free()
+				break
 
 func _check_next_floor() -> void:
 	if not global.next_floor:
 		return
+	quest_manager.on_floor_reached(global.current_floor)
 	global.next_floor = false
 	if global.current_floor >= global.DUNGEON_MAX_FLOOR:
 		_exit_to_cliffside(1)
@@ -115,6 +126,7 @@ func _check_next_floor() -> void:
 	get_tree().reload_current_scene()
 
 func _save_and_exit() -> void:
+	quest_manager.on_floor_reached(global.current_floor)
 	var resume := mini(global.current_floor + 1, global.DUNGEON_MAX_FLOOR)
 	_exit_to_cliffside(resume)
 
@@ -767,3 +779,57 @@ func _handle_switches_tile(tile: Area2D) -> void:
 		_unlock_exit()
 	elif puzzle_label:
 		puzzle_label.text = "Switches: %d / %d" % [switches_done, switches_total]
+
+# --- Fetch Quest Chest ---
+
+func _spawn_fetch_chest_if_needed(obstacles: Array) -> void:
+	if not quest_manager.has_active_fetch_quest():
+		return
+	var item_id: String = quest_manager.get_active_fetch_item_id()
+	if item_id == "":
+		return
+	if int(global.items.get(item_id, 0)) > 0:
+		return
+	var pos: Vector2 = _pick_save_position(obstacles)
+	var chest: Area2D = Area2D.new()
+	chest.position = pos
+	var shape_node := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = 12.0
+	shape_node.shape = circle
+	chest.add_child(shape_node)
+	var visual := ColorRect.new()
+	visual.color = Color(0.55, 0.40, 0.10, 1.0)
+	visual.size = Vector2(24, 24)
+	visual.position = Vector2(-12, -12)
+	chest.add_child(visual)
+	var lbl := Label.new()
+	lbl.text = "[E] Open"
+	lbl.add_theme_font_size_override("font_size", 8)
+	lbl.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+	lbl.position = Vector2(-12, -24)
+	lbl.visible = false
+	chest.add_child(lbl)
+	chest.set_meta("item_id", item_id)
+	chest.set_meta("player_near", false)
+	chest.set_meta("prompt_label", lbl)
+	chest.body_entered.connect(_on_fetch_chest_body_entered.bind(chest))
+	chest.body_exited.connect(_on_fetch_chest_body_exited.bind(chest))
+	add_child(chest)
+	obstacles.append(pos)
+
+func _on_fetch_chest_body_entered(body: Node2D, chest: Area2D) -> void:
+	if not body.has_method("player"):
+		return
+	chest.set_meta("player_near", true)
+	var lbl: Label = chest.get_meta("prompt_label")
+	if lbl != null:
+		lbl.visible = true
+
+func _on_fetch_chest_body_exited(body: Node2D, chest: Area2D) -> void:
+	if not body.has_method("player"):
+		return
+	chest.set_meta("player_near", false)
+	var lbl: Label = chest.get_meta("prompt_label")
+	if lbl != null:
+		lbl.visible = false

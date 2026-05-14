@@ -91,6 +91,7 @@ func deal_with_damage() -> void:
 			can_take_damage = false
 			if health <= 0:
 				global.money += money_drop
+				quest_manager.on_enemy_killed(enemy_type)
 				queue_free()
 
 func _on_take_damage_cooldown_timeout() -> void:
