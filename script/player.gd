@@ -24,6 +24,8 @@ var _def_level_label: Label
 var _dmg_btn: Button
 var _hp_btn: Button
 var _def_btn: Button
+var _lore_panel: ColorRect
+var _lore_label: Label
 
 func _ready():
 	add_to_group("player")
@@ -212,6 +214,20 @@ func _setup_hud():
 	_hud_money_label.add_theme_color_override("font_color", Color.YELLOW)
 	_hud_layer.add_child(_hud_money_label)
 
+	_lore_panel = ColorRect.new()
+	_lore_panel.color = Color(0.25, 0.20, 0.10, 0.9)
+	_lore_panel.size = Vector2(80, 16)
+	_lore_panel.position = Vector2(8, 24)
+	_lore_panel.visible = false
+	_hud_layer.add_child(_lore_panel)
+
+	_lore_label = Label.new()
+	_lore_label.position = Vector2(2, 0)
+	_lore_label.clip_text = true
+	_lore_label.add_theme_font_size_override("font_size", 8)
+	_lore_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
+	_lore_panel.add_child(_lore_label)
+
 func _setup_shop():
 	_shop_layer = CanvasLayer.new()
 	_shop_layer.layer = 20
@@ -304,6 +320,14 @@ func _upgrade_cost(current_level: int) -> int:
 
 func _update_hud():
 	_hud_money_label.text = "Gold: %d" % global.money
+
+	var has_lore := false
+	for key in global.items:
+		if int(global.items[key]) > 0:
+			has_lore = true
+			_lore_label.text = String(key).replace("_", " ").capitalize()
+			break
+	_lore_panel.visible = has_lore
 
 	if shop_open:
 		_shop_money_label.text = "Gold: %d g" % global.money
