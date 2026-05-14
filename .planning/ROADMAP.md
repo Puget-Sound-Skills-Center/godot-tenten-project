@@ -58,7 +58,15 @@ Plans:
   4. Player can follow a story chain quest across multiple NPCs in sequence to completion
   5. Quest log UI shows all active quests and current objectives at any time
   6. Completing quests awards gold, can grant special items, and can unlock new NPC dialogue or areas — all persisting after save/load
-**Plans**: TBD
+**Plans**: 7 plans
+Plans:
+- [ ] 03-01-PLAN.md — Wave 0: global.gd dicts (quest_state / items / unlocks) + quest_data.gd autoload + project.godot registration (autoloads + Tab input)
+- [ ] 03-02-PLAN.md — Wave 1: quest_manager.gd autoload (accept / complete / kill / floor / chain logic + query helpers)
+- [ ] 03-03-PLAN.md — Wave 2: integration hooks — enemy_base kill hook, dungeon fetch chest + reach-floor hook, dialogue_manager action dispatch
+- [ ] 03-04-PLAN.md — Wave 2: quest_log.gd CanvasLayer overlay (Tab toggle, pause, max-3 entry display)
+- [ ] 03-05-PLAN.md — Wave 3: blacksmith_npc.gd + world.gd spawn + npc.gd / dungeon_dialogue_npc.gd start_node selectors (NPC behavioral wiring)
+- [ ] 03-05B-PLAN.md — Wave 3: dialogue_data.gd nodes — all Phase 3 quest dialogue trees for elder, blacksmith, dungeon_merchant (parallel with 03-05)
+- [ ] 03-06-PLAN.md — Wave 4: lore artifact HUD slot in player.gd + cliff_side secret door (access unlock reward)
 **UI hint**: yes
 
 ### Phase 4: Dungeon Depth
@@ -80,5 +88,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Enemy Enhancement + Dungeon Theming Foundation | 4/4 | Complete | 2026-05-13 |
 | 2. Dialogue System | 4/4 | Complete   | 2026-05-09 |
-| 3. Quest System | 0/TBD | Not started | - |
+| 3. Quest System | 0/6 | Not started | - |
 | 4. Dungeon Depth | 0/TBD | Not started | - |
