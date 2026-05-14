@@ -52,8 +52,26 @@ func _process(_delta):
 		# Dialogue trigger — select start_node based on quest state (DLG-03)
 		var start := "greeting"
 		var state: Dictionary = global.npc_state.get("elder", {})
-		if state.get("quest_accepted_reach_floor_10", false):
+		var story_chain: Dictionary = global.quest_state.get("story_chain", {})
+		var story_status: String = String(story_chain.get("status", ""))
+		var story_step: int = int(story_chain.get("step", 0))
+		var cap_open: bool = quest_manager.active_quest_count() < 3
+		if quest_manager.quest_ready("reach_floor_10"):
+			start = "reach_floor_complete"
+		elif quest_manager.quest_ready("fetch_ancient_relic"):
+			start = "fetch_quest_complete"
+		elif story_status == "active" and story_step == 0:
+			start = "story_chain_accepted"
+		elif state.get("quest_accepted_reach_floor_10", false):
 			start = "quest_follow_up"
+		elif _quest_unaccepted("story_chain") and cap_open:
+			start = "story_chain_offer"
+		elif _quest_unaccepted("fetch_ancient_relic") and cap_open:
+			start = "fetch_quest_offer"
+		elif _quest_unaccepted("reach_floor_10") and cap_open and not state.get("quest_accepted_reach_floor_10", false):
+			start = "quest_offer"
+		elif not cap_open:
+			start = "quest_cap_reached"
 		dialogue_manager.open("elder", start)
 
 func _on_body_entered(body: Node2D) -> void:
@@ -67,3 +85,9 @@ func _on_body_exited(body: Node2D) -> void:
 		player_nearby = false
 		player_ref = null
 		_prompt_label.visible = false
+
+func _quest_unaccepted(qid: String) -> bool:
+	if not global.quest_state.has(qid):
+		return true
+	var st: String = String(global.quest_state[qid].get("status", ""))
+	return st == ""

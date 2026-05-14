@@ -40,7 +40,16 @@ func _process(_delta):
 		# Guard: if dialogue is already open, do not retrigger (WR-01 mitigation)
 		if dialogue_manager._panel != null and dialogue_manager._panel.visible:
 			return
-		dialogue_manager.open("dungeon_merchant", "greeting")
+		var start := "greeting"
+		if global.quest_state.has("story_chain"):
+			var sc: Dictionary = global.quest_state["story_chain"]
+			var status: String = String(sc.get("status", ""))
+			var step: int = int(sc.get("step", 0))
+			if status == "active" and step == 2:
+				start = "story_chain_step2"
+			elif status == "complete":
+				start = "story_chain_complete"
+		dialogue_manager.open("dungeon_merchant", start)
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("player"):

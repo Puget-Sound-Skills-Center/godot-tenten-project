@@ -12,6 +12,12 @@ func _ready() -> void:
 		$player.position.x = global.player_exit_cliffside_posx
 		$player.position.y = global.player_exit_cliffside_posy
 	_spawn_shop_npc()
+	_spawn_blacksmith_npc()
+
+func _spawn_blacksmith_npc() -> void:
+	var npc = load("res://script/blacksmith_npc.gd").new()
+	npc.position = Vector2(220, 110)
+	add_child(npc)
 
 func _spawn_shop_npc():
 	var npc = load("res://script/npc.gd").new()
