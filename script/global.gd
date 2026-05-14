@@ -32,6 +32,9 @@ var player_defense_level = 0
 var player_current_health = -1
 
 var npc_state: Dictionary = {}
+var quest_state: Dictionary = {}
+var items: Dictionary = {}
+var unlocks: Dictionary = {}
 
 func get_max_health() -> int:
 	return int(100.0 * (1.0 + player_health_level * 0.01))
@@ -70,6 +73,9 @@ func reset_for_new_game() -> void:
 	next_floor = false
 	transition_scene = false
 	npc_state = {}
+	quest_state = {}
+	items = {}
+	unlocks = {}
 	loaded_from_save = false
 
 func _slot_path(slot: int) -> String:
@@ -89,6 +95,9 @@ func save_to_slot(slot: int, player_pos: Vector2) -> void:
 	cfg.set_value("player", "pos_y", player_pos.y)
 	cfg.set_value("meta", "saved_at", Time.get_datetime_string_from_system())
 	cfg.set_value("dialogue", "npc_state", var_to_str(npc_state))
+	cfg.set_value("quests", "quest_state", var_to_str(quest_state))
+	cfg.set_value("quests", "items", var_to_str(items))
+	cfg.set_value("quests", "unlocks", var_to_str(unlocks))
 	cfg.save(_slot_path(slot))
 
 func load_from_slot(slot: int) -> bool:
@@ -107,10 +116,22 @@ func load_from_slot(slot: int) -> bool:
 		cfg.get_value("player", "pos_x", 167.0),
 		cfg.get_value("player", "pos_y", 110.0)
 	)
-	var raw := cfg.get_value("dialogue", "npc_state", "{}")
+	var raw = cfg.get_value("dialogue", "npc_state", "{}")
 	npc_state = str_to_var(raw) if raw != "{}" else {}
 	if npc_state == null:
 		npc_state = {}
+	var raw_qs := cfg.get_value("quests", "quest_state", "{}")
+	quest_state = str_to_var(raw_qs) if raw_qs != "{}" else {}
+	if quest_state == null:
+		quest_state = {}
+	var raw_items := cfg.get_value("quests", "items", "{}")
+	items = str_to_var(raw_items) if raw_items != "{}" else {}
+	if items == null:
+		items = {}
+	var raw_unlocks := cfg.get_value("quests", "unlocks", "{}")
+	unlocks = str_to_var(raw_unlocks) if raw_unlocks != "{}" else {}
+	if unlocks == null:
+		unlocks = {}
 	game_first_loading = false
 	came_from_dungeon = false
 	loaded_from_save = (current_scene != "dungeon")
