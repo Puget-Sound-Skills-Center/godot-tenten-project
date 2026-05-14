@@ -15,7 +15,7 @@ const DIALOGUES := {
 		"greeting": {
 			"speaker": "Elder",
 			"text": "Welcome, adventurer. The dungeon grows darker each day.",
-			"next": "quest_offer",
+			"next": "",
 			"choices": []
 		},
 		"quest_offer": {
@@ -44,7 +44,136 @@ const DIALOGUES := {
 			"text": "I remember you. How fare the depths?",
 			"next": "",
 			"choices": []
-		}
+		},
+		"fetch_quest_offer": {
+			"speaker": "Elder",
+			"text": "I lost an Ancient Relic Fragment deep in the dungeon. Will you bring it back?",
+			"next": "",
+			"choices": [
+				{"label": "Accept", "next": "fetch_quest_accepted", "action": "quest_offer", "quest_id": "fetch_ancient_relic"},
+				{"label": "Decline", "next": "fetch_quest_declined", "action": ""}
+			]
+		},
+		"fetch_quest_accepted": {
+			"speaker": "Elder",
+			"text": "Search the dungeon depths. The Fragment will glow faintly when nearby.",
+			"next": "",
+			"choices": []
+		},
+		"fetch_quest_declined": {
+			"speaker": "Elder",
+			"text": "Very well. The Fragment will wait.",
+			"next": "",
+			"choices": []
+		},
+		"fetch_quest_complete": {
+			"speaker": "Elder",
+			"text": "You found it! Take this gold — it's the least I can offer.",
+			"next": "",
+			"choices": [
+				{"label": "(Hand over the Fragment)", "next": "", "action": "quest_complete", "quest_id": "fetch_ancient_relic"}
+			]
+		},
+		"story_chain_offer": {
+			"speaker": "Elder",
+			"text": "I've lost something precious — an Ancient Map Fragment. The Blacksmith near the forge may know who took it. Will you help me find it?",
+			"next": "",
+			"choices": [
+				{"label": "Accept", "next": "story_chain_accepted", "action": "quest_offer", "quest_id": "story_chain"},
+				{"label": "Decline", "next": "story_chain_declined", "action": ""}
+			]
+		},
+		"story_chain_accepted": {
+			"speaker": "Elder",
+			"text": "Start with the Blacksmith. He knows more than he lets on.",
+			"next": "",
+			"choices": [
+				{"label": "(Set out)", "next": "", "action": "story_chain_advance"}
+			]
+		},
+		"story_chain_declined": {
+			"speaker": "Elder",
+			"text": "The Fragment will wait. Return when you are ready.",
+			"next": "",
+			"choices": []
+		},
+		"reach_floor_complete": {
+			"speaker": "Elder",
+			"text": "Floor ten! Few return from there. Here is your reward — and a path opens by the cliffside.",
+			"next": "",
+			"choices": [
+				{"label": "(Accept reward)", "next": "", "action": "quest_complete", "quest_id": "reach_floor_10"}
+			]
+		},
+		"quest_cap_reached": {
+			"speaker": "Elder",
+			"text": "I have no new quests for you right now.",
+			"next": "",
+			"choices": []
+		},
+	},
+	"blacksmith": {
+		"greeting": {
+			"speaker": "Blacksmith",
+			"text": "What is it, traveler?",
+			"next": "",
+			"choices": []
+		},
+		"kill_quest_offer": {
+			"speaker": "Blacksmith",
+			"text": "Those melee brutes in the dungeon — clear ten of them and there's gold in it for you.",
+			"next": "",
+			"choices": [
+				{"label": "Accept", "next": "kill_quest_accepted", "action": "quest_offer", "quest_id": "kill_melee_10"},
+				{"label": "Decline", "next": "kill_quest_declined", "action": ""}
+			]
+		},
+		"kill_quest_accepted": {
+			"speaker": "Blacksmith",
+			"text": "Good. Ten melee enemies. Return when it's done.",
+			"next": "",
+			"choices": []
+		},
+		"kill_quest_declined": {
+			"speaker": "Blacksmith",
+			"text": "Suit yourself. The job will be here.",
+			"next": "",
+			"choices": []
+		},
+		"kill_quest_complete": {
+			"speaker": "Blacksmith",
+			"text": "Ten melee down! Here — earned every coin.",
+			"next": "",
+			"choices": [
+				{"label": "(Take the reward)", "next": "", "action": "quest_complete", "quest_id": "kill_melee_10"}
+			]
+		},
+		"kill_quest_followup": {
+			"speaker": "Blacksmith",
+			"text": "Keep at it. Those brutes won't clear themselves.",
+			"next": "",
+			"choices": []
+		},
+		"kill_quest_cap_reached": {
+			"speaker": "Blacksmith",
+			"text": "I have no new quests for you right now.",
+			"next": "",
+			"choices": []
+		},
+		"story_chain_step1": {
+			"speaker": "Blacksmith",
+			"text": "The Elder's map? Yes, I held it once. But a merchant who wanders the dungeon — he asked to borrow it. You'll find him somewhere in the depths.",
+			"next": "",
+			"choices": [
+				{"label": "(Note the merchant)", "next": "", "action": "story_chain_advance"}
+			]
+		},
+		"story_chain_step1_done": {
+			"speaker": "Blacksmith",
+			"text": "Find that wandering merchant in the dungeon. He has what the Elder seeks.",
+			"next": "",
+			"choices": []
+		},
 	},
 	"dungeon_merchant": {
 		"greeting": {
@@ -56,6 +185,20 @@ const DIALOGUES := {
 		"merchant_offer": {
 			"speaker": "Merchant",
 			"text": "I have nothing to sell. But I can tell you this: the creatures below grow stronger after floor 5.",
+			"next": "",
+			"choices": []
+		},
+		"story_chain_step2": {
+			"speaker": "Dungeon Merchant",
+			"text": "The Elder sent you? I've kept this safe. Here — take the Map Fragment back to him. And tell him the map shows a passage near the cliffside... if one knows where to look.",
+			"next": "",
+			"choices": [
+				{"label": "(Take the Fragment)", "next": "", "action": "quest_complete", "quest_id": "story_chain"}
+			]
+		},
+		"story_chain_complete": {
+			"speaker": "Dungeon Merchant",
+			"text": "Safe travels, friend.",
 			"next": "",
 			"choices": []
 		}
