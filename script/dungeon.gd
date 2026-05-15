@@ -73,6 +73,8 @@ var echo_input_index := 0
 var echo_demo_active := false
 var floor_exit_visual: ColorRect = null
 var floor_exit_label: Label = null
+var boss_floor_active := false
+var boss_hud_label: Label = null
 
 func _ready() -> void:
 	rng.randomize()
@@ -387,6 +389,9 @@ func _get_dungeon_theme(floor_no: int) -> Dictionary:
 		return THEME_RUINS
 	else:
 		return THEME_CAVE
+
+func _is_boss_floor(floor_no: int) -> bool:
+	return floor_no > 0 and floor_no % 25 == 0
 
 func _pick_enemy_script(floor_no: int) -> String:
 	if floor_no < 10:
