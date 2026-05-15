@@ -1,5 +1,6 @@
 ---
 status: complete
+runtime_tested: true
 phase: 04-dungeon-depth
 source: [04-01-SUMMARY.md, 04-02-SUMMARY.md, 04-03-SUMMARY.md]
 started: 2026-05-14T23:00:00Z
@@ -70,6 +71,19 @@ issues: 0
 pending: 0
 skipped: 0
 blocked: 0
+
+## Runtime Test
+
+Launched via Godot MCP `project_run`. Editor logs revealed 3 parse errors in dungeon.gd:
+- `var npc :=` and `var lore :=` with `load().new()` — type inferred as Variant (warning treated as error)
+- `var script_path :=` with `.pick_random()` on Array — same Variant inference error
+
+**Fixed (commit fea2779):**
+- `var npc: Node2D = load(...).new()`
+- `var lore: Node2D = load(...).new()`
+- `var script_path: String = [...].pick_random()`
+
+After fix: zero new editor errors on relaunch. Game runs cleanly (is_playing: true, 0 game log entries).
 
 ## Gaps
 
