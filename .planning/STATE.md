@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Phase 4 Plan 01 complete — lore objects wired. Plans 02-03 remain.
-last_updated: "2026-05-14T21:48:00.000Z"
+stopped_at: Phase 4 Plan 02 complete — boss floors implemented. Plan 03 remains.
+last_updated: "2026-05-14T21:58:00.000Z"
 last_activity: 2026-05-14
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 10
-  completed_plans: 8
-  percent: 80
+  completed_plans: 9
+  percent: 90
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-05-08)
 ## Current Position
 
 Phase: 4 of 4 (Dungeon Depth) — IN PROGRESS
-Plan: 04-01 complete (lore objects). Plans 04-02, 04-03 remain.
+Plan: 04-02 complete (boss floors). Plan 04-03 remains.
 Last activity: 2026-05-14
 
-Progress: [████████░░] 80% (3/4 phases complete, 1/3 Phase 4 plans done)
+Progress: [█████████░] 90% (3/4 phases complete, 2/3 Phase 4 plans done)
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Recent decisions affecting current work:
 - Phase 1: enemy_base.gd refactor is prerequisite — unblocks quest kill tracking, variants, and health bar fix simultaneously
 - [Phase ?]: DLG-03 NPC memory: quest_accepted_reach_floor_10 flag selects quest_follow_up start_node; default greeting
 - Phase 4 Plan 01: Lore interactable pattern — runtime Node2D with ColorRect + Label + CircleShape2D, no .tscn file; reusable for future inspectables
+- Phase 4 Plan 02: Boss floor kill-tracking via Godot node group "boss_enemies" — queue_free() auto-removes, no stale refs; if not boss_floor_active guard prevents boss+puzzle dual exit gate deadlock
 
 ### Pending Todos
 
@@ -86,5 +87,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-14T21:48:00.000Z
-Stopped at: Phase 4 Plan 01 complete (lore objects on every dungeon floor). Next: execute 04-02 (hidden rooms).
+Stopped at: Phase 4 Plan 02 complete (boss floors on every 25th floor). Next: execute 04-03 (hidden rooms).
 Resume file: None
