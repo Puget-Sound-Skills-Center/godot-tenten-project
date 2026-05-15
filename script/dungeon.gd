@@ -24,6 +24,9 @@ const MATH_WRONG_COLOR := Color(0.85, 0.20, 0.25)
 const ECHO_TILE_COLOR := Color(0.35, 0.30, 0.55)
 const ECHO_FLASH_COLOR := Color(1.0, 1.0, 1.0)
 const LORE_OBJECT_COLOR := Color(0.55, 0.40, 0.20)
+const SECRET_WALL_COLOR := Color(0.25, 0.18, 0.28)
+const HIDDEN_ROOM_PROBABILITY := 0.30
+const HIDDEN_ROOM_GOLD_BASE := 50
 
 const THEME_CAVE := {
 	"floor": Color(0.07, 0.06, 0.09),
@@ -360,6 +363,90 @@ func _pick_lore_node(floor_no: int) -> String:
 		return "fragment_5"
 	else:
 		return "fragment_6"
+
+func _spawn_hidden_room(floor_no: int, obstacles: Array) -> void:
+	var pos := _pick_hidden_room_position(obstacles)
+	if pos == Vector2.ZERO:
+		return
+	var area := Area2D.new()
+	area.position = pos
+	var shape_node := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(TILE, TILE)
+	shape_node.shape = shape
+	area.add_child(shape_node)
+	var visual := ColorRect.new()
+	visual.color = SECRET_WALL_COLOR
+	visual.position = Vector2(-TILE / 2.0, -TILE / 2.0)
+	visual.size = Vector2(TILE, TILE)
+	area.add_child(visual)
+	var lbl := Label.new()
+	lbl.text = "?"
+	lbl.position = Vector2(-3, -TILE - 4)
+	lbl.add_theme_font_size_override("font_size", 8)
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.9, 0.6))
+	lbl.visible = false
+	area.add_child(lbl)
+	var prompt_lbl := Label.new()
+	prompt_lbl.text = "[E] Secret?"
+	prompt_lbl.position = Vector2(-20, -TILE - 16)
+	prompt_lbl.add_theme_font_size_override("font_size", 7)
+	prompt_lbl.add_theme_color_override("font_color", Color.WHITE)
+	prompt_lbl.visible = false
+	area.add_child(prompt_lbl)
+	area.set_meta("secret_wall", true)
+	area.set_meta("player_near", false)
+	area.set_meta("hint_label", lbl)
+	area.set_meta("prompt_label", prompt_lbl)
+	area.set_meta("floor_no", floor_no)
+	area.body_entered.connect(_on_secret_wall_body_entered.bind(area))
+	area.body_exited.connect(_on_secret_wall_body_exited.bind(area))
+	add_child(area)
+
+func _pick_hidden_room_position(obstacles: Array) -> Vector2:
+	for i in 80:
+		var min_tx := 8
+		var max_tx := maxi(min_tx + 1, room_w / TILE - 8)
+		var min_ty := 4
+		var max_ty := maxi(min_ty + 1, room_h / TILE - 12)
+		var x := rng.randi_range(min_tx, max_tx) * TILE + TILE / 2
+		var y := rng.randi_range(min_ty, max_ty) * TILE + TILE / 2
+		var p := Vector2(x, y)
+		if not _is_position_clear(p, obstacles, 10):
+			continue
+		var pad := Rect2(p - Vector2(10, 10), Vector2(20, 20))
+		if pad.intersects(_exit_zone()):
+			continue
+		return p
+	return Vector2.ZERO
+
+func _on_secret_wall_body_entered(body: Node2D, area: Area2D) -> void:
+	if not body.has_method("player"):
+		return
+	area.set_meta("player_near", true)
+	var hint_lbl: Label = area.get_meta("hint_label")
+	var prompt_lbl: Label = area.get_meta("prompt_label")
+	if hint_lbl:
+		hint_lbl.visible = true
+	if prompt_lbl:
+		prompt_lbl.visible = true
+
+func _on_secret_wall_body_exited(body: Node2D, area: Area2D) -> void:
+	if not body.has_method("player"):
+		return
+	area.set_meta("player_near", false)
+	var hint_lbl: Label = area.get_meta("hint_label")
+	var prompt_lbl: Label = area.get_meta("prompt_label")
+	if hint_lbl:
+		hint_lbl.visible = false
+	if prompt_lbl:
+		prompt_lbl.visible = false
+
+func _on_secret_wall_activated(area: Area2D) -> void:
+	var floor_no: int = int(area.get_meta("floor_no"))
+	var gold := HIDDEN_ROOM_GOLD_BASE + floor_no * 5
+	global.money += gold
+	area.queue_free()
 
 func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
 	var pos := _pick_exit_position(obstacles)
