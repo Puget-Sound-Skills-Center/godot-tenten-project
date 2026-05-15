@@ -995,7 +995,7 @@ func _spawn_fetch_chest_if_needed(obstacles: Array) -> void:
 	chest.body_entered.connect(_on_fetch_chest_body_entered.bind(chest))
 	chest.body_exited.connect(_on_fetch_chest_body_exited.bind(chest))
 	add_child(chest)
-	obstacles.append(Rect2(pos - Vector2(12, 12), Vector2(24, 24)))
+	obstacles.append(pos)
 
 func _on_fetch_chest_body_entered(body: Node2D, chest: Area2D) -> void:
 	if not body.has_method("player"):
