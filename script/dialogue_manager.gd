@@ -15,6 +15,7 @@ var _choices_container: VBoxContainer
 var _current_npc := ""
 var _current_node := ""
 var _next_node := ""
+var _close_frame: int = -1
 
 func _ready() -> void:
 	layer = 30
@@ -115,6 +116,10 @@ func open(npc_id: String, start_node: String = "root") -> void:
 	# No-op if already open — re-entering from start_node would clobber state mid-flow.
 	if _panel.visible:
 		return
+	# Block re-open on the same frame close() was called — prevents NPC _process()
+	# from immediately reopening dialogue when E closes it.
+	if Engine.get_process_frames() == _close_frame:
+		return
 	_current_npc = npc_id
 	_current_node = start_node
 	_panel.visible = true
@@ -127,6 +132,7 @@ func close() -> void:
 	_current_npc = ""
 	_current_node = ""
 	_next_node = ""
+	_close_frame = Engine.get_process_frames()
 
 # Same as close() but safe to call any time (including when panel already closed).
 # Used by dungeon.gd before reload_current_scene() so a paused tree never carries
