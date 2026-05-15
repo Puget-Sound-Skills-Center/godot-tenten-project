@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: phase_complete
-stopped_at: Phase 3 complete — all 7 plans executed (01-06 + 05B). Ready for Phase 4.
-last_updated: "2026-05-14T16:42:00.000Z"
+status: in_progress
+stopped_at: Phase 4 Plan 01 complete — lore objects wired. Plans 02-03 remain.
+last_updated: "2026-05-14T21:48:00.000Z"
 last_activity: 2026-05-14
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_plans: 10
+  completed_plans: 8
+  percent: 80
 ---
 
 # Project State
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-05-08)
 
 ## Current Position
 
-Phase: 3 of 4 (Quest System) — COMPLETE
-Status: Phases 1, 2, 3 complete. Ready to plan Phase 4.
+Phase: 4 of 4 (Dungeon Depth) — IN PROGRESS
+Plan: 04-01 complete (lore objects). Plans 04-02, 04-03 remain.
 Last activity: 2026-05-14
 
-Progress: [███████░░░] 75% (3/4 phases complete)
+Progress: [████████░░] 80% (3/4 phases complete, 1/3 Phase 4 plans done)
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Recent decisions affecting current work:
 - Phase 1: Enemy variants as separate scripts extending `enemy_base.gd` via `set_script()` on shared `enemy.tscn`
 - Phase 1: enemy_base.gd refactor is prerequisite — unblocks quest kill tracking, variants, and health bar fix simultaneously
 - [Phase ?]: DLG-03 NPC memory: quest_accepted_reach_floor_10 flag selects quest_follow_up start_node; default greeting
+- Phase 4 Plan 01: Lore interactable pattern — runtime Node2D with ColorRect + Label + CircleShape2D, no .tscn file; reusable for future inspectables
 
 ### Pending Todos
 
@@ -84,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-14T16:42:00.000Z
-Stopped at: Phase 3 fully executed (all 7 plans complete). Next: plan/execute Phase 4.
+Last session: 2026-05-14T21:48:00.000Z
+Stopped at: Phase 4 Plan 01 complete (lore objects on every dungeon floor). Next: execute 04-02 (hidden rooms).
 Resume file: None
