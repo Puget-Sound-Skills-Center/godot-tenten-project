@@ -111,6 +111,8 @@ func _ready() -> void:
 	_spawn_fetch_chest_if_needed(obstacles)
 	if not boss_floor_active and rng.randf() < PUZZLE_PROBABILITY:
 		_setup_puzzle(floor_no, obstacles, exit_pos)
+	if not boss_floor_active and rng.randf() < HIDDEN_ROOM_PROBABILITY:
+		_spawn_hidden_room(floor_no, obstacles)
 
 func _process(_delta: float) -> void:
 	if save_point_active and Input.is_action_just_pressed("interact"):
@@ -125,6 +127,12 @@ func _process(_delta: float) -> void:
 				var iid: String = String(child.get_meta("item_id"))
 				global.items[iid] = int(global.items.get(iid, 0)) + 1
 				child.queue_free()
+				break
+		elif child is Area2D and child.has_meta("secret_wall") and child.has_meta("player_near"):
+			if bool(child.get_meta("player_near")) and Input.is_action_just_pressed("interact"):
+				if dialogue_manager._panel != null and dialogue_manager._panel.visible:
+					continue
+				_on_secret_wall_activated(child)
 				break
 
 func _check_next_floor() -> void:
