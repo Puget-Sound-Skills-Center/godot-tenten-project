@@ -319,7 +319,7 @@ func _spawn_boss_enemies(floor_no: int, obstacles: Array) -> void:
 		if not _is_position_clear(pos, obstacles, 14):
 			continue
 		var enemy: Node2D = packed.instantiate()
-		var script_path := [ENEMY_SCRIPT_TANK, ENEMY_SCRIPT_RANGED].pick_random()
+		var script_path: String = [ENEMY_SCRIPT_TANK, ENEMY_SCRIPT_RANGED].pick_random()
 		enemy.set_script(load(script_path))
 		enemy.position = pos
 		add_child(enemy)
@@ -345,7 +345,7 @@ func _check_boss_clear() -> void:
 
 func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
 	var pos := _pick_save_position(obstacles)
-	var npc := load("res://script/dungeon_dialogue_npc.gd").new()
+	var npc: Node2D = load("res://script/dungeon_dialogue_npc.gd").new()
 	npc.position = pos
 	add_child(npc)
 
@@ -353,7 +353,7 @@ func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
 	if not dialogue_data.DIALOGUES.has("lore_object"):
 		return
 	var pos := _pick_save_position(obstacles)
-	var lore := load("res://script/lore_object.gd").new()
+	var lore: Node2D = load("res://script/lore_object.gd").new()
 	lore.lore_id = _pick_lore_node(floor_no)
 	lore.position = pos
 	add_child(lore)
