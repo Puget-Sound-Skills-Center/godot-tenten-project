@@ -120,15 +120,15 @@ func load_from_slot(slot: int) -> bool:
 	npc_state = str_to_var(raw) if raw != "{}" else {}
 	if npc_state == null:
 		npc_state = {}
-	var raw_qs := cfg.get_value("quests", "quest_state", "{}")
+	var raw_qs: String = cfg.get_value("quests", "quest_state", "{}")
 	quest_state = str_to_var(raw_qs) if raw_qs != "{}" else {}
 	if quest_state == null:
 		quest_state = {}
-	var raw_items := cfg.get_value("quests", "items", "{}")
+	var raw_items: String = cfg.get_value("quests", "items", "{}")
 	items = str_to_var(raw_items) if raw_items != "{}" else {}
 	if items == null:
 		items = {}
-	var raw_unlocks := cfg.get_value("quests", "unlocks", "{}")
+	var raw_unlocks: String = cfg.get_value("quests", "unlocks", "{}")
 	unlocks = str_to_var(raw_unlocks) if raw_unlocks != "{}" else {}
 	if unlocks == null:
 		unlocks = {}
