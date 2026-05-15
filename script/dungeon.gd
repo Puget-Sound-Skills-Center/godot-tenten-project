@@ -91,22 +91,29 @@ func _ready() -> void:
 	var obstacles := _build_random_obstacles(floor_no)
 	_setup_navigation(obstacles)
 	_spawn_player()
-	_spawn_enemies(floor_no, obstacles)
+	boss_floor_active = _is_boss_floor(floor_no)
+	if boss_floor_active:
+		_spawn_boss_enemies(floor_no, obstacles)
+	else:
+		_spawn_enemies(floor_no, obstacles)
 	_spawn_dungeon_dialogue_npc(floor_no, obstacles)
 	_spawn_lore_object(floor_no, obstacles)
 	var exit_pos := _build_floor_exit(floor_no, obstacles)
+	if boss_floor_active and floor_exit_visual:
+		floor_exit_visual.color = TRAP_RED_COLOR
 	_add_exit_barrier(exit_pos, obstacles)
 	if floor_no % 10 == 0:
 		_build_save_point(obstacles)
 	_build_hud(floor_no)
 	_spawn_fetch_chest_if_needed(obstacles)
-	if rng.randf() < PUZZLE_PROBABILITY:
+	if not boss_floor_active and rng.randf() < PUZZLE_PROBABILITY:
 		_setup_puzzle(floor_no, obstacles, exit_pos)
 
 func _process(_delta: float) -> void:
 	if save_point_active and Input.is_action_just_pressed("interact"):
 		_save_and_exit()
 	_check_next_floor()
+	_check_boss_clear()
 	for child in get_children():
 		if child is Area2D and child.has_meta("item_id") and child.has_meta("player_near"):
 			if bool(child.get_meta("player_near")) and Input.is_action_just_pressed("interact"):
@@ -288,6 +295,43 @@ func _spawn_enemies(floor_no: int, obstacles: Array) -> void:
 		enemy.health = enemy.max_health
 		spawned += 1
 
+func _spawn_boss_enemies(floor_no: int, obstacles: Array) -> void:
+	var count := rng.randi_range(3, 6)
+	var packed: PackedScene = load(ENEMY_SCENE)
+	var spawned := 0
+	var attempts := 0
+	while spawned < count and attempts < count * 30:
+		attempts += 1
+		var x := rng.randi_range(3, room_w / TILE - 3) * TILE
+		var y := rng.randi_range(3, room_h / TILE - 3) * TILE
+		var pos := Vector2(x, y)
+		if not _is_position_clear(pos, obstacles, 14):
+			continue
+		var enemy: Node2D = packed.instantiate()
+		var script_path := [ENEMY_SCRIPT_TANK, ENEMY_SCRIPT_RANGED].pick_random()
+		enemy.set_script(load(script_path))
+		enemy.position = pos
+		add_child(enemy)
+		var mult := _get_floor_multiplier(floor_no) * 1.5
+		enemy.max_health = int(enemy.max_health * mult)
+		enemy.speed = float(enemy.speed) * mult
+		enemy.money_drop = int(enemy.money_drop * mult * 2)
+		enemy.health = enemy.max_health
+		enemy.add_to_group("boss_enemies")
+		spawned += 1
+
+func _check_boss_clear() -> void:
+	if not boss_floor_active:
+		return
+	if get_tree().get_nodes_in_group("boss_enemies").size() == 0:
+		boss_floor_active = false
+		if floor_exit_visual:
+			floor_exit_visual.color = EXIT_UNLOCKED_COLOR
+		if floor_exit_label:
+			floor_exit_label.text = "OPEN"
+		if boss_hud_label:
+			boss_hud_label.text = "Room cleared! Proceed."
+
 func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
 	var pos := _pick_save_position(obstacles)
 	var npc := load("res://script/dungeon_dialogue_npc.gd").new()
@@ -411,6 +455,10 @@ func _on_exit_body_entered(body: Node2D) -> void:
 		return
 	if puzzle_active:
 		return
+	if boss_floor_active and get_tree().get_nodes_in_group("boss_enemies").size() > 0:
+		if boss_hud_label:
+			boss_hud_label.text = "BOSS FLOOR — Defeat all enemies to advance"
+		return
 	global.next_floor = true
 
 func _build_save_point(obstacles: Array) -> void:
@@ -484,6 +532,12 @@ func _build_hud(floor_no: int) -> void:
 	puzzle_label.add_theme_color_override("font_color", Color(0.85, 0.7, 1.0))
 	puzzle_label.visible = false
 	canvas.add_child(puzzle_label)
+	if floor_no % 25 == 0 and floor_no > 0:
+		boss_hud_label = Label.new()
+		boss_hud_label.text = "BOSS FLOOR — Defeat all enemies to advance"
+		boss_hud_label.position = Vector2(8, 56)
+		boss_hud_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+		canvas.add_child(boss_hud_label)
 
 # --- Puzzle ---
 
