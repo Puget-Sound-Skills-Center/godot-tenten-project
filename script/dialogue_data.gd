@@ -202,7 +202,45 @@ const DIALOGUES := {
 			"next": "",
 			"choices": []
 		}
-	}
+	},
+	"lore_object": {
+		"fragment_1": {
+			"speaker": "Ancient Inscription",
+			"text": "These halls were carved by hands that sought to reach what lies beneath. The first delvers came for treasure. Most did not return.",
+			"next": "",
+			"choices": []
+		},
+		"fragment_2": {
+			"speaker": "Ancient Inscription",
+			"text": "The walls grow older here. Marks of tools give way to marks of claws. Something was already here when the delvers arrived.",
+			"next": "",
+			"choices": []
+		},
+		"fragment_3": {
+			"speaker": "Crumbling Tablet",
+			"text": "Floor thirty-four. The expedition leader recorded: 'We found ruins of a civilization that preceded our own. They built downward, not up. Why?'",
+			"next": "",
+			"choices": []
+		},
+		"fragment_4": {
+			"speaker": "Crumbling Tablet",
+			"text": "The ruins speak of a gate sealed long ago. The builders carved warnings around it in a language no one could read. No one tried to.",
+			"next": "",
+			"choices": []
+		},
+		"fragment_5": {
+			"speaker": "Worn Journal",
+			"text": "Day unknown. The dark here is different — it pushes back. My torch burns but the light does not reach. I can hear something below. I will not go further.",
+			"next": "",
+			"choices": []
+		},
+		"fragment_6": {
+			"speaker": "Worn Journal",
+			"text": "You have reached the deepest point any have recorded. The builders' gate is here. It was not sealed to keep something in. It was sealed to keep us out.",
+			"next": "",
+			"choices": []
+		},
+	},
 }
 
 func get_dialogue_node(npc_id: String, node_id: String) -> Dictionary:
