@@ -23,6 +23,7 @@ const MATH_TILE_COLOR := Color(0.30, 0.50, 0.85)
 const MATH_WRONG_COLOR := Color(0.85, 0.20, 0.25)
 const ECHO_TILE_COLOR := Color(0.35, 0.30, 0.55)
 const ECHO_FLASH_COLOR := Color(1.0, 1.0, 1.0)
+const LORE_OBJECT_COLOR := Color(0.55, 0.40, 0.20)
 
 const THEME_CAVE := {
 	"floor": Color(0.07, 0.06, 0.09),
@@ -90,6 +91,7 @@ func _ready() -> void:
 	_spawn_player()
 	_spawn_enemies(floor_no, obstacles)
 	_spawn_dungeon_dialogue_npc(floor_no, obstacles)
+	_spawn_lore_object(floor_no, obstacles)
 	var exit_pos := _build_floor_exit(floor_no, obstacles)
 	_add_exit_barrier(exit_pos, obstacles)
 	if floor_no % 10 == 0:
@@ -289,6 +291,29 @@ func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
 	var npc := load("res://script/dungeon_dialogue_npc.gd").new()
 	npc.position = pos
 	add_child(npc)
+
+func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
+	if not dialogue_data.DIALOGUES.has("lore_object"):
+		return
+	var pos := _pick_save_position(obstacles)
+	var lore := load("res://script/lore_object.gd").new()
+	lore.lore_id = _pick_lore_node(floor_no)
+	lore.position = pos
+	add_child(lore)
+
+func _pick_lore_node(floor_no: int) -> String:
+	if floor_no < 20:
+		return "fragment_1"
+	elif floor_no < 40:
+		return "fragment_2"
+	elif floor_no < 60:
+		return "fragment_3"
+	elif floor_no < 75:
+		return "fragment_4"
+	elif floor_no < 90:
+		return "fragment_5"
+	else:
+		return "fragment_6"
 
 func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
 	var pos := _pick_exit_position(obstacles)
