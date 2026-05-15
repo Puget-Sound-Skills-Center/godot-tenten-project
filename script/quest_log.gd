@@ -122,7 +122,7 @@ func _build_entry(qid: String) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey):
 		return
-	if not event.is_action_just_pressed("quest_log"):
+	if not event.is_action_pressed("quest_log"):
 		return
 	if dialogue_manager._panel != null and dialogue_manager._panel.visible:
 		return
