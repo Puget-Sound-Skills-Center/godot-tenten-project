@@ -117,6 +117,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if save_point_active and Input.is_action_just_pressed("interact"):
 		_save_and_exit()
+		return
 	_check_next_floor()
 	_check_boss_clear()
 	for child in get_children():
