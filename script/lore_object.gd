@@ -44,8 +44,6 @@ func _build_interaction_area() -> void:
 
 func _process(_delta: float) -> void:
 	if player_nearby and is_instance_valid(player_ref) and Input.is_action_just_pressed("interact"):
-		if dialogue_manager._panel != null and dialogue_manager._panel.visible:
-			return
 		dialogue_manager.open("lore_object", lore_id)
 
 func _on_body_entered(body: Node2D) -> void:
