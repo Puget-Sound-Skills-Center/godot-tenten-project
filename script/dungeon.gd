@@ -455,6 +455,12 @@ func _on_secret_wall_activated(area: Area2D) -> void:
 	var floor_no: int = int(area.get_meta("floor_no"))
 	var gold := HIDDEN_ROOM_GOLD_BASE + floor_no * 5
 	global.money += gold
+	var hint_lbl: Label = area.get_meta("hint_label")
+	var prompt_lbl: Label = area.get_meta("prompt_label")
+	if hint_lbl:
+		hint_lbl.visible = false
+	if prompt_lbl:
+		prompt_lbl.visible = false
 	area.queue_free()
 
 func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
