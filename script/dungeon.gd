@@ -346,6 +346,7 @@ func _check_boss_clear() -> void:
 
 func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
 	var pos := _pick_save_position(obstacles)
+	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
 	var npc: Node2D = load("res://script/dungeon_dialogue_npc.gd").new()
 	npc.position = pos
 	add_child(npc)
@@ -354,6 +355,7 @@ func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
 	if not dialogue_data.DIALOGUES.has("lore_object"):
 		return
 	var pos := _pick_save_position(obstacles)
+	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
 	var lore: Node2D = load("res://script/lore_object.gd").new()
 	lore.lore_id = _pick_lore_node(floor_no)
 	lore.position = pos
