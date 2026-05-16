@@ -360,15 +360,15 @@ func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
 	add_child(lore)
 
 func _pick_lore_node(floor_no: int) -> String:
-	if floor_no < 20:
+	if floor_no < 17:
 		return "fragment_1"
-	elif floor_no < 40:
+	elif floor_no < 34:
 		return "fragment_2"
-	elif floor_no < 60:
+	elif floor_no < 51:
 		return "fragment_3"
-	elif floor_no < 75:
+	elif floor_no < 68:
 		return "fragment_4"
-	elif floor_no < 90:
+	elif floor_no < 85:
 		return "fragment_5"
 	else:
 		return "fragment_6"
