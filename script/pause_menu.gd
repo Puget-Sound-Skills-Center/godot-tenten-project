@@ -21,6 +21,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if global.current_scene == "home":
 		return
+	# Defer to dialogue if it owns the pause state
+	if dialogue_manager._panel != null and dialogue_manager._panel.visible:
+		return
 	if _save_panel.visible:
 		_save_panel.visible = false
 	elif _pause_panel.visible:
