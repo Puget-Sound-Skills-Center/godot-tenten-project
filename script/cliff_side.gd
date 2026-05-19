@@ -1,5 +1,7 @@
 extends Node2D
 
+var _secret_door: StaticBody2D = null
+
 func _ready() -> void:
 	_spawn_dungeon_npc()
 	if global.loaded_from_save:
@@ -20,6 +22,9 @@ func _spawn_dungeon_npc():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	change_scene()
+	if _secret_door != null and bool(global.unlocks.get("cliff_secret_door", false)):
+		_secret_door.queue_free()
+		_secret_door = null
 
 func _on_cliffside_exit_point_body_entered(body: Node2D) -> void:
 	if body.has_method("player"):
@@ -60,4 +65,5 @@ func _build_secret_door() -> void:
 	lbl.add_theme_color_override("font_color", Color.WHITE)
 	lbl.position = Vector2(-20, -22)
 	door.add_child(lbl)
+	_secret_door = door
 	add_child(door)
