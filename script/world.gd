@@ -16,7 +16,7 @@ func _ready() -> void:
 
 func _spawn_blacksmith_npc() -> void:
 	var npc = load("res://script/blacksmith_npc.gd").new()
-	npc.position = Vector2(220, 110)
+	npc.position = Vector2(240, 110)  # was 220; increased gap from shop NPC at (167,110)
 	add_child(npc)
 
 func _spawn_shop_npc():

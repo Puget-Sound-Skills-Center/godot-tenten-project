@@ -13,12 +13,18 @@ func _ready() -> void:
 	_build_interaction_area()
 
 func _build_visual() -> void:
-	var sprite := Sprite2D.new()
-	sprite.texture = load("res://art/objects/chest_01.png")
-	sprite.hframes = 4
-	sprite.frame = 0
-	sprite.position = Vector2(0, -8)
-	add_child(sprite)
+	var placeholder := ColorRect.new()
+	placeholder.color = Color(0.5, 0.35, 0.15, 1.0)  # dark amber — distinct from chest brown
+	placeholder.size = Vector2(16, 16)
+	placeholder.position = Vector2(-8, -16)
+	add_child(placeholder)
+
+	var name_lbl := Label.new()
+	name_lbl.text = "SMITH"
+	name_lbl.position = Vector2(-10, -26)
+	name_lbl.add_theme_font_size_override("font_size", 6)
+	name_lbl.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
+	add_child(name_lbl)
 
 	_prompt_label = Label.new()
 	_prompt_label.text = "E: Talk"
