@@ -385,6 +385,7 @@ func _spawn_hidden_room(floor_no: int, obstacles: Array) -> void:
 	var pos := _pick_hidden_room_position(obstacles)
 	if pos == Vector2.ZERO:
 		return
+	obstacles.append(Rect2(pos - Vector2(TILE / 2, TILE / 2), Vector2(TILE, TILE)))
 	var area := Area2D.new()
 	area.position = pos
 	var shape_node := CollisionShape2D.new()
