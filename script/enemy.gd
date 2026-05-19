@@ -9,6 +9,7 @@ var player_inattack_range = false
 var can_take_damage = true
 
 var money_drop = 1000
+var enemy_type: String = "melee"
 
 var _nav_agent: NavigationAgent2D
 
@@ -72,6 +73,7 @@ func deal_with_damge():
 			can_take_damage = false
 			if health <= 0:
 				global.money += money_drop
+				quest_manager.on_enemy_killed(enemy_type)
 				self.queue_free()
 
 func _on_take_damage_cooldown_timeout() -> void:
