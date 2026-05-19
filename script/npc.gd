@@ -61,7 +61,7 @@ func _process(_delta):
 		elif quest_manager.quest_ready("fetch_ancient_relic"):
 			start = "fetch_quest_complete"
 		elif story_status == "active" and story_step == 0:
-			start = "story_chain_accepted"
+			start = "story_chain_reminder"
 		elif state.get("quest_accepted_reach_floor_10", false):
 			start = "quest_follow_up"
 		elif _quest_unaccepted("story_chain") and cap_open:

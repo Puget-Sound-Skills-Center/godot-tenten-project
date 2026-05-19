@@ -91,6 +91,12 @@ const DIALOGUES := {
 				{"label": "(Set out)", "next": "", "action": "story_chain_advance"}
 			]
 		},
+		"story_chain_reminder": {
+			"speaker": "Elder",
+			"text": "Find the Blacksmith by the forge. He knows where the Map Fragment went.",
+			"next": "",
+			"choices": []
+		},
 		"story_chain_declined": {
 			"speaker": "Elder",
 			"text": "The Fragment will wait. Return when you are ready.",
