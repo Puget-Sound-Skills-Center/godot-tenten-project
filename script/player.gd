@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 var enemy_inattack_range = false
 var enemy_attack_cooldown = true
+var ranged_hit_cooldown := true
 var health = 100
 var player_alive = true
 
@@ -30,7 +31,7 @@ var _lore_label: Label
 func _ready():
 	add_to_group("player")
 	$AnimatedSprite2D.play("front_idle")
-	if global.player_current_health >= 0:
+	if global.player_current_health > 0:
 		health = global.player_current_health
 	else:
 		health = global.get_max_health()
@@ -137,13 +138,13 @@ func enemy_attack():
 		$attack_cooldown.start()
 
 func take_damage(amount: int) -> void:
-	if not enemy_attack_cooldown:
+	if not ranged_hit_cooldown:
 		return
 	var reduction = global.player_defense_level / 100.0
 	var damage = max(1, int(amount * (1.0 - reduction)))
 	health -= damage
-	enemy_attack_cooldown = false
-	$attack_cooldown.start()
+	ranged_hit_cooldown = false
+	get_tree().create_timer(0.5).timeout.connect(func(): ranged_hit_cooldown = true)
 
 func _on_attack_cooldown_timeout():
 	enemy_attack_cooldown = true
