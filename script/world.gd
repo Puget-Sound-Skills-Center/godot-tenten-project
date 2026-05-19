@@ -35,6 +35,7 @@ func _on_cliffside_trasition_point_body_entered(body: Node2D) -> void:
 func change_scene():
 	if global.transition_scene == true:
 		if global.current_scene == "world":
+			dialogue_manager.force_close()
 			get_tree().change_scene_to_file("res://scenes/cliff_side.tscn")
 			global.game_first_loading = false
 			global.finish_changescenes()

@@ -28,12 +28,14 @@ func _on_cliffside_exit_point_body_entered(body: Node2D) -> void:
 func change_scene():
 	if global.transition_scene == true:
 		if global.current_scene == "cliff_side":
+			dialogue_manager.force_close()
 			get_tree().change_scene_to_file("res://scenes/world.tscn")
 			global.finish_changescenes()
 	if global.enter_dungeon == true:
 		global.enter_dungeon = false
 		global.current_floor = clampi(global.dungeon_resume_floor, 1, global.DUNGEON_MAX_FLOOR)
 		global.current_scene = "dungeon"
+		dialogue_manager.force_close()
 		get_tree().change_scene_to_file("res://scenes/dungeon.tscn")
 
 func _build_secret_door() -> void:
