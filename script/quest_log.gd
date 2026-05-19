@@ -132,7 +132,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func _toggle() -> void:
 	if _overlay.visible:
 		_overlay.visible = false
-		get_tree().paused = false
+		# Only release pause if neither dialogue nor pause_menu is active
+		var dlg_open := dialogue_manager._panel != null and dialogue_manager._panel.visible
+		var pause_open := pause_menu._pause_panel != null and pause_menu._pause_panel.visible
+		if not dlg_open and not pause_open:
+			get_tree().paused = false
 	else:
 		_refresh()
 		_overlay.visible = true
