@@ -127,6 +127,12 @@ func _process(_delta: float) -> void:
 					continue
 				var iid: String = String(child.get_meta("item_id"))
 				global.items[iid] = int(global.items.get(iid, 0)) + 1
+				# Mark matching fetch quest ready to complete
+				for qid in global.quest_state.keys():
+					var q: Dictionary = global.quest_state[qid]
+					if q.get("type") == "fetch" and q.get("item_id", "") == iid and q.get("status") == "active":
+						q["status"] = "ready_to_complete"
+						break
 				child.queue_free()
 				break
 		elif child is Area2D and child.has_meta("secret_wall") and child.has_meta("player_near"):
