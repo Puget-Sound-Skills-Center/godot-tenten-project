@@ -1,7 +1,5 @@
 extends CharacterBody2D
 
-signal alert_pack(origin_position: Vector2)
-
 var max_health: int = 100
 var speed = 40
 var damage: int = 5
@@ -67,6 +65,8 @@ func _on_detection_area_body_exited(body) -> void:
 		player_chase = false
 
 func _on_pack_alerted(_origin_position: Vector2) -> void:
+	if not is_node_ready():
+		return
 	if player_chase:
 		return
 	var players := get_tree().get_nodes_in_group("player")
