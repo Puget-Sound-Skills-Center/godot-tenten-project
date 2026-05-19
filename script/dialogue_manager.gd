@@ -178,13 +178,19 @@ func _on_choice_picked(choice: Dictionary) -> void:
 	var action: String = choice.get("action", "")
 	if action == "quest_offer":
 		var qid: String = choice.get("quest_id", "")
-		if not global.npc_state.has(_current_npc):
-			global.npc_state[_current_npc] = {}
-		global.npc_state[_current_npc]["quest_accepted_" + qid] = true
-		quest_manager.accept_quest(qid)
+		if qid.is_empty():
+			push_warning("dialogue_manager: quest_offer action missing quest_id")
+		else:
+			if not global.npc_state.has(_current_npc):
+				global.npc_state[_current_npc] = {}
+			global.npc_state[_current_npc]["quest_accepted_" + qid] = true
+			quest_manager.accept_quest(qid)
 	elif action == "quest_complete":
 		var qid2: String = choice.get("quest_id", "")
-		quest_manager.complete_quest(qid2)
+		if qid2.is_empty():
+			push_warning("dialogue_manager: quest_complete action missing quest_id")
+		else:
+			quest_manager.complete_quest(qid2)
 	elif action == "story_chain_advance":
 		quest_manager.advance_story_chain()
 	var next: String = choice.get("next", "")
