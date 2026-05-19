@@ -352,6 +352,8 @@ func _check_boss_clear() -> void:
 
 func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
 	var pos := _pick_save_position(obstacles)
+	if pos == Vector2.ZERO:
+		return
 	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
 	var npc: Node2D = load("res://script/dungeon_dialogue_npc.gd").new()
 	npc.position = pos
@@ -361,6 +363,8 @@ func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
 	if not dialogue_data.DIALOGUES.has("lore_object"):
 		return
 	var pos := _pick_save_position(obstacles)
+	if pos == Vector2.ZERO:
+		return
 	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
 	var lore: Node2D = load("res://script/lore_object.gd").new()
 	lore.lore_id = _pick_lore_node(floor_no)
@@ -574,6 +578,8 @@ func _on_exit_body_entered(body: Node2D) -> void:
 
 func _build_save_point(obstacles: Array) -> void:
 	var pos := _pick_save_position(obstacles)
+	if pos == Vector2.ZERO:
+		return
 	var area := Area2D.new()
 	area.position = pos
 	var shape_node := CollisionShape2D.new()
@@ -607,7 +613,7 @@ func _pick_save_position(obstacles: Array) -> Vector2:
 		var p := Vector2(x, y)
 		if _is_position_clear(p, obstacles, 10):
 			return p
-	return Vector2(room_w / 2, room_h / 2)
+	return Vector2.ZERO  # sentinel: no valid position found
 
 func _on_save_body_entered(body: Node2D) -> void:
 	if body.has_method("player"):
@@ -986,6 +992,8 @@ func _spawn_fetch_chest_if_needed(obstacles: Array) -> void:
 	if int(global.items.get(item_id, 0)) > 0:
 		return
 	var pos: Vector2 = _pick_save_position(obstacles)
+	if pos == Vector2.ZERO:
+		return
 	var chest: Area2D = Area2D.new()
 	chest.position = pos
 	var shape_node := CollisionShape2D.new()
