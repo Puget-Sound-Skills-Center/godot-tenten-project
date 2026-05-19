@@ -45,9 +45,9 @@ func _process(_delta):
 		# Guard: if dialogue is already open, do not retrigger (WR-01 mitigation)
 		if dialogue_manager._panel != null and dialogue_manager._panel.visible:
 			return
-		# Guard: if shop is already open, pressing E closes it (existing behavior)
+		# Guard: if shop is already open, pressing E closes it
 		if player_ref.shop_open:
-			player_ref.open_shop()
+			player_ref._close_shop()
 			return
 		# Dialogue trigger — select start_node based on quest state (DLG-03)
 		var start := "greeting"
