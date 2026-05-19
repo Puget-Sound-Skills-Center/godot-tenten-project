@@ -30,6 +30,8 @@ func complete_quest(qid: String) -> bool:
 	if not global.quest_state.has(qid):
 		return false
 	var q: Dictionary = global.quest_state[qid]
+	if q.get("status", "") == "complete":
+		return false
 	var gold: int = int(q.get("reward_gold", 0))
 	global.money += gold
 	var item_id: String = String(q.get("reward_item", ""))
@@ -69,6 +71,7 @@ func on_floor_reached(floor_no: int) -> void:
 
 func advance_story_chain() -> void:
 	if not global.quest_state.has("story_chain"):
+		push_warning("advance_story_chain: story_chain quest not in quest_state — call accept_quest first")
 		return
 	var q: Dictionary = global.quest_state["story_chain"]
 	if q.get("status", "") != "active":
