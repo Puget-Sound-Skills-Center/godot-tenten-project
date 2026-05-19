@@ -1,6 +1,6 @@
 ---
 phase: 02-dialogue-system
-reviewed: 2026-05-09T10:23:00-07:00
+reviewed: 2026-05-18
 depth: standard
 files_reviewed: 7
 files_reviewed_list:
@@ -9,146 +9,53 @@ files_reviewed_list:
   - script/dungeon_dialogue_npc.gd
   - script/global.gd
   - script/npc.gd
-  - script/dungeon.gd
-  - project.godot
+  - script/world.gd
+  - script/cliff_side.gd
 findings:
-  critical: 3
-  warning: 6
-  info: 4
-  total: 13
-status: issues_found
+  critical: 2
+  warning: 3
+  info: 3
+  total: 8
+status: fixed
+fixed: 2026-05-18
 ---
 
 # Phase 2: Code Review Report
 
-**Reviewed:** 2026-05-09T10:23:00-07:00
+**Reviewed:** 2026-05-18
 **Depth:** standard
 **Files Reviewed:** 7
 **Status:** issues_found
 
 ## Summary
 
-Phase 2 ships a stateful dialogue system across 4 plans (autoload + npc_state scaffolding, DialogueData/DialogueManager engine, world NPC wiring, dungeon NPC). The architecture follows the established `pause_menu.gd` template (CanvasLayer + `_pa()` helper + `get_tree().paused`), and the documented threat-model mitigations (T-2B-01 unknown-node fail-safe, T-2B-02 force_close, T-2C-03 shop guard, T-2D-01 paused-tree leak) are all present in code.
+This review is against the actual committed implementation — the prior review (2026-05-09) was conducted against incomplete stubs. The actual code is substantially more robust: the autoload case mismatch (old CR-01) is gone, `get_node` shadowing (old CR-02) is gone, `dialogue_manager._unhandled_input` does call `set_input_as_handled()` (old WR-03 fixed), and `dungeon.gd` correctly calls `dialogue_manager.force_close()` before both `reload_current_scene()` and `change_scene_to_file()`.
 
-However, the review surfaces 3 BLOCKER defects that will prevent the system from running or cause user-visible breakage:
+Two BLOCKER defects survive or are newly surfaced:
 
-1. **Autoload identifier case mismatch** — `project.godot` registers `dialogue_data` / `dialogue_manager` (lowercase) but every call site uses `DialogueData` / `DialogueManager` (PascalCase). Godot autoload identifiers are case-sensitive. This will fail at parse time.
-2. **`get_node()` overrides `Node.get_node()`** in `dialogue_data.gd` — the autoload extends `Node`, so defining `func get_node(npc_id, node_id) -> Dictionary` shadows the built-in `Node.get_node(NodePath) -> Node`. Any engine-internal call to `get_node` on this autoload will return `Dictionary` and break.
-3. **Pause-menu / dialogue interaction stomps** — `pause_menu._unhandled_input` fires on `ui_cancel` regardless of dialogue state. Pressing ESC during dialogue both opens the pause panel AND leaves the dialogue panel visible, creating a layered/inconsistent state. When the player resumes, `_resume()` unconditionally sets `paused = false`, breaking dialogue's pause invariant.
+1. **`pause_menu` stomps dialogue pause state** — `pause_menu._unhandled_input` has no guard for dialogue being open. Pressing ESC during dialogue opens the pause panel on top and `_resume()` unconditionally unpauses the tree, leaving the dialogue overlay visible with an unpaused world beneath it.
+2. **`world.gd` and `cliff_side.gd` scene transitions skip `force_close()`** — both scenes change scene without calling `dialogue_manager.force_close()`. If a player inside an NPC dialogue walks into a transition trigger, `get_tree().paused` carries into the new scene, which boots frozen with no visible cause.
 
-Additional warnings cover a stale-`player_ref` race in `npc.gd`, missing pause-state guards in NPC `_process()` polling (the dialogue gates input but not the trigger that opened it — pressing E during dialogue can re-open another dialogue), and the `var_to_str("{}")` round-trip producing the literal string `"{ }"` not `"{}"` so the empty-dict guard never fires after a real save.
+Three warnings cover: a logic error in `npc.gd` that re-presents the story-chain advance choice on every Elder revisit at step 0 (advancing the chain repeatedly), a dead save/load string guard in `global.gd`, and an unguarded `quest_manager.accept_quest("")` call path in `dialogue_manager.gd`.
 
 ## Critical Issues
 
-### CR-01: Autoload identifier case mismatch — DialogueData / DialogueManager will not resolve
+### CR-01: `pause_menu._unhandled_input` has no dialogue guard — ESC during dialogue corrupts pause state
 
-**File:** `project.godot:22-23`, `script/dialogue_manager.gd:138`, `script/npc.gd:51`, `script/dungeon_dialogue_npc.gd:40`, `script/dungeon.gd:114`
-**Issue:** The autoloads are registered as **lowercase** identifiers:
+**File:** `script/pause_menu.gd:19-29`
+**Issue:** `pause_menu._unhandled_input` fires on `ui_cancel` with no check for whether the dialogue panel is open. `dialogue_manager.open()` already guards against the pause panel being visible (line 114 of dialogue_manager.gd), but the reverse is not true.
 
-```ini
-[autoload]
-dialogue_data="*res://script/dialogue_data.gd"
-dialogue_manager="*res://script/dialogue_manager.gd"
-```
+Failure sequence:
+1. Player opens dialogue. `dialogue_manager.open()` sets `_panel.visible = true`, `get_tree().paused = true`.
+2. Player presses ESC. `pause_menu._unhandled_input` fires (CanvasLayer is `PROCESS_MODE_ALWAYS`), sees neither save nor pause panel visible, calls `_open_pause()`.
+3. Now both the dialogue panel (layer 30) and pause panel (layer 50) are visible.
+4. Player clicks Resume → `_resume()` runs `get_tree().paused = false` while dialogue is still open.
+5. Result: dialogue overlay is visible but the world is unpaused — enemies move, player can walk away, dialogue is never closeable (the advance E-press guard in `_unhandled_input` still fires but `close()` itself calls `paused = false` which is already false, so that's harmless — but the player is now stuck with an overlay they cannot dismiss if they walked out of the NPC's Area2D, since `_on_body_exited` does not close dialogue).
 
-But every consumer references them as **PascalCase**:
-
-- `script/dialogue_manager.gd:138` — `DialogueData.get_node(_current_npc, _current_node)`
-- `script/npc.gd:51` — `DialogueManager.open("elder", start)`
-- `script/dungeon_dialogue_npc.gd:40` — `DialogueManager.open("dungeon_merchant", "greeting")`
-- `script/dungeon.gd:114` — `DialogueManager.force_close()`
-
-Godot autoload identifiers are case-sensitive. With this mismatch, every call site will fail at parse-time with "Identifier 'DialogueManager' not declared in the current scope." The plans (02-01, 02-02, 02-03, 02-04) repeatedly state PascalCase access should work because of "the registered name", but the actual `[autoload]` keys are lowercase. This is not theoretical — it is a hard parse error that blocks the entire phase from running.
-
-This contradicts even the project's own existing convention: `script/global.gd` is registered as `global` (lowercase) and accessed everywhere as `global.foo` (e.g. `global.npc_state`, `global.current_floor`). The dialogue code is the only outlier reaching for PascalCase access.
-
-**Fix:** Either (a) rename the autoload registrations to PascalCase to match the code, OR (b) rewrite all five call sites to use lowercase, matching the existing `global.` convention. Option (b) is consistent with the rest of the codebase and the research recommendations (RESEARCH.md says NPCs call `DialogueManager.open()` but the conventions section shows `global` access pattern is lowercase).
-
-Option B (recommended — matches `global` autoload convention):
+**Fix:** Add the reciprocal dialogue check in `pause_menu._unhandled_input`:
 
 ```gdscript
-# project.godot — leave as-is (already lowercase)
-
-# script/dialogue_manager.gd:138
-var node := dialogue_data.get_node(_current_npc, _current_node)
-
-# script/npc.gd:51
-dialogue_manager.open("elder", start)
-
-# script/dungeon_dialogue_npc.gd:40
-dialogue_manager.open("dungeon_merchant", "greeting")
-
-# script/dungeon.gd:114
-dialogue_manager.force_close()
-```
-
-(If renaming the autoload keys to PascalCase instead, also update the references in plan summary docs that grep for the literal strings.)
-
----
-
-### CR-02: `dialogue_data.gd` overrides `Node.get_node()` with an incompatible signature
-
-**File:** `script/dialogue_data.gd:1, 65-68`
-**Issue:** `dialogue_data.gd` declares `extends Node`, and then defines:
-
-```gdscript
-func get_node(npc_id: String, node_id: String) -> Dictionary:
-    if DIALOGUES.has(npc_id) and DIALOGUES[npc_id].has(node_id):
-        return DIALOGUES[npc_id][node_id]
-    return {}
-```
-
-This **shadows** the engine-provided `Node.get_node(path: NodePath) -> Node`. Two failure modes:
-
-1. **Editor warning / crash on autoload init.** Godot's parser will at minimum warn ("function 'get_node' is shadowing a virtual function from base class"), and on some Godot 4.x point releases will refuse to load the autoload entirely.
-2. **Any internal engine call** that does `dialogue_data_singleton.get_node(...)` (the engine, plugin, or even tooling like `editor_screenshot` paths that walk autoload nodes) will now receive a `Dictionary` instead of a `Node` and crash on `.queue_free()` / `.get_path()` etc.
-
-Even if Godot 4.6 currently allows the override, the call signature mismatch (`String, String` vs `NodePath`) is fragile — any caller passing a single argument like `dialogue_data.get_node("foo")` raises an arg-count error at runtime.
-
-**Fix:** Rename the lookup function so it does not collide with `Node.get_node`:
-
-```gdscript
-# script/dialogue_data.gd
-func get_dialogue_node(npc_id: String, node_id: String) -> Dictionary:
-    if DIALOGUES.has(npc_id) and DIALOGUES[npc_id].has(node_id):
-        return DIALOGUES[npc_id][node_id]
-    return {}
-```
-
-Then update the only caller:
-
-```gdscript
-# script/dialogue_manager.gd:138
-var node := dialogue_data.get_dialogue_node(_current_npc, _current_node)
-```
-
-Alternatively, change `extends Node` to `extends Object` if the autoload truly does not need to be a node — but autoload nodes are added to the SceneTree, so `Object` will not work as a registered autoload. Renaming the function is the only correct fix.
-
----
-
-### CR-03: `pause_menu` and `dialogue_manager` clobber each other's `get_tree().paused` state
-
-**File:** `script/pause_menu.gd:19-29, 35-38`, `script/dialogue_manager.gd:111-133`
-**Issue:** Both autoloads write `get_tree().paused` directly with no coordination, and `pause_menu._unhandled_input` is gated only on `global.current_scene == "home"`, not on whether the dialogue is currently open. Two concrete failure scenarios:
-
-**Scenario A — Pause stomps dialogue:**
-1. Player opens dialogue. `dialogue_manager.open()` sets `_panel.visible = true` and `paused = true`.
-2. Player presses ESC. `pause_menu._unhandled_input` fires (its CanvasLayer is also `PROCESS_MODE_ALWAYS`), sees neither save nor pause panel visible, calls `_open_pause()`.
-3. Now BOTH the dialogue panel (layer 30) and pause panel (layer 50) are visible. Pause panel renders on top, dialogue panel still consumes input space and remains paused.
-4. Player clicks "Resume" → `_resume()` runs `get_tree().paused = false` while dialogue is still open. Dialogue panel is now visible but the world is unpaused — enemies move, the player can move and walk away from the NPC, but the dialogue overlay is still drawn forever.
-
-**Scenario B — Dialogue close after pause:**
-1. Player opens pause menu first. `paused = true`, pause overlay visible.
-2. (Hypothetically — if the timing aligns with an NPC interact already in flight, or via a future entry point) dialogue opens, `paused = true` (no-op).
-3. Player advances and closes dialogue. `dialogue_manager.close()` runs `paused = false`.
-4. Pause panel still visible but world is unpaused — same broken state.
-
-The research file (`02-RESEARCH.md` line 247–248) anticipates this: *"Dialogue and pause cannot be open simultaneously (pause closes dialogue; dialogue prevents pause input)."* — but neither rule is enforced in code. There is no check in `pause_menu._unhandled_input` for `dialogue_manager._panel.visible`, and there is no check in `dialogue_manager.open()` for `pause_menu._pause_panel.visible`.
-
-**Fix:** Make the two systems mutually aware. Cheapest correct fix: gate `pause_menu._unhandled_input` on dialogue not being open, and accept the input there.
-
-```gdscript
-# script/pause_menu.gd — _unhandled_input
+# script/pause_menu.gd
 func _unhandled_input(event: InputEvent) -> void:
     if not (event is InputEventKey) or not event.is_action_pressed("ui_cancel"):
         return
@@ -165,328 +72,223 @@ func _unhandled_input(event: InputEvent) -> void:
         _open_pause()
 ```
 
-And symmetric defense in dialogue:
+---
 
+### CR-02: `world.gd` and `cliff_side.gd` scene transitions do not call `force_close()` — new scene boots frozen
+
+**File:** `script/world.gd:38`, `script/cliff_side.gd:31`, `script/cliff_side.gd:37`
+**Issue:** `get_tree().paused` is a property on the `SceneTree` itself, not on the root scene. It persists across `change_scene_to_file()`. If the player is in dialogue when a scene-transition trigger fires, the new scene boots with `paused = true` and no dialogue panel to unpause it — the game is frozen.
+
+`world.gd:35-40` — transition to `cliff_side.tscn`:
 ```gdscript
-# script/dialogue_manager.gd — open()
-func open(npc_id: String, start_node: String = "root") -> void:
-    if pause_menu._pause_panel != null and pause_menu._pause_panel.visible:
-        return
-    _current_npc = npc_id
-    ...
+func change_scene():
+    if global.transition_scene == true:
+        if global.current_scene == "world":
+            get_tree().change_scene_to_file("res://scenes/cliff_side.tscn")  # NO force_close
+            global.game_first_loading = false
+            global.finish_changescenes()
 ```
 
-(Both checks rely on the case-fix from CR-01.)
+`cliff_side.gd:28-37` — both transition paths:
+```gdscript
+func change_scene():
+    if global.transition_scene == true:
+        if global.current_scene == "cliff_side":
+            get_tree().change_scene_to_file("res://scenes/world.tscn")  # NO force_close
+            global.finish_changescenes()
+    if global.enter_dungeon == true:
+        global.enter_dungeon = false
+        global.current_scene = "dungeon"
+        get_tree().change_scene_to_file("res://scenes/dungeon.tscn")  # NO force_close
+```
+
+Contrast: `dungeon.gd` correctly calls `dialogue_manager.force_close()` before both `reload_current_scene()` (line 148) and `change_scene_to_file()` (line 158).
+
+**Fix:** Add `force_close()` before every `change_scene_to_file()` in both files:
+
+```gdscript
+# script/world.gd
+func change_scene():
+    if global.transition_scene == true:
+        if global.current_scene == "world":
+            dialogue_manager.force_close()
+            get_tree().change_scene_to_file("res://scenes/cliff_side.tscn")
+            global.game_first_loading = false
+            global.finish_changescenes()
+
+# script/cliff_side.gd
+func change_scene():
+    if global.transition_scene == true:
+        if global.current_scene == "cliff_side":
+            dialogue_manager.force_close()
+            get_tree().change_scene_to_file("res://scenes/world.tscn")
+            global.finish_changescenes()
+    if global.enter_dungeon == true:
+        global.enter_dungeon = false
+        global.current_scene = "dungeon"
+        dialogue_manager.force_close()
+        get_tree().change_scene_to_file("res://scenes/dungeon.tscn")
+```
 
 ## Warnings
 
-### WR-01: NPC `_process()` polling does not guard against dialogue already being open
+### WR-01: `npc.gd` routes story_chain step 0 to `story_chain_accepted` — repeating the choice advances the chain on every Elder revisit
 
-**File:** `script/npc.gd:38-51`, `script/dungeon_dialogue_npc.gd:38-40`
-**Issue:** Both NPCs poll `Input.is_action_just_pressed("interact")` in `_process()`. The NPCs are nodes in the regular scene tree (default `PROCESS_MODE_INHERIT`), so their `_process` does NOT run while `get_tree().paused == true`. That part is fine.
-
-But there is still a 1-frame race: `dialogue_manager.close()` runs `paused = false` first, then clears state. The frame *after* close, the NPC's `_process` resumes — and if the player is still inside the Area2D, `player_nearby` is still `true`, and if the player is still holding E... `Input.is_action_just_pressed` only fires on the press edge so this specific case is safe.
-
-**However**, the dungeon merchant case has another problem: `dungeon_dialogue_npc.gd:38-40` lacks the `is_instance_valid(player_ref)` check that `npc.gd:39` has via `_process(_delta)`. Wait — actually `dungeon_dialogue_npc.gd:39` does have `is_instance_valid(player_ref)`. But it has no `shop_open` guard either way (no shop in the dungeon, so this is fine for now), and crucially:
-
-The real issue: pressing E twice rapidly (once to open dialogue, then dialogue advances on the next E press, then if the player walks out of the area2D mid-dialogue, comes back, and presses E again, `dialogue_manager._panel.visible` is true but `npc._process` will still call `dialogue_manager.open(...)` again — re-entering the conversation from `start_node` and overwriting `_current_node`/`_next_node` mid-flight.
-
-**Fix:** Guard NPC trigger against an already-open dialogue:
+**File:** `script/npc.gd:63-64`
+**Issue:** When `story_status == "active"` and `story_step == 0`, the Elder is routed to `"story_chain_accepted"`:
 
 ```gdscript
-# script/npc.gd:38
-func _process(_delta):
-    if player_nearby and Input.is_action_just_pressed("interact"):
-        if not is_instance_valid(player_ref):
-            return
-        # Don't re-open dialogue if one is already up
-        if dialogue_manager._panel != null and dialogue_manager._panel.visible:
-            return
-        if player_ref.shop_open:
-            player_ref.open_shop()
-            return
-        ...
-
-# script/dungeon_dialogue_npc.gd:38
-func _process(_delta):
-    if player_nearby and is_instance_valid(player_ref) and Input.is_action_just_pressed("interact"):
-        if dialogue_manager._panel != null and dialogue_manager._panel.visible:
-            return
-        dialogue_manager.open("dungeon_merchant", "greeting")
+elif story_status == "active" and story_step == 0:
+    start = "story_chain_accepted"
 ```
 
-A cleaner version exposes a public `is_open() -> bool` on `dialogue_manager` instead of poking `_panel.visible`.
+`story_chain_accepted` in `dialogue_data.gd:86-93` contains one choice:
+```gdscript
+{"label": "(Set out)", "next": "", "action": "story_chain_advance"}
+```
+
+Every time the player talks to the Elder while the story chain is active at step 0, they are presented with "(Set out)" again — and clicking it calls `quest_manager.advance_story_chain()` a second (third, Nth) time. Depending on how `advance_story_chain` handles already-advanced state, this could silently skip quest steps or create a step-count inconsistency.
+
+The intent is likely for this revisit path to show a reminder without the action button, or to route to a neutral follow-up like `"quest_follow_up"`.
+
+**Fix:** Add a separate reminder node, or re-route step-0 revisits to a neutral node:
+
+```gdscript
+# In dialogue_data.gd, add to "elder":
+"story_chain_reminder": {
+    "speaker": "Elder",
+    "text": "Find the Blacksmith by the forge. He knows where the Map Fragment went.",
+    "next": "",
+    "choices": []
+},
+
+# In npc.gd:63:
+elif story_status == "active" and story_step == 0:
+    start = "story_chain_reminder"
+```
+
+Alternatively, guard `advance_story_chain()` in `quest_manager` to be idempotent at each step boundary.
 
 ---
 
-### WR-02: `var_to_str(npc_state)` save/load round-trip — empty-dict guard does not match real serialized output
+### WR-02: `global.gd` save/load empty-dict guard is dead code — real saves never produce `"{}"`
 
-**File:** `script/global.gd:91, 110-113`
-**Issue:** Save:
-
+**File:** `script/global.gd:119-120`, `123-124`, `127-128`, `131-132`
+**Issue:** The save path writes:
 ```gdscript
 cfg.set_value("dialogue", "npc_state", var_to_str(npc_state))
 ```
 
-For `npc_state = {}`, `var_to_str({})` returns the literal string `"{ }"` (with a space) — not `"{}"`. Then on load:
-
+For `npc_state = {}`, `var_to_str({})` returns `"{ }"` (with internal space) — not `"{}"`. The load guard:
 ```gdscript
-var raw := cfg.get_value("dialogue", "npc_state", "{}")
+var raw = cfg.get_value("dialogue", "npc_state", "{}")
 npc_state = str_to_var(raw) if raw != "{}" else {}
 ```
 
-The default `"{}"` (used when the key is missing on disk, e.g. old saves) compares fine. But after a real `save_to_slot()` writes `"{ }"` (or any populated dict text), `raw != "{}"` is true and `str_to_var(raw)` runs. Pitfall 5 in RESEARCH.md (line 339-343) explicitly warns about `str_to_var("{}")` returning null — but that pitfall is about the literal `"{}"` reaching `str_to_var`, which **never happens** here because the literal `"{}"` triggers the early return. The actual risk is the inverse:
+The `raw != "{}"` check never fires for real saves — `"{ }" != "{}"` is always true, so `str_to_var` always runs. The trailing null-guard (`if npc_state == null: npc_state = {}`) is the only actual defense. The early-return path exists only for the default string `"{}"` which appears only when the key is missing from disk (old saves pre-dialogue). This is fragile and misleading.
 
-`str_to_var(var_to_str({}))` → may return `{}` correctly, OR may return `null` depending on Godot 4.6 build. The follow-up null-guard `if npc_state == null: npc_state = {}` (line 112-113) does catch this — so this specific bug is actually defended against, but **only** by the redundant null-guard, not by the `raw != "{}"` early return as the comment implies.
+The same pattern appears for `quest_state`, `items`, and `unlocks` on lines 123-132.
 
-The real defect: the early-return comparison is dead code in practice (real saves never produce `"{}"`), so it gives a false sense of safety. More importantly, **arrays vs strings**: if a future schema change adds an array to a value, `var_to_str` includes type-prefixes that may bite later. The current code works only because of the trailing null-guard.
-
-**Fix:** Drop the brittle string comparison and rely on the null-guard, which is the actual defense:
+**Fix:** Use a type-safe pattern that makes the intent explicit:
 
 ```gdscript
-# script/global.gd:110-113
+# script/global.gd — all four dict fields
 var raw := cfg.get_value("dialogue", "npc_state", "")
 var parsed = str_to_var(raw) if raw != "" else null
 npc_state = parsed if (parsed is Dictionary) else {}
 ```
 
-This handles three failure modes uniformly: missing key (default `""`), empty/whitespace string, and `str_to_var` returning a non-Dictionary.
+This correctly handles: missing key (empty string default), empty `"{ }"` produced by `var_to_str({})`, and `str_to_var` returning null or a non-dict on corrupt data.
 
 ---
 
-### WR-03: `dialogue_manager._unhandled_input` does not call `accept_event()` — input bleeds to player
+### WR-03: `dialogue_manager._on_choice_picked` calls `quest_manager.accept_quest(qid)` with potentially empty `qid`
 
-**File:** `script/dialogue_manager.gd:182-194`
-**Issue:** `_unhandled_input` reacts to the `interact` action while the dialogue panel is visible, but does not call `get_viewport().set_input_as_handled()` (or `accept_event()` for older Godot). On the same frame the dialogue advances, that same `interact` press also reaches:
-
-- `npc.gd:39` (if still in the Area2D — which the player IS, since dialogue just opened from this NPC)
-- `dungeon_dialogue_npc.gd:39` (in dungeon)
-- Any other `Input.is_action_just_pressed("interact")` poll
-
-`Input.is_action_just_pressed` reads the global input state, NOT the consumed-event state — so it fires regardless. Combined with WR-01, this means: each E press during dialogue advances the dialogue AND also tries to re-trigger the NPC. Currently masked because `_process` runs after `_unhandled_input` and by then `_panel.visible` is still true → with WR-01's fix that is fine; without it, every advance press re-opens the dialogue from `start_node`, resetting the conversation.
-
-The masking is fragile. Even with WR-01 applied, accepting the event is the canonical fix.
-
-**Fix:**
-
-```gdscript
-# script/dialogue_manager.gd:182
-func _unhandled_input(event: InputEvent) -> void:
-    if not _panel.visible:
-        return
-    if not (event is InputEventKey):
-        return
-    if not event.is_action_pressed("interact"):
-        return
-    if _advance_lbl.visible:
-        get_viewport().set_input_as_handled()
-        if _next_node.is_empty():
-            close()
-        else:
-            _current_node = _next_node
-            _render_node()
-```
-
-(Also good to consume the event on `ui_cancel` if the dialogue ever supports cancel, to prevent ESC reaching pause_menu.)
-
----
-
-### WR-04: `npc.gd._process` calls `player_ref.shop_open` before `is_instance_valid(player_ref)` check
-
-**File:** `script/npc.gd:38-44`
+**File:** `script/dialogue_manager.gd:179-183`
 **Issue:**
-
-```gdscript
-func _process(_delta):
-    if player_nearby and Input.is_action_just_pressed("interact"):
-        if not is_instance_valid(player_ref):
-            return
-        # Guard: if shop is already open, pressing E closes it
-        if player_ref.shop_open:
-            ...
-```
-
-The `is_instance_valid` check is placed correctly. But on line 49, `start := "greeting"` followed by `var state: Dictionary = global.npc_state.get("elder", {})` — the `state` variable is fine. The deeper issue is that `_on_body_exited` clears `player_ref = null` (line 62), but if the player frees / queue_frees mid-dialogue (via death, scene reload, etc.), `_on_body_exited` may not fire on the freed body, leaving `player_ref` as a stale reference until the next exit event. `is_instance_valid` catches this — that part is fine.
-
-The ACTUAL latent bug: in `dungeon_dialogue_npc.gd:39`, the NPC and player are both in the dungeon scene. When the floor advances (`reload_current_scene`), the NPC's signal handlers may not fire `_on_body_exited` cleanly during teardown. Combined with `force_close()` (which already runs), the next floor's NPC instance has fresh state, so this is currently safe. But the asymmetry — `npc.gd` has the shop guard, `dungeon_dialogue_npc.gd` does not check anything — is a maintenance trap.
-
-**Fix:** None strictly required for correctness. Recommend extracting a small helper or convention so all NPCs follow the same guard pattern:
-
-```gdscript
-# Standard NPC dispatch guard
-if not is_instance_valid(player_ref):
-    return
-if dialogue_manager._panel != null and dialogue_manager._panel.visible:
-    return  # WR-01 fix
-```
-
----
-
-### WR-05: `DIALOGUES.elder.quest_offer.next` is `""` while choices array is non-empty — schema ambiguity
-
-**File:** `script/dialogue_data.gd:21-29`
-**Issue:**
-
-```gdscript
-"quest_offer": {
-    "speaker": "Elder",
-    "text": "Will you venture to floor 10 for me? ...",
-    "next": "",
-    "choices": [
-        {"label": "Accept Quest", "next": "quest_accepted", ...},
-        {"label": "Decline Quest", "next": "quest_declined", ...}
-    ]
-},
-```
-
-The schema (per RESEARCH.md "Schema fields") says `next` is the advance-only target; `choices[]` is the multi-button branching. When `choices` is non-empty, `_render_node` (line 153-163) ignores `next` and uses choice buttons. So `"next": ""` here is dead data, but harmless.
-
-However, `_render_node:152` reads `_next_node = node.get("next", "")` only on the advance-only branch (line 149). On the choices branch (line 156) it sets `_next_node = ""`. So the current code is internally consistent. The risk is that a future contributor adds a "next" handler thinking it is meaningful for choice nodes.
-
-**Fix:** Either omit the `"next"` field entirely on choice nodes, or document that it is ignored:
-
-```gdscript
-"quest_offer": {
-    "speaker": "Elder",
-    "text": "...",
-    # "next" omitted: choice nodes use only the choices[] array.
-    "choices": [...]
-},
-```
-
----
-
-### WR-06: `dialogue_manager._render_node` uses untyped `for choice in choices:` over `Array` — silent type drift
-
-**File:** `script/dialogue_manager.gd:148, 157-163`
-**Issue:**
-
-```gdscript
-var choices: Array = node.get("choices", [])
-...
-for choice in choices:
-    var btn := _pa(Button.new()) as Button
-    btn.text = choice.get("label", "")
-    ...
-    btn.pressed.connect(_on_choice_picked.bind(choice))
-```
-
-`choices` is typed `Array` (untyped element), `choice` falls back to `Variant`. If a malformed dialogue node has `"choices": "not-an-array"` (e.g. typo), `node.get("choices", [])` returns the string and the for-loop iterates per character, calling `.get("label")` on a String which raises at runtime. Similarly `choice.get("label", "")` on a non-Dictionary raises.
-
-The data is currently authored by hand in `dialogue_data.gd`, so this is theoretical — but the dialogue tree is documented as "user-extensible" in the research, and DLG-V2-01 (visual editor) plus future quest content will add nodes by less-careful contributors.
-
-**Fix:** Defensive type checks:
-
-```gdscript
-var choices_raw = node.get("choices", [])
-var choices: Array = choices_raw if choices_raw is Array else []
-...
-for choice in choices:
-    if not (choice is Dictionary):
-        continue
-    ...
-```
-
-## Info
-
-### IN-01: `dialogue_data.gd` is registered as `dialogue_data` autoload but file pattern matches `class_name`-style
-
-**File:** `script/dialogue_data.gd:1-12`
-**Issue:** The file is documented as accessed via `DialogueData.get_node(...)` but is registered as lowercase. Not a defect on its own, just an example of the same naming inconsistency from CR-01 leaking into source comments. Update the doc-comment after CR-01 fix.
-
-**Fix:** After CR-01 is resolved, line 4 comment should match the actual identifier in use.
-
----
-
-### IN-02: `_on_choice_picked` has no validation on `_current_npc` being non-empty before mutating `global.npc_state`
-
-**File:** `script/dialogue_manager.gd:165-177`
-**Issue:**
-
-```gdscript
-func _on_choice_picked(choice: Dictionary) -> void:
-    var action: String = choice.get("action", "")
-    if action == "quest_offer":
-        var qid: String = choice.get("quest_id", "")
-        if not global.npc_state.has(_current_npc):
-            global.npc_state[_current_npc] = {}
-        global.npc_state[_current_npc]["quest_accepted_" + qid] = true
-```
-
-If `_current_npc` is `""` (e.g. someone calls `open("", "node")` or a race after `close()`), the empty-string key gets a quest entry. If `qid == ""`, the key becomes `"quest_accepted_"` which is meaningless but persists across saves.
-
-**Fix:** Validate before writing:
 
 ```gdscript
 if action == "quest_offer":
     var qid: String = choice.get("quest_id", "")
-    if _current_npc.is_empty() or qid.is_empty():
-        push_warning("dialogue_manager: quest_offer action with empty npc/quest_id; skipping")
+    if not global.npc_state.has(_current_npc):
+        global.npc_state[_current_npc] = {}
+    global.npc_state[_current_npc]["quest_accepted_" + qid] = true
+    quest_manager.accept_quest(qid)
+```
+
+If a choice dict has `action: "quest_offer"` but omits `quest_id` (typo in dialogue_data.gd, or a future author's mistake), `qid` is `""`. Two effects:
+1. `global.npc_state[_current_npc]["quest_accepted_"] = true` — a junk key persists in save data.
+2. `quest_manager.accept_quest("")` is called with an empty string quest ID.
+
+The same applies to `quest_complete` at line 186 — `quest_manager.complete_quest("")` on missing `quest_id`.
+
+**Fix:**
+
+```gdscript
+if action == "quest_offer":
+    var qid: String = choice.get("quest_id", "")
+    if qid.is_empty():
+        push_warning("dialogue_manager: quest_offer action missing quest_id in choice dict")
     else:
         if not global.npc_state.has(_current_npc):
             global.npc_state[_current_npc] = {}
         global.npc_state[_current_npc]["quest_accepted_" + qid] = true
+        quest_manager.accept_quest(qid)
+elif action == "quest_complete":
+    var qid2: String = choice.get("quest_id", "")
+    if not qid2.is_empty():
+        quest_manager.complete_quest(qid2)
+```
+
+## Info
+
+### IN-01: `npc.gd:71` — redundant condition in quest routing
+
+**File:** `script/npc.gd:71`
+**Issue:**
+
+```gdscript
+elif _quest_unaccepted("reach_floor_10") and cap_open and not state.get("quest_accepted_reach_floor_10", false):
+```
+
+The last condition (`not state.get("quest_accepted_reach_floor_10", false)`) is always true when `_quest_unaccepted("reach_floor_10")` is true. If the quest was accepted, `_quest_unaccepted` checks `quest_state` status and returns false, so the `elif` branch never reaches the third condition. Dead code that adds maintenance confusion.
+
+**Fix:** Remove the redundant condition:
+
+```gdscript
+elif _quest_unaccepted("reach_floor_10") and cap_open:
+    start = "quest_offer"
 ```
 
 ---
 
-### IN-03: Magic number `layer = 30` lacks named constant
+### IN-02: `dungeon_dialogue_npc.gd` lacks the `is_instance_valid` guard present in `npc.gd`
 
-**File:** `script/dialogue_manager.gd:20`
-**Issue:** `layer = 30` is an important architectural decision (between shop=20 and pause=50) but is a bare integer literal. The other CanvasLayers in the project (`layer = 5`, `10`, `20`, `50`) have the same problem. Phase 2 introduces another. RESEARCH.md table (line 240-245) is the only place documenting this.
+**File:** `script/dungeon_dialogue_npc.gd:39`
+**Issue:** `npc.gd:40-44` guards `player_ref` with `is_instance_valid` before use. `dungeon_dialogue_npc.gd:39` checks `is_instance_valid(player_ref)` inline in the condition, which is correct, but also accesses `player_ref` in signal callbacks without guard. This is fine given floor reloads reset NPC state, but is an asymmetry that makes the codebase inconsistent and is a maintenance trap for future NPC variants.
 
-**Fix (optional polish):** Either accept the project convention (bare integers everywhere) or introduce constants in `global.gd`:
+**Fix:** No immediate action required. When a third NPC type is added, extract a shared `_can_interact() -> bool` helper to enforce the pattern.
+
+---
+
+### IN-03: `dialogue_manager` layer 30 is a bare magic number
+
+**File:** `script/dialogue_manager.gd:21`
+**Issue:** `layer = 30` is an architectural decision (between shop=20 and pause=50) with no named constant. The layer stack is documented only in `02-UI-SPEC.md`.
+
+**Fix (optional polish):** Add constants to `global.gd`:
 
 ```gdscript
-# script/global.gd
 const LAYER_HUD := 10
 const LAYER_SHOP := 20
 const LAYER_DIALOGUE := 30
 const LAYER_PAUSE := 50
 ```
 
-Low priority; do not block on this.
+Low priority; matches existing project pattern where all other layer assignments are also bare integers.
 
 ---
 
-### IN-04: `dungeon.gd:114` calls `force_close()` but the code path also unpauses on scene reload
-
-**File:** `script/dungeon.gd:106-115`
-**Issue:**
-
-```gdscript
-func _check_next_floor() -> void:
-    if not global.next_floor:
-        return
-    global.next_floor = false
-    if global.current_floor >= global.DUNGEON_MAX_FLOOR:
-        _exit_to_cliffside(1)
-        return
-    global.current_floor += 1
-    DialogueManager.force_close()
-    get_tree().reload_current_scene()
-```
-
-The `force_close()` call mitigates the documented threat T-2D-01 (paused-tree leak). However, `_exit_to_cliffside(1)` on line 111 (the FINAL floor branch) takes a different path that does NOT call `force_close()`. Per SUMMARY 02-04 "Implementation Notes", this is intentional because `change_scene_to_file` rebuilds the tree. But:
-
-- If dialogue is open when `_exit_to_cliffside` is called from the FINAL-floor branch, `dialogue_manager` (autoload, persists across scenes) still holds `_panel.visible = true`, `_current_npc`, `_current_node` — not state-clearing.
-- More importantly, `change_scene_to_file` does NOT reset `get_tree().paused`. If the dialogue paused the tree, the new scene will boot paused.
-
-The plan summary claims "the fresh scene starts unpaused" which is **incorrect** for `change_scene_to_file`. `paused` is on the SceneTree itself, not the root scene — it persists across `change_scene_to_file`.
-
-**Fix:** Add the same `force_close()` guard to `_exit_to_cliffside` to be safe:
-
-```gdscript
-func _exit_to_cliffside(resume_floor: int) -> void:
-    DialogueManager.force_close()  # NEW: defense against paused-tree leak
-    global.dungeon_resume_floor = clampi(resume_floor, 1, global.DUNGEON_MAX_FLOOR)
-    ...
-```
-
-(After CR-01 fix this becomes `dialogue_manager.force_close()`.)
-
----
-
-_Reviewed: 2026-05-09T10:23:00-07:00_
+_Reviewed: 2026-05-18_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
