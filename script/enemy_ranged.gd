@@ -99,6 +99,13 @@ func _physics_process(_delta) -> void:
 	_update_projectiles()
 
 
+func _exit_tree() -> void:
+	for proj in _my_projectiles:
+		if is_instance_valid(proj):
+			proj.queue_free()
+	_my_projectiles.clear()
+
+
 func _update_projectiles() -> void:
 	_my_projectiles = _my_projectiles.filter(func(p): return is_instance_valid(p))
 	for proj in _my_projectiles:
