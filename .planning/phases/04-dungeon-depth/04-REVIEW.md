@@ -1,198 +1,154 @@
 ---
 phase: 04-dungeon-depth
-reviewed: 2026-05-16T10:15:00Z
+reviewed: 2026-05-18T22:40:00Z
 depth: standard
 files_reviewed: 3
 files_reviewed_list:
+  - script/dungeon.gd
   - script/lore_object.gd
   - script/dialogue_data.gd
-  - script/dungeon.gd
 findings:
-  critical: 1
-  warning: 5
+  critical: 0
+  warning: 2
   info: 3
-  total: 9
+  total: 5
 status: fixed
-fixed: 2026-05-16T10:18:00Z
+fixed: 2026-05-18
+prior_review: 2026-05-16T10:15:00Z
+prior_fixes_confirmed:
+  - CR-01: fixed (obstacles.append(Rect2) at dungeon.gd:1007)
+  - WR-01: fixed (private field coupling removed; dialogue_manager.open() guards itself)
+  - WR-02: fixed (return after _save_and_exit() at dungeon.gd:120)
+  - WR-03: fixed (labels hidden before queue_free at dungeon.gd:462-465)
+  - WR-04: fixed (thresholds 17/34/51/68/85 at dungeon.gd:365-376)
+  - WR-05: fixed (obstacles.append(Rect2) in both spawn helpers at dungeon.gd:349,358)
 ---
 
-# Phase 4: Code Review Report
+# Phase 4: Code Review Report (Re-Review)
 
-**Reviewed:** 2026-05-16T10:15:00Z
+**Reviewed:** 2026-05-18T22:40:00Z
 **Depth:** standard
 **Files Reviewed:** 3
 **Status:** issues_found
 
 ## Summary
 
-Phase 4 adds boss floors, a hidden-room system, lore objects, and a dungeon-theme system. The implementation is structurally sound and consistent with project conventions. One critical bug was found: the hidden-room activation path in `_process()` fires the interact handler on the same frame as a lore-object or save-point interact (both scan `get_children()` in the same loop body with no mutual exclusion), and — more severely — the `_process()` loop that picks up `secret_wall` areas will also pick up the fetch-chest `Area2D` nodes because both share the `Area2D` + `has_meta("player_near")` pattern. A mismatched `obstacles.append(pos)` call appends a `Vector2` instead of a `Rect2`, breaking subsequent `_is_position_clear` calls. Five warnings cover: the lore-object's `_process()` dialogue-open guard reading a private field of `dialogue_manager` rather than using the public API; the `_pick_lore_node` floor thresholds skipping fragments for most of the 100-floor range; the secret-wall hint label visibility not being reset on `_on_secret_wall_activated`; and two same-frame multi-interact race conditions.
+Re-review pass following six fixes committed after 2026-05-16. All six prior findings are confirmed fixed and closed. Two new warnings and three info items remain, none of which were regressions introduced by the fixes — they are pre-existing gaps exposed by reading the full implementation in context of the new Phase 4 callers.
 
----
+CR-01 (obstacles type mismatch) is confirmed fixed at `dungeon.gd:1007`. WR-02 (early return after `_save_and_exit`) is confirmed fixed at line 120. WR-01 (private `_panel` coupling in `lore_object.gd`) is correctly resolved: `dialogue_manager.open()` itself no-ops when `_panel.visible` is true (line 117 of `dialogue_manager.gd`), so removing the guard from `lore_object.gd` is safe and the fix is complete. WR-03 (labels hidden before `queue_free`) confirmed at lines 462-465. WR-04 (lore thresholds) confirmed at lines 365-376 with even 17-floor spacing. WR-05 (both NPC/lore spawn helpers register obstacles) confirmed at lines 349 and 358.
 
-## Critical Issues
-
-### CR-01: `obstacles.append(pos)` appends Vector2 instead of Rect2 — corrupts obstacle list
-
-**File:** `script/dungeon.gd:998`
-
-**Issue:** `_spawn_fetch_chest_if_needed` appends the raw `pos: Vector2` value into the `obstacles` array at line 998. Every other call site appends `Rect2` objects. Downstream consumers of `obstacles` — `_is_position_clear`, `_build_random_obstacles`, `_setup_navigation`, `_add_exit_barrier`, and every `_pick_*_position` helper — all call either `r.intersects(existing.grow(TILE))` or `pad.intersects(r)` on each element. Calling `.grow()` or `.intersects()` on a `Vector2` will cause a runtime type error on any floor where a fetch quest is active, crashing dungeon generation for every subsequent spawn call that receives the mutated array.
-
-This was previously fixed for a similar bug (`a06204d`) where `Rect2` was required; the same mistake recurs here.
-
-**Fix:**
-```gdscript
-# Replace line 998:
-obstacles.append(Rect2(pos - Vector2(12, 12), Vector2(24, 24)))
-```
+New findings: `_spawn_hidden_room` never registers its picked position into `obstacles`, making call-order a correctness dependency rather than an invariant. The `_pick_save_position` fallback returns a center point that is never validated against obstacles, and Phase 4 added two new callers that increase exposure to this latent defect.
 
 ---
 
 ## Warnings
 
-### WR-01: `lore_object.gd` reads `dialogue_manager._panel` — private field coupling
+### WR-01: `_spawn_hidden_room` never registers spawned position into `obstacles`
 
-**File:** `script/lore_object.gd:47`
+**File:** `script/dungeon.gd:378-415`
 
-**Issue:** `_process()` guards dialogue open with `dialogue_manager._panel != null and dialogue_manager._panel.visible`. This couples `lore_object.gd` to the internal `_panel` field of `dialogue_manager.gd`. The field is not documented as public. If `dialogue_manager` is refactored (e.g., panel renamed, or `_panel` made null during teardown), this silently stops working — the guard fails to an unhandled null dereference if `_panel` is null during the frame `dialogue_manager` is being freed, crashing the running game. The correct pattern, already used by `dungeon.gd:125` and `dungeon.gd:133`, is to check `_panel` existence before reading `.visible`, but the right fix is to use the already-public `dialogue_manager.open()` which itself no-ops when the panel is visible (line 117-118 of `dialogue_manager.gd`).
+**Issue:** `_spawn_hidden_room` calls `_pick_hidden_room_position(obstacles)` to find a clear slot, then builds the `Area2D` secret wall, but never appends the occupied position back into `obstacles`. Every other Phase 4 spawn helper that can overlap with subsequent spawns registers its footprint: `_spawn_dungeon_dialogue_npc` at line 349, `_spawn_lore_object` at line 358, `_spawn_fetch_chest_if_needed` at line 1007, and `_add_exit_barrier` at line 530 all call `obstacles.append(Rect2(...))` after placing their node.
 
-**Fix:**
-```gdscript
-# lore_object.gd _process(), replace lines 47-49:
-func _process(_delta: float) -> void:
-	if player_nearby and is_instance_valid(player_ref) and Input.is_action_just_pressed("interact"):
-		dialogue_manager.open("lore_object", lore_id)
-		# dialogue_manager.open() already no-ops if panel is visible (line 117-118)
-```
-
-### WR-02: `_process()` item-pickup loop can activate secret wall AND pick up item in same frame
-
-**File:** `script/dungeon.gd:122-136`
-
-**Issue:** The `_process()` loop iterates all children checking first for `item_id` areas, then for `secret_wall` areas. Both branches `break` after firing, but if the player stands on the intersection of a fetch-chest area and a secret-wall area, E-press on the same frame activates only whichever appears first in child order — not a crash, but the ordering is non-deterministic and both checks share the same `Input.is_action_just_pressed("interact")` query. More critically, fetch-chest areas carry `has_meta("player_near")` (set at lines 993-994) and the secret-wall branch at line 131 also checks `has_meta("player_near")` — but fetch-chest areas do NOT have `has_meta("secret_wall")`, so that branch is safe. However the item-pickup branch at line 123 checks `has_meta("item_id") and has_meta("player_near")` — it does NOT check `not has_meta("secret_wall")`. A secret-wall area that also somehow gained `item_id` meta would be consumed silently. This is not currently possible, but the structural pattern is fragile.
-
-The deeper issue: `save_point_active` is polled at line 118 before the child loop. A player standing on both a save point and a secret wall will save-and-exit AND would trigger the child loop on the same frame, because `_save_and_exit()` calls `get_tree().change_scene_to_file()` which defers the scene change — the rest of `_process()` still executes on that frame. This can cause `_on_secret_wall_activated` to run (awarding gold) just before the scene tears down.
-
-**Fix:** Gate the child-loop behind an early return if `_save_and_exit()` was called:
-```gdscript
-func _process(_delta: float) -> void:
-	if save_point_active and Input.is_action_just_pressed("interact"):
-		_save_and_exit()
-		return   # <-- add this; prevents child loop on same frame
-	_check_next_floor()
-	_check_boss_clear()
-	# ... rest of loop
-```
-
-### WR-03: Secret-wall hint label not hidden after `_on_secret_wall_activated` — dangling visible label
-
-**File:** `script/dungeon.gd:453-457`
-
-**Issue:** `_on_secret_wall_activated` calls `area.queue_free()` but does not first hide the hint label (`"hint_label"` meta) or prompt label (`"prompt_label"` meta). `queue_free()` defers freeing to end-of-frame. Between activation and frame end, both labels remain visible. If the player activates while standing inside the area, `_on_secret_wall_body_exited` never fires (the body-exited signal fires only when the physics body leaves, but `queue_free` removes the Area2D before the exit signal is sent), so both labels remain visible until the node is freed. In practice the frame gap is imperceptible, but if anything delays the free (e.g., deferred signal from physics), the labels persist visibly.
+Currently `_spawn_hidden_room` is called last in `_ready()` (line 115), so nothing spawns after it and no overlap occurs in practice. But this is a silent ordering dependency — if any future code adds a spawn call after `_spawn_hidden_room`, or if `_spawn_hidden_room` is ever called a second time (e.g., a future "multiple hidden rooms" feature), secret walls will overlap other objects. The pattern already exists in every peer function; this one was just missed.
 
 **Fix:**
 ```gdscript
-func _on_secret_wall_activated(area: Area2D) -> void:
-	var floor_no: int = int(area.get_meta("floor_no"))
-	var gold := HIDDEN_ROOM_GOLD_BASE + floor_no * 5
-	global.money += gold
-	# Hide labels before freeing so they don't flash if free is deferred
-	var hint_lbl: Label = area.get_meta("hint_label")
-	var prompt_lbl: Label = area.get_meta("prompt_label")
-	if hint_lbl:
-		hint_lbl.visible = false
-	if prompt_lbl:
-		prompt_lbl.visible = false
-	area.queue_free()
+func _spawn_hidden_room(floor_no: int, obstacles: Array) -> void:
+    var pos := _pick_hidden_room_position(obstacles)
+    if pos == Vector2.ZERO:
+        return
+    # Register footprint before building, consistent with all other spawn helpers
+    obstacles.append(Rect2(pos - Vector2(TILE / 2, TILE / 2), Vector2(TILE, TILE)))
+    var area := Area2D.new()
+    area.position = pos
+    # ... rest unchanged
 ```
 
-### WR-04: `_pick_lore_node` fragment coverage gap — floors 1-19 always show fragment_1, floors 90-100 show fragment_6
+---
 
-**File:** `script/dungeon.gd:361-373`
+### WR-02: `_pick_save_position` fallback returns unvalidated center — two new Phase 4 callers increase exposure
 
-**Issue:** The function maps `floor_no < 20` to `fragment_1`. With `DUNGEON_MAX_FLOOR = 100`, floors 1 through 19 (19% of the game) always display `fragment_1`. There are 6 fragments covering a 100-floor range, so a linear mapping would give ~16-17 floors per fragment. The current thresholds (20, 40, 60, 75, 90) leave fragment_1 over-represented and fragments 3/4 sharing a narrow mid-range. This is a design defect — players who play the first 19 floors repeatedly (very common at game start) see only the first lore fragment regardless of how many lore objects they read.
+**File:** `script/dungeon.gd:592-603`
 
-Additionally, the function uses `floor_no` directly but `dungeon.gd:84-85` clamps `floor_no` to `[1, DUNGEON_MAX_FLOOR]` before calling most helpers. `_pick_lore_node` is called with the unclamped raw value from `_spawn_lore_object` (line 357 passes `floor_no` which is the already-clamped local from `_ready` line 84). This is safe but should be noted.
+**Issue:** When 80 placement attempts fail, `_pick_save_position` returns `Vector2(room_w / 2, room_h / 2)` (line 603) without checking that point against `obstacles` or the room boundary. This pre-existed Phase 4, but Phase 4 added two new callers: `_spawn_dungeon_dialogue_npc` (line 348) and `_spawn_lore_object` (line 357) both call `_pick_save_position`. On densely-packed floors (high floor numbers where `_build_random_obstacles` places up to 25 obstacles), all three callers — save point, dialogue NPC, and lore object — could fall back to the same `(room_w/2, room_h/2)` center, stacking all three objects on a single tile. If that center point falls inside a wall obstacle the objects are unreachable or visually buried.
 
-**Fix:** Redistribute thresholds for even coverage:
+The 80-attempt loop makes the fallback rare, but "rare" is not "impossible" — on floor 100 with 25 obstacles and a small room, the probability is non-trivial.
+
+**Fix:** Validate the fallback point, or return a sentinel and let callers skip the spawn:
 ```gdscript
-func _pick_lore_node(floor_no: int) -> String:
-	if floor_no < 17:
-		return "fragment_1"
-	elif floor_no < 34:
-		return "fragment_2"
-	elif floor_no < 51:
-		return "fragment_3"
-	elif floor_no < 68:
-		return "fragment_4"
-	elif floor_no < 85:
-		return "fragment_5"
-	else:
-		return "fragment_6"
-```
+func _pick_save_position(obstacles: Array) -> Vector2:
+    for i in 80:
+        var min_tx := 8
+        var max_tx := maxi(min_tx + 1, room_w / TILE - 8)
+        var min_ty := 4
+        var max_ty := maxi(min_ty + 1, room_h / TILE - 12)
+        var x := rng.randi_range(min_tx, max_tx) * TILE + TILE / 2
+        var y := rng.randi_range(min_ty, max_ty) * TILE + TILE / 2
+        var p := Vector2(x, y)
+        if _is_position_clear(p, obstacles, 10):
+            return p
+    return Vector2.ZERO  # sentinel: callers check for ZERO and skip spawn
 
-### WR-05: `_spawn_lore_object` and `_spawn_dungeon_dialogue_npc` both call `_pick_save_position` — may return identical position
-
-**File:** `script/dungeon.gd:346-359`
-
-**Issue:** `_spawn_dungeon_dialogue_npc` (line 347) and `_spawn_lore_object` (line 355) both call `_pick_save_position(obstacles)`. `_pick_save_position` does not register its returned position back into `obstacles`, so both calls can independently land on the same tile. The NPC and lore object would overlap visually and their interaction areas would collide, causing both to receive the same body_entered events simultaneously. On small rooms (early floors) where `_is_position_clear` has fewer valid spots, this is more likely.
-
-**Fix:** After computing each position, append a padding rect to `obstacles` before the next spawn call:
-```gdscript
+# In each caller:
 func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
-	var pos := _pick_save_position(obstacles)
-	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))  # reserve slot
-	var npc: Node2D = load("res://script/dungeon_dialogue_npc.gd").new()
-	npc.position = pos
-	add_child(npc)
+    var pos := _pick_save_position(obstacles)
+    if pos == Vector2.ZERO:
+        return
+    obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
+    # ...
 
 func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
-	if not dialogue_data.DIALOGUES.has("lore_object"):
-		return
-	var pos := _pick_save_position(obstacles)
-	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))  # reserve slot
-	var lore: Node2D = load("res://script/lore_object.gd").new()
-	lore.lore_id = _pick_lore_node(floor_no)
-	lore.position = pos
-	add_child(lore)
+    if not dialogue_data.DIALOGUES.has("lore_object"):
+        return
+    var pos := _pick_save_position(obstacles)
+    if pos == Vector2.ZERO:
+        return
+    obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
+    # ...
 ```
+
+Note: `_build_save_point` also calls `_pick_save_position` and would need the same sentinel guard if this fix is applied.
 
 ---
 
 ## Info
 
-### IN-01: `dialogue_data.gd` — `"dungeon_merchant"` speaker name inconsistency
-
-**File:** `script/dialogue_data.gd:179,192`
-
-**Issue:** The `dungeon_merchant` NPC uses `"Merchant"` as the speaker name in the `greeting` and `merchant_offer` nodes (lines 181, 186) but `"Dungeon Merchant"` in the `story_chain_step2` node (line 192). Players will see the speaker name change mid-conversation depending on which branch triggers. The name shown in the dialogue panel header will be inconsistent.
-
-**Fix:** Standardize to one name throughout the `dungeon_merchant` block. Prefer `"Dungeon Merchant"` as it differentiates from the overworld shop NPC.
-
-### IN-02: `LORE_OBJECT_COLOR` constant defined in `dungeon.gd` but never used there
+### IN-01: `LORE_OBJECT_COLOR` constant defined but never referenced
 
 **File:** `script/dungeon.gd:26`
 
-**Issue:** `const LORE_OBJECT_COLOR := Color(0.55, 0.40, 0.20)` is declared at line 26 but is never referenced in `dungeon.gd`. The actual amber color `Color(0.55, 0.40, 0.20)` is hardcoded inside `lore_object.gd:14` as a literal. The constant serves no purpose as currently written.
+**Issue:** `const LORE_OBJECT_COLOR := Color(0.55, 0.40, 0.20)` is declared at the top of `dungeon.gd` but is never used in that file. The identical literal `Color(0.55, 0.40, 0.20)` is hardcoded inside `lore_object.gd:14`. The constant is dead code in its declaring file and does not reach the file that needs it.
 
-**Fix:** Either reference `LORE_OBJECT_COLOR` from `dungeon.gd` when spawning the lore object (pass it to the script or expose the color as an exported var on `lore_object.gd`), or remove the unused constant.
+**Fix:** Either remove the constant from `dungeon.gd`, or wire it through: expose a `color` export var on `lore_object.gd` and assign `LORE_OBJECT_COLOR` when spawning in `_spawn_lore_object`.
 
-### IN-03: `_spawn_lore_object` guards with `dialogue_data.DIALOGUES.has("lore_object")` — accessing private const
+---
 
-**File:** `script/dungeon.gd:353`
+### IN-02: `_spawn_lore_object` guards via internal `DIALOGUES` const rather than public API
 
-**Issue:** The guard `dialogue_data.DIALOGUES.has("lore_object")` directly accesses the `DIALOGUES` const from `dialogue_data`. The public API is `dialogue_data.get_dialogue_node(npc_id, node_id)` which returns `{}` on missing keys. Accessing the internal `DIALOGUES` constant couples `dungeon.gd` to the internal data structure. If `dialogue_data` is later refactored to use a different backing structure, this guard will silently break.
+**File:** `script/dungeon.gd:355`
+
+**Issue:** `if not dialogue_data.DIALOGUES.has("lore_object")` accesses the `DIALOGUES` constant directly, coupling `dungeon.gd` to `dialogue_data`'s internal structure. The public API is `dialogue_data.get_dialogue_node(npc_id, node_id)` which returns `{}` on a miss. If `dialogue_data` is ever refactored to a different backing structure (database, resource file, etc.), this guard silently breaks without a compile-time error.
 
 **Fix:**
 ```gdscript
 func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
-	# Use public API instead of accessing internal DIALOGUES const
-	if dialogue_data.get_dialogue_node("lore_object", "fragment_1").is_empty():
-		return
-	# ... rest unchanged
+    if dialogue_data.get_dialogue_node("lore_object", "fragment_1").is_empty():
+        return
+    # ... rest unchanged
 ```
 
 ---
 
-_Reviewed: 2026-05-16T10:15:00Z_
+### IN-03: `dungeon_merchant` speaker name inconsistent across dialogue nodes
+
+**File:** `script/dialogue_data.gd:181, 186, 192`
+
+**Issue:** The `dungeon_merchant` NPC uses `"Merchant"` as the speaker name in the `greeting` (line 181) and `merchant_offer` (line 186) nodes, but `"Dungeon Merchant"` in `story_chain_step2` (line 192). The dialogue panel header will show a different name depending on which branch triggers, which reads as a different character speaking.
+
+**Fix:** Standardize to `"Dungeon Merchant"` throughout the `dungeon_merchant` block to distinguish from the overworld shop NPC.
+
+---
+
+_Reviewed: 2026-05-18T22:40:00Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
