@@ -116,16 +116,16 @@ func load_from_slot(slot: int) -> bool:
 		cfg.get_value("player", "pos_x", 167.0),
 		cfg.get_value("player", "pos_y", 110.0)
 	)
-	var raw := cfg.get_value("dialogue", "npc_state", "")
+	var raw: String = cfg.get_value("dialogue", "npc_state", "")
 	var parsed_npc = str_to_var(raw) if raw != "" else null
 	npc_state = parsed_npc if (parsed_npc is Dictionary) else {}
-	var raw_qs := cfg.get_value("quests", "quest_state", "")
+	var raw_qs: String = cfg.get_value("quests", "quest_state", "")
 	var parsed_qs = str_to_var(raw_qs) if raw_qs != "" else null
 	quest_state = parsed_qs if (parsed_qs is Dictionary) else {}
-	var raw_items := cfg.get_value("quests", "items", "")
+	var raw_items: String = cfg.get_value("quests", "items", "")
 	var parsed_items = str_to_var(raw_items) if raw_items != "" else null
 	items = parsed_items if (parsed_items is Dictionary) else {}
-	var raw_unlocks := cfg.get_value("quests", "unlocks", "")
+	var raw_unlocks: String = cfg.get_value("quests", "unlocks", "")
 	var parsed_unlocks = str_to_var(raw_unlocks) if raw_unlocks != "" else null
 	unlocks = parsed_unlocks if (parsed_unlocks is Dictionary) else {}
 	game_first_loading = false

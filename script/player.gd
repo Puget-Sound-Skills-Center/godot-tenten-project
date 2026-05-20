@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+const UITheme = preload("res://script/ui_theme.gd")
+
 var enemy_inattack_range = false
 var enemy_attack_cooldown = true
 var ranged_hit_cooldown := true
@@ -18,6 +20,8 @@ var _attacking_enemy: Node2D = null
 var _hud_layer: CanvasLayer
 var _shop_layer: CanvasLayer
 var _hud_money_label: Label
+var _hud_hp_bar_fg: ColorRect
+var _hud_hp_label: Label
 var _shop_money_label: Label
 var _dmg_level_label: Label
 var _hp_level_label: Label
@@ -25,7 +29,7 @@ var _def_level_label: Label
 var _dmg_btn: Button
 var _hp_btn: Button
 var _def_btn: Button
-var _lore_panel: ColorRect
+var _lore_panel: Panel
 var _lore_label: Label
 
 func _ready():
@@ -210,23 +214,53 @@ func _setup_hud():
 	_hud_layer.layer = 10
 	add_child(_hud_layer)
 
+	# ── HP bar ─────────────────────────────────────────────────────────────
+	var hp_bg := ColorRect.new()
+	hp_bg.color = UITheme.C_HP_BG
+	hp_bg.size  = Vector2(80, 9)
+	hp_bg.position = Vector2(8, 8)
+	_hud_layer.add_child(hp_bg)
+
+	# Gold border around HP bar
+	var hp_border := Panel.new()
+	hp_border.add_theme_stylebox_override("panel", UITheme.panel_style(1))
+	hp_border.size     = Vector2(80, 9)
+	hp_border.position = Vector2(8, 8)
+	hp_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hud_layer.add_child(hp_border)
+
+	_hud_hp_bar_fg = ColorRect.new()
+	_hud_hp_bar_fg.color    = UITheme.C_HP_BAR
+	_hud_hp_bar_fg.size     = Vector2(78, 7)
+	_hud_hp_bar_fg.position = Vector2(1, 1)
+	hp_bg.add_child(_hud_hp_bar_fg)
+
+	_hud_hp_label = Label.new()
+	_hud_hp_label.position = Vector2(92, 6)
+	_hud_hp_label.add_theme_color_override("font_color", UITheme.C_TEXT)
+	UITheme.apply_font(_hud_hp_label, 7)
+	_hud_layer.add_child(_hud_hp_label)
+
+	# ── Gold counter ────────────────────────────────────────────────────────
 	_hud_money_label = Label.new()
-	_hud_money_label.position = Vector2(8, 8)
-	_hud_money_label.add_theme_color_override("font_color", Color.YELLOW)
+	_hud_money_label.position = Vector2(8, 22)
+	_hud_money_label.add_theme_color_override("font_color", UITheme.C_GOLD)
+	UITheme.apply_font(_hud_money_label, 8)
 	_hud_layer.add_child(_hud_money_label)
 
-	_lore_panel = ColorRect.new()
-	_lore_panel.color = Color(0.25, 0.20, 0.10, 0.9)
-	_lore_panel.size = Vector2(80, 16)
-	_lore_panel.position = Vector2(8, 24)
-	_lore_panel.visible = false
+	# ── Lore / item panel ───────────────────────────────────────────────────
+	_lore_panel = Panel.new()
+	_lore_panel.add_theme_stylebox_override("panel", UITheme.panel_style(1))
+	_lore_panel.size     = Vector2(88, 14)
+	_lore_panel.position = Vector2(8, 36)
+	_lore_panel.visible  = false
 	_hud_layer.add_child(_lore_panel)
 
 	_lore_label = Label.new()
-	_lore_label.position = Vector2(2, 0)
+	_lore_label.position  = Vector2(3, 1)
 	_lore_label.clip_text = true
-	_lore_label.add_theme_font_size_override("font_size", 8)
-	_lore_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
+	_lore_label.add_theme_color_override("font_color", UITheme.C_TITLE)
+	UITheme.apply_font(_lore_label, 7)
 	_lore_panel.add_child(_lore_label)
 
 func _setup_shop():
@@ -235,92 +269,129 @@ func _setup_shop():
 	_shop_layer.visible = false
 	add_child(_shop_layer)
 
-	var bg = ColorRect.new()
-	bg.color = Color(0, 0, 0, 0.65)
+	var bg := ColorRect.new()
+	bg.color = UITheme.C_OVERLAY
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_shop_layer.add_child(bg)
 
-	var panel = Panel.new()
+	var panel := Panel.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.size = Vector2(260, 210)
-	panel.offset_left = -130
-	panel.offset_top = -105
-	panel.offset_right = 130
-	panel.offset_bottom = 105
+	panel.offset_left   = -135
+	panel.offset_right  =  135
+	panel.offset_top    = -112
+	panel.offset_bottom =  112
+	panel.add_theme_stylebox_override("panel", UITheme.panel_style(2))
 	_shop_layer.add_child(panel)
 
-	var margin = MarginContainer.new()
+	# Header bar
+	var header_bar := ColorRect.new()
+	header_bar.color = UITheme.C_HEADER_BG
+	header_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	header_bar.custom_minimum_size = Vector2(0, 22)
+	panel.add_child(header_bar)
+
+	var header_lbl := Label.new()
+	header_lbl.text = "Upgrade Shop"
+	header_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	header_lbl.add_theme_color_override("font_color", UITheme.C_TITLE)
+	UITheme.apply_font(header_lbl, 11)
+	header_bar.add_child(header_lbl)
+
+	var hdr_line := ColorRect.new()
+	hdr_line.color = UITheme.C_BORDER
+	hdr_line.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	hdr_line.custom_minimum_size = Vector2(0, 1)
+	header_bar.add_child(hdr_line)
+
+	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_left",   14)
+	margin.add_theme_constant_override("margin_right",  14)
+	margin.add_theme_constant_override("margin_top",    30)
 	margin.add_theme_constant_override("margin_bottom", 10)
 	panel.add_child(margin)
 
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 6)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
 	margin.add_child(vbox)
-
-	var title = Label.new()
-	title.text = "UPGRADE SHOP"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
 
 	_shop_money_label = Label.new()
 	_shop_money_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_shop_money_label.add_theme_color_override("font_color", Color.YELLOW)
+	_shop_money_label.add_theme_color_override("font_color", UITheme.C_GOLD)
+	UITheme.apply_font(_shop_money_label, 9)
 	vbox.add_child(_shop_money_label)
 
-	vbox.add_child(HSeparator.new())
+	vbox.add_child(UITheme.divider())
 
-	var dmg_row = HBoxContainer.new()
+	# ── Upgrade rows ────────────────────────────────────────────────────────
+	var dmg_row := HBoxContainer.new()
+	dmg_row.add_theme_constant_override("separation", 6)
 	_dmg_btn = Button.new()
-	_dmg_btn.text = "Attack +1%  (50g)"
+	_dmg_btn.text = "ATK +1%  (50g)"
 	_dmg_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_dmg_btn.pressed.connect(_upgrade_damage)
+	UITheme.style_button(_dmg_btn, 9)
 	dmg_row.add_child(_dmg_btn)
 	_dmg_level_label = Label.new()
-	_dmg_level_label.custom_minimum_size = Vector2(60, 0)
+	_dmg_level_label.custom_minimum_size = Vector2(52, 0)
 	_dmg_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_dmg_level_label.add_theme_color_override("font_color", UITheme.C_HINT)
+	UITheme.apply_font(_dmg_level_label, 8)
 	dmg_row.add_child(_dmg_level_label)
 	vbox.add_child(dmg_row)
 
-	var hp_row = HBoxContainer.new()
+	var hp_row := HBoxContainer.new()
+	hp_row.add_theme_constant_override("separation", 6)
 	_hp_btn = Button.new()
-	_hp_btn.text = "Max HP +1%  (50g)"
+	_hp_btn.text = "HP +1%  (50g)"
 	_hp_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_hp_btn.pressed.connect(_upgrade_health)
+	UITheme.style_button(_hp_btn, 9)
 	hp_row.add_child(_hp_btn)
 	_hp_level_label = Label.new()
-	_hp_level_label.custom_minimum_size = Vector2(60, 0)
+	_hp_level_label.custom_minimum_size = Vector2(52, 0)
 	_hp_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_hp_level_label.add_theme_color_override("font_color", UITheme.C_HINT)
+	UITheme.apply_font(_hp_level_label, 8)
 	hp_row.add_child(_hp_level_label)
 	vbox.add_child(hp_row)
 
-	var def_row = HBoxContainer.new()
+	var def_row := HBoxContainer.new()
+	def_row.add_theme_constant_override("separation", 6)
 	_def_btn = Button.new()
-	_def_btn.text = "Defense +1%  (50g)"
+	_def_btn.text = "DEF +1%  (50g)"
 	_def_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_def_btn.pressed.connect(_upgrade_defense)
+	UITheme.style_button(_def_btn, 9)
 	def_row.add_child(_def_btn)
 	_def_level_label = Label.new()
-	_def_level_label.custom_minimum_size = Vector2(60, 0)
+	_def_level_label.custom_minimum_size = Vector2(52, 0)
 	_def_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_def_level_label.add_theme_color_override("font_color", UITheme.C_HINT)
+	UITheme.apply_font(_def_level_label, 8)
 	def_row.add_child(_def_level_label)
 	vbox.add_child(def_row)
 
-	vbox.add_child(HSeparator.new())
+	vbox.add_child(UITheme.divider())
 
-	var close_btn = Button.new()
+	var close_btn := Button.new()
 	close_btn.text = "Close  [E]"
+	close_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	close_btn.pressed.connect(_close_shop)
+	UITheme.style_button(close_btn, 9)
 	vbox.add_child(close_btn)
 
 func _upgrade_cost(current_level: int) -> int:
 	return 50 + current_level * 10
 
 func _update_hud():
-	_hud_money_label.text = "Gold: %d" % global.money
+	_hud_money_label.text = "G: %d" % global.money
+
+	var max_hp := float(global.get_max_health())
+	var pct    := clampf(float(health) / max_hp, 0.0, 1.0) if max_hp > 0 else 0.0
+	_hud_hp_bar_fg.size.x = 78.0 * pct
+	_hud_hp_label.text    = "%d/%d" % [health, int(max_hp)]
 
 	var has_lore := false
 	for key in global.items:

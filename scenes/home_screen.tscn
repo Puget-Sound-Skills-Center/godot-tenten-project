@@ -1,6 +1,6 @@
-[gd_scene format=4 uid="uid://dwwv2qe4265aa"]
+[gd_scene format=3 uid="uid://dwwv2qe4265aa"]
 
 [ext_resource type="Script" uid="uid://hscrnscript1" path="res://script/home_screen.gd" id="1_hs"]
 
-[node name="home_screen" type="Node2D"]
+[node name="home_screen" type="Node2D" unique_id=105965863]
 script = ExtResource("1_hs")

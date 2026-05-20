@@ -17,7 +17,7 @@ func _build_visual():
 	add_child(sprite)
 
 	_prompt_label = Label.new()
-	_prompt_label.text = "E: Shop"
+	_prompt_label.text = "E: Talk"
 	_prompt_label.position = Vector2(-12, -22)
 	_prompt_label.add_theme_font_size_override("font_size", 6)
 	_prompt_label.add_theme_color_override("font_color", Color.WHITE)
@@ -45,9 +45,8 @@ func _process(_delta):
 		# Guard: if dialogue is already open, do not retrigger (WR-01 mitigation)
 		if dialogue_manager._panel != null and dialogue_manager._panel.visible:
 			return
-		# Guard: if shop is already open, pressing E closes it
+		# Guard: if shop is already open, block dialogue until it is closed
 		if player_ref.shop_open:
-			player_ref._close_shop()
 			return
 		# Dialogue trigger — select start_node based on quest state (DLG-03)
 		var start := "greeting"

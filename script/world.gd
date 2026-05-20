@@ -11,17 +11,23 @@ func _ready() -> void:
 	else:
 		$player.position.x = global.player_exit_cliffside_posx
 		$player.position.y = global.player_exit_cliffside_posy
-	_spawn_shop_npc()
+	_spawn_elder_npc()
 	_spawn_blacksmith_npc()
+	_spawn_merchant_npc()
+
+func _spawn_elder_npc() -> void:
+	var npc = load("res://script/npc.gd").new()
+	npc.position = Vector2(167, 110)
+	add_child(npc)
 
 func _spawn_blacksmith_npc() -> void:
 	var npc = load("res://script/blacksmith_npc.gd").new()
-	npc.position = Vector2(240, 110)  # was 220; increased gap from shop NPC at (167,110)
+	npc.position = Vector2(240, 110)
 	add_child(npc)
 
-func _spawn_shop_npc():
-	var npc = load("res://script/npc.gd").new()
-	npc.position = Vector2(167, 110)
+func _spawn_merchant_npc() -> void:
+	var npc = load("res://script/shop_npc.gd").new()
+	npc.position = Vector2(110, 130)
 	add_child(npc)
 
 func _process(_delta):

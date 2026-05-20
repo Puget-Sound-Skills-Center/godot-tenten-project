@@ -1,5 +1,7 @@
 extends Node2D
 
+const UITheme = preload("res://script/ui_theme.gd")
+
 const TILE := 16
 const ROOM_W_BASE := 480
 const ROOM_H_BASE := 320
@@ -504,15 +506,18 @@ func _build_floor_exit(floor_no: int, obstacles: Array) -> Vector2:
 
 func _pick_exit_position(obstacles: Array) -> Vector2:
 	var ez := _exit_zone()
-	var min_tx := int(ez.position.x) / TILE
-	var max_tx := int(ez.position.x + ez.size.x) / TILE
-	var min_ty := int(ez.position.y) / TILE
-	var max_ty := int(ez.position.y + ez.size.y) / TILE
+	# Keep exit at least 1 tile inside the zone so the outer wall never blocks it.
+	var min_tx := int(ez.position.x) / TILE + 1
+	var max_tx := int(ez.position.x + ez.size.x) / TILE - 1
+	var min_ty := int(ez.position.y) / TILE + 1
+	var max_ty := int(ez.position.y + ez.size.y) / TILE - 1
 	for i in 80:
 		var x := rng.randi_range(min_tx, max_tx) * TILE + TILE / 2
 		var y := rng.randi_range(min_ty, max_ty) * TILE + TILE / 2
 		var p := Vector2(x, y)
-		if _is_position_clear(p, obstacles, 8):
+		# Radius 24 ensures a full tile of clearance from every wall so the
+		# player body can physically reach the exit Area2D trigger zone.
+		if _is_position_clear(p, obstacles, 24):
 			return p
 	return ez.position + ez.size / 2.0
 
@@ -631,29 +636,58 @@ func _build_hud(floor_no: int) -> void:
 	var canvas := CanvasLayer.new()
 	canvas.layer = 5
 	add_child(canvas)
+
+	# Floor label — centered at top so it never overlaps the player HUD (top-left corner)
 	floor_label = Label.new()
-	floor_label.position = Vector2(8, 24)
-	floor_label.text = "Dungeon Floor %d / %d" % [floor_no, global.DUNGEON_MAX_FLOOR]
-	floor_label.add_theme_color_override("font_color", Color.WHITE)
+	floor_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	floor_label.offset_left   = -140
+	floor_label.offset_right  =  140
+	floor_label.offset_top    =    4
+	floor_label.offset_bottom =   20
+	floor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	floor_label.text = "Dungeon  Floor %d / %d" % [floor_no, global.DUNGEON_MAX_FLOOR]
+	floor_label.add_theme_color_override("font_color", UITheme.C_TEXT)
+	UITheme.apply_font(floor_label, 9)
 	canvas.add_child(floor_label)
 
+	# Save prompt — center of screen, below floor label
 	save_prompt_label = Label.new()
+	save_prompt_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	save_prompt_label.offset_left   = -120
+	save_prompt_label.offset_right  =  120
+	save_prompt_label.offset_top    =   24
+	save_prompt_label.offset_bottom =   38
+	save_prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	save_prompt_label.text = "[E] Save & exit dungeon"
-	save_prompt_label.position = Vector2(120, 240)
-	save_prompt_label.add_theme_color_override("font_color", Color.YELLOW)
+	save_prompt_label.add_theme_color_override("font_color", UITheme.C_GOLD)
+	UITheme.apply_font(save_prompt_label, 8)
 	save_prompt_label.visible = false
 	canvas.add_child(save_prompt_label)
 
+	# Puzzle label — below floor label, still center-top
 	puzzle_label = Label.new()
-	puzzle_label.position = Vector2(8, 40)
+	puzzle_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	puzzle_label.offset_left   = -160
+	puzzle_label.offset_right  =  160
+	puzzle_label.offset_top    =   22
+	puzzle_label.offset_bottom =   36
+	puzzle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	puzzle_label.add_theme_color_override("font_color", Color(0.85, 0.7, 1.0))
+	UITheme.apply_font(puzzle_label, 8)
 	puzzle_label.visible = false
 	canvas.add_child(puzzle_label)
+
 	if floor_no % 25 == 0 and floor_no > 0:
 		boss_hud_label = Label.new()
-		boss_hud_label.text = "BOSS FLOOR — Defeat all enemies to advance"
-		boss_hud_label.position = Vector2(8, 56)
+		boss_hud_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+		boss_hud_label.offset_left   = -200
+		boss_hud_label.offset_right  =  200
+		boss_hud_label.offset_top    =   40
+		boss_hud_label.offset_bottom =   54
+		boss_hud_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		boss_hud_label.text = "BOSS FLOOR  —  Defeat all enemies to advance"
 		boss_hud_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+		UITheme.apply_font(boss_hud_label, 8)
 		canvas.add_child(boss_hud_label)
 
 # --- Puzzle ---
