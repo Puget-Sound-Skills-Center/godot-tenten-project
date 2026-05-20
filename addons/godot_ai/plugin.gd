@@ -41,6 +41,7 @@ const StartupPathScript := preload("res://addons/godot_ai/utils/mcp_startup_path
 ## write-before-scan model.
 const Connection := preload("res://addons/godot_ai/connection.gd")
 const Dispatcher := preload("res://addons/godot_ai/dispatcher.gd")
+const Telemetry := preload("res://addons/godot_ai/telemetry.gd")
 const LogBuffer := preload("res://addons/godot_ai/utils/log_buffer.gd")
 const GameLogBuffer := preload("res://addons/godot_ai/utils/game_log_buffer.gd")
 const EditorLogBuffer := preload("res://addons/godot_ai/utils/editor_log_buffer.gd")
@@ -145,6 +146,7 @@ const STARTUP_TRACE_COUNTER_NAMES := [
 ## "attached" state IS exactly "non-null".
 var _connection
 var _dispatcher
+var _telemetry
 var _log_buffer
 var _game_log_buffer
 var _editor_log_buffer
@@ -216,6 +218,8 @@ func _enter_tree() -> void:
 	):
 		_arm_server_version_check()
 
+	_telemetry = Telemetry.new(_connection)
+
 	_debugger_plugin = DebuggerPlugin.new(_log_buffer, _game_log_buffer)
 	add_debugger_plugin(_debugger_plugin)
 	_ensure_game_helper_autoload()
@@ -275,6 +279,7 @@ func _enter_tree() -> void:
 	_dispatcher.register("get_performance_monitors", editor_handler.get_performance_monitors)
 	_dispatcher.register("reload_plugin", editor_handler.reload_plugin)
 	_dispatcher.register("quit_editor", editor_handler.quit_editor)
+	_dispatcher.register("game_eval", editor_handler.game_eval)
 	_dispatcher.register("get_project_setting", project_handler.get_project_setting)
 	_dispatcher.register("set_project_setting", project_handler.set_project_setting)
 	_dispatcher.register("run_project", project_handler.run_project)
@@ -385,8 +390,41 @@ func _enter_tree() -> void:
 	_startup_trace_phase("dock_attached")
 
 	_log_buffer.log("plugin loaded")
+	if _telemetry != null:
+		_telemetry.record_dock_startup()
+		_flush_pending_self_update_telemetry()
+		_telemetry.flush_pending_plugin_reload()
 	var startup_path: String = str(_lifecycle.get_startup_path())
 	_startup_trace_finish(startup_path if not startup_path.is_empty() else "loaded")
+
+
+## Public wrapper around the dev-server-toggle telemetry emit. Lets the
+## dock (or any other caller) record without reaching into ``_telemetry``
+## directly — keeps the plugin's internal field encapsulated. The dev
+## server is a Python subprocess unrelated to the plugin's own
+## lifecycle, so emission can be synchronous (no EditorSettings persist
+## dance like ``plugin_reload`` / ``self_update``).
+func record_dev_server_toggle(action: String) -> void:
+	if _telemetry == null:
+		return
+	_telemetry.record_dev_server_toggle(action)
+
+
+## Drain any self_update event written by `update_reload_runner` during the
+## previous disable -> enable window.
+func _flush_pending_self_update_telemetry() -> void:
+	var key := UPDATE_RELOAD_RUNNER_SCRIPT.PENDING_SELF_UPDATE_TELEMETRY_KEY
+	var parsed = Telemetry._drain_editor_setting_dict(key)
+	if parsed == null:
+		return
+	var status := str(parsed.get("status", "unknown"))
+	var error := str(parsed.get("error", ""))
+	## Positional args: GDScript doesn't support keyword args in calls
+	## (unlike Python). from_version + to_version are empty strings here
+	## — only ``status`` and ``error`` are known at flush time.
+	_telemetry.record_self_update(status, "", "", error)
+
+
 
 
 func _exit_tree() -> void:
@@ -496,7 +534,7 @@ static func _mcp_disabled_for_headless_launch() -> bool:
 
 
 static func _mcp_disabled_for_headless(args: PackedStringArray, display_name: String, allow_value: String) -> bool:
-	if _env_truthy(allow_value):
+	if McpSettings.truthy(allow_value):
 		return false
 	return _args_request_headless(args) or display_name.to_lower() == "headless"
 
@@ -513,12 +551,6 @@ static func _args_request_headless(args: PackedStringArray) -> bool:
 	return false
 
 
-static func _env_truthy(value: String) -> bool:
-	match value.strip_edges().to_lower():
-		"1", "true", "yes", "on":
-			return true
-		_:
-			return false
 
 
 func _disable_plugin() -> void:
@@ -1500,7 +1532,10 @@ func start_dev_server() -> void:
 			var new_pp := worktree_src if prev_pythonpath.is_empty() else worktree_src + sep + prev_pythonpath
 			OS.set_environment("PYTHONPATH", new_pp)
 
+		var injected_telemetry: bool = _lifecycle._inject_telemetry_env()
 		var pid := OS.create_process(cmd, inner_args)
+		if injected_telemetry:
+			OS.unset_environment("GODOT_AI_DISABLE_TELEMETRY")
 
 		## Restore PYTHONPATH immediately — the spawned child has already
 		## copied the env, so the editor's own process state returns to
