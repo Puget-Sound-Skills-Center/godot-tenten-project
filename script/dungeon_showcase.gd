@@ -41,6 +41,7 @@ func _ready() -> void:
 	_build_ruins_room()
 	_build_hallway_2()
 	_build_abyss_room()
+	_spawn_player()
 
 func _make_bg(rect: Rect2, color: Color) -> void:
 	var bg := ColorRect.new()
@@ -115,3 +116,18 @@ func _build_abyss_room() -> void:
 	_make_wall(Rect2(x, ROOM_H - HALL_WALL_H, TILE, HALL_WALL_H), THEME_ABYSS.wall)
 	_make_wall(Rect2(x + ROOM_W - TILE, 0, TILE, ROOM_H), THEME_ABYSS.wall)
 	_make_label(Vector2(x + 20, 22), "ABYSS  *  Floors 67-100")
+
+func _spawn_player() -> void:
+	var packed: PackedScene = load(PLAYER_SCENE)
+	player_node = packed.instantiate()
+	player_node.position = Vector2(CAVE_X + ROOM_W / 2, ROOM_H / 2)
+	add_child(player_node)
+	var cam := Camera2D.new()
+	cam.limit_left = 0
+	cam.limit_top = 0
+	cam.limit_right = TOTAL_W
+	cam.limit_bottom = TOTAL_H
+	cam.limit_smoothed = true
+	cam.drag_horizontal_enabled = true
+	cam.drag_vertical_enabled = true
+	player_node.add_child(cam)
