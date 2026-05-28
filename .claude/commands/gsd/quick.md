@@ -11,6 +11,7 @@ allowed-tools:
   - Bash
   - Agent
   - AskUserQuestion
+requires: [phase]
 ---
 <objective>
 Execute small, ad-hoc tasks with GSD guarantees (atomic commits, STATE.md tracking).
@@ -39,7 +40,7 @@ Granular flags are composable: `--discuss --research --validate` gives the same 
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/quick.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/quick.md
 </execution_context>
 
 <context>
@@ -118,7 +119,7 @@ Status: {status from SUMMARY.md frontmatter, or "no summary yet"}
 Description: {first non-empty line from PLAN.md after frontmatter}
 Last action: {last meaningful line of SUMMARY.md, or "none"}
 ─────────────────────────────────────
-Resume with: /gsd-quick resume {slug}
+Resume with: /gsd:quick resume {slug}
 ```
 
 No agent spawn. STOP after printing.

@@ -164,7 +164,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Decisions to log? → Add to Key Decisions
 5. "What This Is" still accurate? → Update if drifted
 
-**After each milestone** (via `/gsd-complete-milestone`):
+**After each milestone** (via `/gsd:complete-milestone`):
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
@@ -259,7 +259,7 @@ Then verify `.planning/phases/` no longer contains old milestone directories bef
 
 If `phase_dir_count > 0` but `phase_archive_path` is missing:
 - Stop and explain that reset numbering is unsafe without a completed milestone archive target.
-- Tell the user to complete/archive the previous milestone first, then rerun `/gsd-new-milestone --reset-phase-numbers ${GSD_WS}`.
+- Tell the user to complete/archive the previous milestone first, then rerun `/gsd:new-milestone --reset-phase-numbers ${GSD_WS}`.
 
 ## 8. Research Decision
 
@@ -277,7 +277,7 @@ AskUserQuestion: "Research the domain ecosystem for new features before defining
 - "Skip research (current default)" — Go straight to requirements
 - "Research first" — Discover patterns, features, architecture for NEW capabilities
 
-**IMPORTANT:** Do NOT persist this choice to config.json. The `workflow.research` setting is a persistent user preference that controls plan-phase behavior across the project. Changing it here would silently alter future `/gsd-plan-phase` behavior. To change the default, use `/gsd-settings`.
+**IMPORTANT:** Do NOT persist this choice to config.json. The `workflow.research` setting is a persistent user preference that controls plan-phase behavior across the project. Changing it here would silently alter future `/gsd:plan-phase` behavior. To change the default, use `/gsd:settings`.
 
 **If user chose "Research first":**
 
@@ -321,7 +321,7 @@ ${AGENT_SKILLS_RESEARCHER}
 
 <output>
 Write to: .planning/research/{FILE}
-Use template: D:/Unity/godot-tenten-project/.claude/get-shit-done/templates/research-project/{FILE}
+Use template: D:/Unity/godot-tenten-project-main/.claude/get-shit-done/templates/research-project/{FILE}
 </output>
 ", subagent_type="gsd-project-researcher", model="{researcher_model}", description="{DIMENSION} research")
 ```
@@ -354,7 +354,7 @@ Synthesize research outputs into SUMMARY.md.
 ${AGENT_SKILLS_SYNTHESIZER}
 
 Write to: .planning/research/SUMMARY.md
-Use template: D:/Unity/godot-tenten-project/.claude/get-shit-done/templates/research-project/SUMMARY.md
+Use template: D:/Unity/godot-tenten-project-main/.claude/get-shit-done/templates/research-project/SUMMARY.md
 Commit after writing.
 ", subagent_type="gsd-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
 ```
@@ -607,9 +607,9 @@ Print a summary:
 
 `/clear` then:
 
-`/gsd-discuss-phase [N] ${GSD_WS}` — gather context and clarify approach
+`/gsd:discuss-phase [N] ${GSD_WS}` — gather context and clarify approach
 
-Also: `/gsd-plan-phase [N] ${GSD_WS}` — skip discussion, plan directly
+Also: `/gsd:plan-phase [N] ${GSD_WS}` — skip discussion, plan directly
 ```
 
 </process>
@@ -627,7 +627,7 @@ Also: `/gsd-plan-phase [N] ${GSD_WS}` — skip discussion, plan directly
 - [ ] Phase numbering mode respected (continued or reset)
 - [ ] All commits made (if planning docs committed)
 - [ ] Pending todos scanned for phase matches; matched todos tagged with `resolves_phase: N`
-- [ ] User knows next step: `/gsd-discuss-phase [N] ${GSD_WS}`
+- [ ] User knows next step: `/gsd:discuss-phase [N] ${GSD_WS}`
 
 **Atomic commits:** Each phase commits its artifacts immediately.
 </success_criteria>

@@ -29,10 +29,10 @@ Mode routing:
 </routing>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/new-workspace.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/list-workspaces.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/remove-workspace.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/new-workspace.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/list-workspaces.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/remove-workspace.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>

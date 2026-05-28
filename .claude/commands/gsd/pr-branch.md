@@ -6,6 +6,7 @@ allowed-tools:
   - Bash
   - Read
   - AskUserQuestion
+requires: [review]
 ---
 
 <objective>
@@ -17,7 +18,7 @@ changes that are irrelevant to code review.
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/pr-branch.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/pr-branch.md
 </execution_context>
 
 <process>

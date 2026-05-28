@@ -10,6 +10,7 @@ allowed-tools:
   - Grep
   - AskUserQuestion
   - Agent
+requires: [cleanup, phase, progress]
 ---
 <objective>
 Execute all remaining milestone phases autonomously. For each phase: discuss → plan → execute. Pauses only for user decisions (grey area acceptance, blockers, validation requests).
@@ -25,8 +26,8 @@ Uses ROADMAP.md phase discovery and Skill() flat invocations for each phase comm
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/autonomous.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/autonomous.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>

@@ -5,11 +5,12 @@ argument-hint: "[build|query <term>|status|diff]"
 allowed-tools:
   - Read
   - Bash
+requires: [config, fast, phase, update]
 ---
 
 **STOP -- DO NOT READ THIS FILE. You are already reading it. This prompt was injected into your context by Claude Code's command system. Using the Read tool on this file wastes tokens. Begin executing Step 0 immediately.**
 
-**CJS-only (graphify):** `graphify` subcommands are not registered on `gsd-sdk query`. Use `node D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs graphify …` as documented in this command and in `docs/CLI-TOOLS.md`. Other tooling may still use `gsd-sdk query` where a handler exists.
+**CJS-only (graphify):** `graphify` subcommands are not registered on `gsd-sdk query`. Use `node D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs graphify …` as documented in this command and in `docs/CLI-TOOLS.md`. Other tooling may still use `gsd-sdk query` where a handler exists.
 
 ## Step 0 -- Banner
 
@@ -40,9 +41,9 @@ GSD > GRAPHIFY
 
 Knowledge graph is disabled. To activate:
 
-  node D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs config-set graphify.enabled true
+  node D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs config-set graphify.enabled true
 
-Then run /gsd-graphify build to create the initial graph.
+Then run /gsd:graphify build to create the initial graph.
 ```
 
 ---
@@ -64,7 +65,7 @@ Parse `$ARGUMENTS` to determine the operation mode:
 ```
 GSD > GRAPHIFY
 
-Usage: /gsd-graphify <mode>
+Usage: /gsd:graphify <mode>
 
 Modes:
   build           Build or rebuild the knowledge graph
@@ -78,13 +79,13 @@ Modes:
 Run:
 
 ```bash
-node D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs graphify query <term>
+node D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs graphify query <term>
 ```
 
 Parse the JSON output and display results:
 - If the output contains `"disabled": true`, display the disabled message from Step 1 and **STOP**
 - If the output contains `"error"` field, display the error message and **STOP**
-- If no nodes found, display: `No graph matches for '<term>'. Try /gsd-graphify build to create or rebuild the graph.`
+- If no nodes found, display: `No graph matches for '<term>'. Try /gsd:graphify build to create or rebuild the graph.`
 - Otherwise, display matched nodes grouped by type, with edge relationships and confidence tiers (EXTRACTED/INFERRED/AMBIGUOUS)
 
 **STOP** after displaying results. Do not spawn an agent.
@@ -94,7 +95,7 @@ Parse the JSON output and display results:
 Run:
 
 ```bash
-node D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs graphify status
+node D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs graphify status
 ```
 
 Parse the JSON output and display:
@@ -118,7 +119,7 @@ Surface both so the agent can choose.
 Run:
 
 ```bash
-node D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs graphify diff
+node D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs graphify diff
 ```
 
 Parse the JSON output and display:
@@ -136,7 +137,7 @@ If no snapshot exists, suggest running `build` twice (first to create, second to
 Run the pre-flight check first:
 
 ```bash
-node "D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs" graphify build
+node "D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs" graphify build
 ```
 
 Parse the JSON output:
@@ -159,8 +160,8 @@ graphify update . \
   && cp graphify-out/graph.json .planning/graphs/graph.json \
   && cp graphify-out/graph.html .planning/graphs/graph.html \
   && cp graphify-out/GRAPH_REPORT.md .planning/graphs/GRAPH_REPORT.md \
-  && node "D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs" graphify build snapshot \
-  && node "D:/Unity/godot-tenten-project/.claude/get-shit-done/bin/gsd-tools.cjs" graphify status
+  && node "D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs" graphify build snapshot \
+  && node "D:/Unity/godot-tenten-project-main/.claude/get-shit-done/bin/gsd-tools.cjs" graphify status
 ```
 
 Do NOT pass `run_in_background: true`. Typical builds complete in 15-60 seconds and the entire chain must run foreground.

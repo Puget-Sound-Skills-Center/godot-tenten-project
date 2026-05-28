@@ -19,7 +19,7 @@ Output: MILESTONE_SUMMARY written to `.planning/reports/`, presented inline, opt
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/milestone-summary.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/milestone-summary.md
 </execution_context>
 
 <context>

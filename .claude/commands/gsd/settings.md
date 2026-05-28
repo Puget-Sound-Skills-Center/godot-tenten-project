@@ -6,6 +6,7 @@ allowed-tools:
   - Write
   - Bash
   - AskUserQuestion
+requires: [quick]
 ---
 
 <objective>
@@ -20,7 +21,7 @@ Routes to the settings workflow which handles:
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/settings.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/settings.md
 </execution_context>
 
 <process>

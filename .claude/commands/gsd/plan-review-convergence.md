@@ -10,6 +10,7 @@ allowed-tools:
   - Grep
   - Agent
   - AskUserQuestion
+requires: [phase, review]
 ---
 
 <objective>
@@ -24,10 +25,10 @@ Replaces gsd-plan-phase's internal gsd-plan-checker with external AI reviewers (
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/plan-review-convergence.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/revision-loop.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/gates.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/agent-contracts.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/plan-review-convergence.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/revision-loop.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/gates.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/agent-contracts.md
 </execution_context>
 
 <runtime_note>

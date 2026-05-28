@@ -19,8 +19,8 @@ Routes to the profile-user workflow which orchestrates the full flow: consent ga
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/profile-user.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/profile-user.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>

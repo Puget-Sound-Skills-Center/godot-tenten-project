@@ -6,6 +6,7 @@ allowed-tools:
   - Write
   - Bash
   - AskUserQuestion
+requires: [phase]
 ---
 <objective>
 Archive phase directories from completed milestones into `.planning/milestones/v{X.Y}-phases/`.
@@ -14,7 +15,7 @@ Use when `.planning/phases/` has accumulated directories from past milestones.
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/cleanup.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/cleanup.md
 </execution_context>
 
 <process>

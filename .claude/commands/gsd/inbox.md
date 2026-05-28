@@ -9,6 +9,7 @@ allowed-tools:
   - Grep
   - Glob
   - AskUserQuestion
+requires: [review]
 ---
 <objective>
 One-command triage of the project's GitHub inbox. Fetches all open issues and PRs,
@@ -20,7 +21,7 @@ and optionally applies labels or closes non-compliant submissions.
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/inbox.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/inbox.md
 </execution_context>
 
 <context>

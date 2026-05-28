@@ -9,6 +9,7 @@ allowed-tools:
   - Grep
   - Write
   - Agent
+requires: [config, import, phase, quick, review]
 ---
 <objective>
 Review source files changed during a phase for bugs, security vulnerabilities, and code quality problems.
@@ -30,7 +31,7 @@ Output: {padded_phase}-REVIEW.md in phase directory + inline summary of findings
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/code-review.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/code-review.md
 </execution_context>
 
 <context>

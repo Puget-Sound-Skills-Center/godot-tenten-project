@@ -31,10 +31,10 @@ Mode routing:
 </routing>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/add-phase.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/insert-phase.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/remove-phase.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/edit-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/add-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/insert-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/remove-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/edit-phase.md
 </execution_context>
 
 <context>

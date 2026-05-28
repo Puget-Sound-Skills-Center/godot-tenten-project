@@ -11,6 +11,7 @@ allowed-tools:
   - Grep
   - Agent
   - AskUserQuestion
+requires: [update]
 ---
 <objective>
 Generate and update up to 9 documentation files for the current project. Each doc type is written by a gsd-doc-writer subagent that explores the codebase directly — no hallucinated paths, phantom endpoints, or stale signatures.
@@ -25,7 +26,7 @@ Flag handling rule:
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/docs-update.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/docs-update.md
 </execution_context>
 
 <context>

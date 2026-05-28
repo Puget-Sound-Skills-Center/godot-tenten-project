@@ -8,6 +8,7 @@ allowed-tools:
   - Glob
   - Grep
   - AskUserQuestion
+requires: [phase]
 ---
 
 <objective>
@@ -20,9 +21,9 @@ Three modes:
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/undo.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/gate-prompts.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/undo.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/gate-prompts.md
 </execution_context>
 
 <context>

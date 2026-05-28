@@ -12,6 +12,7 @@ allowed-tools:
   - WebFetch
   - AskUserQuestion
   - mcp__context7__*
+requires: [phase]
 ---
 <objective>
 Create a UI design contract (UI-SPEC.md) for a frontend phase.
@@ -20,8 +21,8 @@ Flow: Validate → Research UI → Verify UI-SPEC → Done
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/ui-phase.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/ui-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>

@@ -12,6 +12,7 @@ allowed-tools:
   - Glob
   - Agent
   - AskUserQuestion
+requires: [audit-uat]
 ---
 <objective>
 Run an audit, classify findings as auto-fixable vs manual-only, then autonomously fix
@@ -25,7 +26,7 @@ Flags:
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/audit-fix.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/audit-fix.md
 </execution_context>
 
 <process>

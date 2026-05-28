@@ -9,6 +9,7 @@ allowed-tools:
   - Bash
   - Grep
   - Glob
+requires: [phase, progress, update]
 ---
 
 <objective>
@@ -19,7 +20,7 @@ Output: Forensic report saved to `.planning/forensics/`, presented inline, with 
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/forensics.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/forensics.md
 </execution_context>
 
 <context>

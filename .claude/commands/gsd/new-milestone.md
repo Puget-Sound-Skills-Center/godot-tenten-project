@@ -8,6 +8,7 @@ allowed-tools:
   - Bash
   - Agent
   - AskUserQuestion
+requires: [new-project, phase, plan-phase]
 ---
 <objective>
 Start a new milestone: questioning → research (optional) → requirements → roadmap.
@@ -21,15 +22,15 @@ Brownfield equivalent of new-project. Project exists, PROJECT.md has history. Ga
 - `.planning/ROADMAP.md` — phase structure (continues numbering)
 - `.planning/STATE.md` — reset for new milestone
 
-**After:** `/gsd-plan-phase [N]` to start execution.
+**After:** `/gsd:plan-phase [N]` to start execution.
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/new-milestone.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/questioning.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/templates/project.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/templates/requirements.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/new-milestone.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/questioning.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/templates/project.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/templates/requirements.md
 </execution_context>
 
 <context>

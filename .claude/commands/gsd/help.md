@@ -15,7 +15,7 @@ Output ONLY the reference content below. Do NOT add:
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/help.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/help.md
 </execution_context>
 
 <process>

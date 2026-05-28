@@ -36,12 +36,12 @@ Mode routing:
 </routing>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/add-todo.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/note.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/add-backlog.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/plant-seed.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/check-todos.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/add-todo.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/note.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/add-backlog.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/plant-seed.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/check-todos.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>

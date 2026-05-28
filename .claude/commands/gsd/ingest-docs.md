@@ -27,10 +27,10 @@ Auto-synthesizes most conflicts using the precedence rule `ADR > SPEC > PRD > DO
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/ingest-docs.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/gate-prompts.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/doc-conflict-engine.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/ingest-docs.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/gate-prompts.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/doc-conflict-engine.md
 </execution_context>
 
 <context>

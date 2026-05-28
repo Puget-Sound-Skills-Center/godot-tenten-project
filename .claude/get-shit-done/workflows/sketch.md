@@ -1,7 +1,7 @@
 <purpose>
 Explore design directions through throwaway HTML mockups before committing to implementation.
 Each sketch produces 2-3 variants for comparison. Saves artifacts to `.planning/sketches/`.
-Companion to `/gsd-sketch --wrap-up`.
+Companion to `/gsd:sketch --wrap-up`.
 
 Supports two modes:
 - **Idea mode** (default) — user describes a design idea to sketch
@@ -11,10 +11,10 @@ Supports two modes:
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/sketch-theme-system.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/sketch-variant-patterns.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/sketch-interactivity.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/sketch-tooling.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/sketch-theme-system.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/sketch-variant-patterns.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/sketch-interactivity.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/sketch-tooling.md
 </required_reading>
 
 <process>
@@ -331,14 +331,14 @@ After all sketches complete:
 
 **Package findings** — wrap design decisions into a reusable skill
 
-`/gsd-sketch --wrap-up`
+`/gsd:sketch --wrap-up`
 
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
-- `/gsd-sketch` — sketch more (or run with no argument for frontier mode)
-- `/gsd-plan-phase` — start building the real UI
-- `/gsd-spike` — spike technical feasibility of a design pattern
+- `/gsd:sketch` — sketch more (or run with no argument for frontier mode)
+- `/gsd:plan-phase` — start building the real UI
+- `/gsd:spike` — spike technical feasibility of a design pattern
 
 ───────────────────────────────────────────────────────────────
 </step>

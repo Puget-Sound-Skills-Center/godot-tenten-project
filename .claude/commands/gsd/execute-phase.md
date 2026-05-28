@@ -12,6 +12,7 @@ allowed-tools:
   - Agent
   - TodoWrite
   - AskUserQuestion
+requires: [phase, verify-work]
 ---
 <objective>
 Execute all plans in a phase using wave-based parallel execution.
@@ -31,8 +32,8 @@ Context budget: ~15% orchestrator, 100% fresh per subagent.
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/execute-phase.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ui-brand.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/execute-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <runtime_note>

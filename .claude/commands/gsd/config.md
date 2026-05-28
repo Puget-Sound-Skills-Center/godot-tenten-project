@@ -7,6 +7,7 @@ allowed-tools:
   - Write
   - Bash
   - AskUserQuestion
+requires: [code-review, review, settings]
 ---
 
 <objective>
@@ -31,9 +32,9 @@ Mode routing:
 </routing>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/settings.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/settings-advanced.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/settings-integrations.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/settings.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/settings-advanced.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/settings-integrations.md
 </execution_context>
 
 <context>

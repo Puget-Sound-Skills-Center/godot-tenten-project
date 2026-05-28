@@ -22,7 +22,7 @@ Routes to the resume-project workflow which handles:
   </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/resume-project.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/resume-project.md
 </execution_context>
 
 <process>

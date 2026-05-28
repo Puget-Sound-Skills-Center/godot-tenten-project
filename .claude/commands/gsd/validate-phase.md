@@ -11,6 +11,7 @@ allowed-tools:
   - Grep
   - Agent
   - AskUserQuestion
+requires: [phase]
 ---
 <objective>
 Audit Nyquist validation coverage for a completed phase. Three states:
@@ -22,7 +23,7 @@ Output: updated VALIDATION.md + generated test files.
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/validate-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/validate-phase.md
 </execution_context>
 
 <context>

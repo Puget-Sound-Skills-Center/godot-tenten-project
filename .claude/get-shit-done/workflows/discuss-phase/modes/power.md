@@ -8,7 +8,7 @@
 ## Dispatch
 
 ```
-Read @D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/discuss-phase-power.md
+Read @D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/discuss-phase-power.md
 ```
 
 Execute it end-to-end. Do not continue with the standard interactive steps.

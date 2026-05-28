@@ -9,6 +9,7 @@ allowed-tools:
   - Glob
   - Grep
   - AskUserQuestion
+requires: [discuss-phase, execute-phase, phase, plan-phase]
 ---
 
 <objective>
@@ -28,8 +29,8 @@ Clarify phase requirements through structured Socratic questioning with quantita
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/spec-phase.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/templates/spec.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/spec-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/templates/spec.md
 </execution_context>
 
 <runtime_note>
@@ -58,5 +59,5 @@ Execute end-to-end.
 - Gate passed: ambiguity ≤ 0.20 AND all dimension minimums met
 - SPEC.md written with falsifiable requirements, explicit boundaries, and acceptance criteria
 - SPEC.md committed atomically
-- User knows they can now run /gsd-discuss-phase which will load SPEC.md automatically
+- User knows they can now run /gsd:discuss-phase which will load SPEC.md automatically
 </success_criteria>

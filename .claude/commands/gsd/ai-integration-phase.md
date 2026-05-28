@@ -13,6 +13,7 @@ allowed-tools:
   - WebSearch
   - AskUserQuestion
   - mcp__context7__*
+requires: [phase]
 ---
 <objective>
 Create an AI design contract (AI-SPEC.md) for a phase involving AI system development.
@@ -21,9 +22,9 @@ Flow: Select Framework → Research Docs → Research Domain → Design Eval Str
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/ai-integration-phase.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ai-frameworks.md
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/references/ai-evals.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/ai-integration-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ai-frameworks.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/references/ai-evals.md
 </execution_context>
 
 <context>

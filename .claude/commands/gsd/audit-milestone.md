@@ -9,6 +9,7 @@ allowed-tools:
   - Bash
   - Agent
   - Write
+requires: [execute-phase]
 ---
 <objective>
 Verify milestone achieved its definition of done. Check requirements coverage, cross-phase integration, and end-to-end flows.
@@ -17,7 +18,7 @@ Verify milestone achieved its definition of done. Check requirements coverage, c
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/audit-milestone.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/audit-milestone.md
 </execution_context>
 
 <context>

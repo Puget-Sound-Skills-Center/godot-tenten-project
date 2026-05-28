@@ -11,6 +11,7 @@ allowed-tools:
   - Grep
   - Agent
   - AskUserQuestion
+requires: [phase]
 ---
 <objective>
 Verify threat mitigations for a completed phase. Three states:
@@ -22,7 +23,7 @@ Output: updated SECURITY.md.
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/secure-phase.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/secure-phase.md
 </execution_context>
 
 <context>

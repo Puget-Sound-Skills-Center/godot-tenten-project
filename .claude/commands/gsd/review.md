@@ -8,18 +8,19 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
+requires: [config, phase, plan-phase]
 ---
 
 <objective>
 Invoke external AI CLIs (Gemini, Claude, Codex, OpenCode, Qwen Code, Cursor) to independently review phase plans.
 Produces a structured REVIEWS.md with per-reviewer feedback that can be fed back into
-planning via /gsd-plan-phase --reviews.
+planning via /gsd:plan-phase --reviews.
 
 **Flow:** Detect CLIs → Build review prompt → Invoke each CLI → Collect responses → Write REVIEWS.md
 </objective>
 
 <execution_context>
-@D:/Unity/godot-tenten-project/.claude/get-shit-done/workflows/review.md
+@D:/Unity/godot-tenten-project-main/.claude/get-shit-done/workflows/review.md
 </execution_context>
 
 <context>
