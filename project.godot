@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="GodotTentenProject"
-run/main_scene="res://scenes/home_screen.tscn"
+run/main_scene="res://scenes/dungeon_showcase.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
 [autoload]
 
 global="*uid://neut6i1kx728"
 pause_menu="*res://script/pause_menu.gd"
+death_screen="*res://script/death_screen.gd"
 dialogue_data="*res://script/dialogue_data.gd"
 dialogue_manager="*res://script/dialogue_manager.gd"
 quest_data="*res://script/quest_data.gd"
