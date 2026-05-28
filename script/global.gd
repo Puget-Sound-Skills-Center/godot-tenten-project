@@ -79,6 +79,8 @@ func reset_for_new_game() -> void:
 	items = {}
 	unlocks = {}
 	loaded_from_save = false
+	player_dead = false
+	active_save_slot = 1
 
 func _slot_path(slot: int) -> String:
 	return "user://save_slot_%d.cfg" % slot

@@ -20,6 +20,8 @@ func _pa(node: Node) -> Node:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.is_action_pressed("ui_cancel"):
 		return
+	if global.player_dead:
+		return
 	if global.current_scene == "home":
 		return
 	if dialogue_manager._panel != null and dialogue_manager._panel.visible:
