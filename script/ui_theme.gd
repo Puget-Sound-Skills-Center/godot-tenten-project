@@ -4,7 +4,7 @@ extends RefCounted
 # class_name makes every constant and static func available to any GDScript
 # in the project without needing an autoload registration.
 
-const FONT_PATH := "res://art/fonts/Daydream.ttf"
+const FONT_PATH := "res://art/fonts/Daydream.otf"
 
 # ── Palette ────────────────────────────────────────────────────────────────
 const C_OVERLAY     := Color(0.00, 0.00, 0.00, 0.74)

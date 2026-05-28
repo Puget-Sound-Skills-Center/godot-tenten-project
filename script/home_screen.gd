@@ -121,7 +121,7 @@ func _build_ui() -> void:
 
 	# ── Version / hint ──────────────────────────────────────────────────────
 	var hint := Label.new()
-	hint.text = "Move: WASD   Attack: Click   Shop: E"
+	hint.text = "Move: WASD   Attack: Click   Interact: E"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	hint.offset_top = -18
