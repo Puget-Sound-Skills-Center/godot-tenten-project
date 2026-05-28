@@ -12,9 +12,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if global.player_dead and not visible:
-		_show()
+		_present()
 
-func _show() -> void:
+func _present() -> void:
 	var save_path := "user://save_slot_%d.cfg" % global.active_save_slot
 	_load_btn.visible = FileAccess.file_exists(save_path)
 	visible = true
@@ -59,7 +59,9 @@ func _build_ui() -> void:
 
 func _on_load_last_save() -> void:
 	global.player_dead = false
-	global.load_from_slot(global.active_save_slot)
+	if not global.load_from_slot(global.active_save_slot):
+		_on_home_screen()
+		return
 	get_tree().paused = false
 	visible = false
 	var scene_file := "res://scenes/world.tscn"
