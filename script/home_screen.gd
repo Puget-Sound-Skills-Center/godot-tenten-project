@@ -245,6 +245,7 @@ func _on_load_slot(slot: int) -> void:
 		_feedback_lbl.text = "Slot %d is empty." % slot
 		_feedback_lbl.visible = true
 		return
+	global.active_save_slot = slot
 	_load_panel.visible = false
 	var scene_file := "res://scenes/world.tscn"
 	match global.current_scene:
