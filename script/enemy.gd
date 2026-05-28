@@ -4,11 +4,11 @@ var speed = 40
 var player_chase = false
 var player: Node2D = null
 
-var health = 100
+var health = 50
 var player_inattack_range = false
 var can_take_damage = true
 
-var money_drop = 1000
+var money_drop = 50
 var enemy_type: String = "melee"
 
 var _nav_agent: NavigationAgent2D
