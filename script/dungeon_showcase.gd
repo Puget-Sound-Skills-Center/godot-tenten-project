@@ -39,6 +39,8 @@ func _ready() -> void:
 	_build_cave_room()
 	_build_hallway_1()
 	_build_ruins_room()
+	_build_hallway_2()
+	_build_abyss_room()
 
 func _make_bg(rect: Rect2, color: Color) -> void:
 	var bg := ColorRect.new()
@@ -97,3 +99,19 @@ func _build_ruins_room() -> void:
 	_make_wall(Rect2(x + ROOM_W - TILE, 0, TILE, HALL_WALL_H), THEME_RUINS.wall)
 	_make_wall(Rect2(x + ROOM_W - TILE, ROOM_H - HALL_WALL_H, TILE, HALL_WALL_H), THEME_RUINS.wall)
 	_make_label(Vector2(x + 20, 22), "RUINS  *  Floors 34-66")
+
+func _build_hallway_2() -> void:
+	var x := RUINS_X + ROOM_W
+	_make_bg(Rect2(x, 0, HALL_W, ROOM_H), THEME_RUINS.floor)
+	_make_wall(Rect2(x, 0, HALL_W, HALL_WALL_H), THEME_RUINS.wall)
+	_make_wall(Rect2(x, ROOM_H - HALL_WALL_H, HALL_W, HALL_WALL_H), THEME_RUINS.wall)
+
+func _build_abyss_room() -> void:
+	var x := ABYSS_X
+	_make_bg(Rect2(x, 0, ROOM_W, ROOM_H), THEME_ABYSS.floor)
+	_make_wall(Rect2(x, 0, ROOM_W, TILE), THEME_ABYSS.wall)
+	_make_wall(Rect2(x, ROOM_H - TILE, ROOM_W, TILE), THEME_ABYSS.wall)
+	_make_wall(Rect2(x, 0, TILE, HALL_WALL_H), THEME_ABYSS.wall)
+	_make_wall(Rect2(x, ROOM_H - HALL_WALL_H, TILE, HALL_WALL_H), THEME_ABYSS.wall)
+	_make_wall(Rect2(x + ROOM_W - TILE, 0, TILE, ROOM_H), THEME_ABYSS.wall)
+	_make_label(Vector2(x + 20, 22), "ABYSS  *  Floors 67-100")
