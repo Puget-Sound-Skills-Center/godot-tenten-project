@@ -30,6 +30,8 @@ var player_damage_level = 0
 var player_health_level = 0
 var player_defense_level = 0
 var player_current_health = -1
+var active_save_slot := 1
+var player_dead := false
 
 var npc_state: Dictionary = {}
 var quest_state: Dictionary = {}
