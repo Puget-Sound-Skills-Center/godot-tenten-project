@@ -36,4 +36,45 @@ const THEME_ABYSS := {
 var player_node: Node2D
 
 func _ready() -> void:
-	pass
+	_build_cave_room()
+
+func _make_bg(rect: Rect2, color: Color) -> void:
+	var bg := ColorRect.new()
+	bg.color = color
+	bg.position = rect.position
+	bg.size = rect.size
+	bg.z_index = -10
+	add_child(bg)
+
+func _make_wall(rect: Rect2, color: Color) -> void:
+	var body := StaticBody2D.new()
+	body.position = rect.position + rect.size / 2.0
+	var shape_node := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = rect.size
+	shape_node.shape = shape
+	body.add_child(shape_node)
+	var visual := ColorRect.new()
+	visual.color = color
+	visual.position = -rect.size / 2.0
+	visual.size = rect.size
+	body.add_child(visual)
+	add_child(body)
+
+func _make_label(pos: Vector2, text: String) -> void:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.position = pos
+	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_color_override("font_color", Color.WHITE)
+	add_child(lbl)
+
+func _build_cave_room() -> void:
+	var x := CAVE_X
+	_make_bg(Rect2(x, 0, ROOM_W, ROOM_H), THEME_CAVE.floor)
+	_make_wall(Rect2(x, 0, ROOM_W, TILE), THEME_CAVE.wall)
+	_make_wall(Rect2(x, ROOM_H - TILE, ROOM_W, TILE), THEME_CAVE.wall)
+	_make_wall(Rect2(x, 0, TILE, ROOM_H), THEME_CAVE.wall)
+	_make_wall(Rect2(x + ROOM_W - TILE, 0, TILE, HALL_WALL_H), THEME_CAVE.wall)
+	_make_wall(Rect2(x + ROOM_W - TILE, ROOM_H - HALL_WALL_H, TILE, HALL_WALL_H), THEME_CAVE.wall)
+	_make_label(Vector2(x + 20, 22), "CAVE  *  Floors 1-33")
