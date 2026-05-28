@@ -42,6 +42,7 @@ func _ready() -> void:
 	_build_hallway_2()
 	_build_abyss_room()
 	_spawn_player()
+	_setup_navigation()
 
 func _make_bg(rect: Rect2, color: Color) -> void:
 	var bg := ColorRect.new()
@@ -131,3 +132,42 @@ func _spawn_player() -> void:
 	cam.drag_horizontal_enabled = true
 	cam.drag_vertical_enabled = true
 	player_node.add_child(cam)
+
+func _setup_navigation() -> void:
+	var geo := NavigationMeshSourceGeometryData2D.new()
+	geo.add_traversable_outline(PackedVector2Array([
+		Vector2(CAVE_X + TILE, TILE),
+		Vector2(CAVE_X + TILE, ROOM_H - TILE),
+		Vector2(CAVE_X + ROOM_W - TILE, ROOM_H - TILE),
+		Vector2(CAVE_X + ROOM_W - TILE, TILE),
+	]))
+	geo.add_traversable_outline(PackedVector2Array([
+		Vector2(CAVE_X + ROOM_W - TILE, HALL_WALL_H),
+		Vector2(CAVE_X + ROOM_W - TILE, ROOM_H - HALL_WALL_H),
+		Vector2(RUINS_X + TILE, ROOM_H - HALL_WALL_H),
+		Vector2(RUINS_X + TILE, HALL_WALL_H),
+	]))
+	geo.add_traversable_outline(PackedVector2Array([
+		Vector2(RUINS_X + TILE, TILE),
+		Vector2(RUINS_X + TILE, ROOM_H - TILE),
+		Vector2(RUINS_X + ROOM_W - TILE, ROOM_H - TILE),
+		Vector2(RUINS_X + ROOM_W - TILE, TILE),
+	]))
+	geo.add_traversable_outline(PackedVector2Array([
+		Vector2(RUINS_X + ROOM_W - TILE, HALL_WALL_H),
+		Vector2(RUINS_X + ROOM_W - TILE, ROOM_H - HALL_WALL_H),
+		Vector2(ABYSS_X + TILE, ROOM_H - HALL_WALL_H),
+		Vector2(ABYSS_X + TILE, HALL_WALL_H),
+	]))
+	geo.add_traversable_outline(PackedVector2Array([
+		Vector2(ABYSS_X + TILE, TILE),
+		Vector2(ABYSS_X + TILE, ROOM_H - TILE),
+		Vector2(ABYSS_X + ROOM_W - TILE, ROOM_H - TILE),
+		Vector2(ABYSS_X + ROOM_W - TILE, TILE),
+	]))
+	var nav_poly := NavigationPolygon.new()
+	nav_poly.agent_radius = 10.0
+	NavigationServer2D.bake_from_source_geometry_data(nav_poly, geo)
+	var nav_region := NavigationRegion2D.new()
+	nav_region.navigation_polygon = nav_poly
+	add_child(nav_region)
