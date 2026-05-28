@@ -43,6 +43,9 @@ func _ready() -> void:
 	_build_abyss_room()
 	_spawn_player()
 	_setup_navigation()
+	_spawn_cave_enemies()
+	_spawn_ruins_enemies()
+	_spawn_abyss_enemies()
 
 func _make_bg(rect: Rect2, color: Color) -> void:
 	var bg := ColorRect.new()
@@ -171,3 +174,33 @@ func _setup_navigation() -> void:
 	var nav_region := NavigationRegion2D.new()
 	nav_region.navigation_polygon = nav_poly
 	add_child(nav_region)
+
+func _spawn_cave_enemies() -> void:
+	var packed: PackedScene = load(ENEMY_SCENE)
+	var positions := [Vector2(180, 160), Vector2(360, 200)]
+	var scripts   := [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_BASE]
+	for i in positions.size():
+		var enemy: Node2D = packed.instantiate()
+		enemy.set_script(load(scripts[i]))
+		enemy.position = positions[i]
+		add_child(enemy)
+
+func _spawn_ruins_enemies() -> void:
+	var packed: PackedScene = load(ENEMY_SCENE)
+	var positions := [Vector2(RUINS_X + 120, 160), Vector2(RUINS_X + 300, 220)]
+	var scripts   := [ENEMY_SCRIPT_BASE, ENEMY_SCRIPT_FAST]
+	for i in positions.size():
+		var enemy: Node2D = packed.instantiate()
+		enemy.set_script(load(scripts[i]))
+		enemy.position = positions[i]
+		add_child(enemy)
+
+func _spawn_abyss_enemies() -> void:
+	var packed: PackedScene = load(ENEMY_SCENE)
+	var positions := [Vector2(ABYSS_X + 120, 140), Vector2(ABYSS_X + 280, 200), Vector2(ABYSS_X + 380, 150)]
+	var scripts   := [ENEMY_SCRIPT_RANGED, ENEMY_SCRIPT_FAST, ENEMY_SCRIPT_TANK]
+	for i in positions.size():
+		var enemy: Node2D = packed.instantiate()
+		enemy.set_script(load(scripts[i]))
+		enemy.position = positions[i]
+		add_child(enemy)
