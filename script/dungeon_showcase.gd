@@ -37,6 +37,8 @@ var player_node: Node2D
 
 func _ready() -> void:
 	_build_cave_room()
+	_build_hallway_1()
+	_build_ruins_room()
 
 func _make_bg(rect: Rect2, color: Color) -> void:
 	var bg := ColorRect.new()
@@ -78,3 +80,20 @@ func _build_cave_room() -> void:
 	_make_wall(Rect2(x + ROOM_W - TILE, 0, TILE, HALL_WALL_H), THEME_CAVE.wall)
 	_make_wall(Rect2(x + ROOM_W - TILE, ROOM_H - HALL_WALL_H, TILE, HALL_WALL_H), THEME_CAVE.wall)
 	_make_label(Vector2(x + 20, 22), "CAVE  *  Floors 1-33")
+
+func _build_hallway_1() -> void:
+	var x := CAVE_X + ROOM_W
+	_make_bg(Rect2(x, 0, HALL_W, ROOM_H), THEME_CAVE.floor)
+	_make_wall(Rect2(x, 0, HALL_W, HALL_WALL_H), THEME_CAVE.wall)
+	_make_wall(Rect2(x, ROOM_H - HALL_WALL_H, HALL_W, HALL_WALL_H), THEME_CAVE.wall)
+
+func _build_ruins_room() -> void:
+	var x := RUINS_X
+	_make_bg(Rect2(x, 0, ROOM_W, ROOM_H), THEME_RUINS.floor)
+	_make_wall(Rect2(x, 0, ROOM_W, TILE), THEME_RUINS.wall)
+	_make_wall(Rect2(x, ROOM_H - TILE, ROOM_W, TILE), THEME_RUINS.wall)
+	_make_wall(Rect2(x, 0, TILE, HALL_WALL_H), THEME_RUINS.wall)
+	_make_wall(Rect2(x, ROOM_H - HALL_WALL_H, TILE, HALL_WALL_H), THEME_RUINS.wall)
+	_make_wall(Rect2(x + ROOM_W - TILE, 0, TILE, HALL_WALL_H), THEME_RUINS.wall)
+	_make_wall(Rect2(x + ROOM_W - TILE, ROOM_H - HALL_WALL_H, TILE, HALL_WALL_H), THEME_RUINS.wall)
+	_make_label(Vector2(x + 20, 22), "RUINS  *  Floors 34-66")
