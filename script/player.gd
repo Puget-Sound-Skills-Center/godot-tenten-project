@@ -55,6 +55,8 @@ func _physics_process(delta):
 	_update_hud()
 
 	if health <= 0:
+		if player_alive:
+			global.player_dead = true
 		player_alive = false
 		health = 0
 
