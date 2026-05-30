@@ -17,11 +17,7 @@ var current_dir = "none"
 
 var _attacking_enemy: Node2D = null
 
-var _hud_layer: CanvasLayer
 var _shop_layer: CanvasLayer
-var _hud_money_label: Label
-var _hud_hp_bar_fg: ColorRect
-var _hud_hp_label: Label
 var _shop_money_label: Label
 var _dmg_level_label: Label
 var _hp_level_label: Label
@@ -29,8 +25,6 @@ var _def_level_label: Label
 var _dmg_btn: Button
 var _hp_btn: Button
 var _def_btn: Button
-var _lore_panel: Panel
-var _lore_label: Label
 
 func _ready():
 	add_to_group("player")
@@ -40,12 +34,15 @@ func _ready():
 	else:
 		health = global.get_max_health()
 	global.player_current_attack = false
-	_setup_hud()
+	HUD.show()
+	HUD.update_money(global.money)
+	HUD.update_hp(health / float(global.get_max_health()), health, global.get_max_health())
 	_setup_shop()
 
 func _exit_tree():
 	global.player_current_health = health
 	global.player_current_attack = false
+	HUD.hide()
 
 func _physics_process(delta):
 	player_movement(delta)
@@ -209,61 +206,7 @@ func _close_shop():
 	shop_open = false
 	_shop_layer.visible = false
 
-# --- HUD & Shop UI ---
-
-func _setup_hud():
-	_hud_layer = CanvasLayer.new()
-	_hud_layer.layer = 10
-	add_child(_hud_layer)
-
-	# ── HP bar ─────────────────────────────────────────────────────────────
-	var hp_bg := ColorRect.new()
-	hp_bg.color = UITheme.C_HP_BG
-	hp_bg.size  = Vector2(80, 9)
-	hp_bg.position = Vector2(8, 8)
-	_hud_layer.add_child(hp_bg)
-
-	# Gold border around HP bar
-	var hp_border := Panel.new()
-	hp_border.add_theme_stylebox_override("panel", UITheme.panel_style(1))
-	hp_border.size     = Vector2(80, 9)
-	hp_border.position = Vector2(8, 8)
-	hp_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hud_layer.add_child(hp_border)
-
-	_hud_hp_bar_fg = ColorRect.new()
-	_hud_hp_bar_fg.color    = UITheme.C_HP_BAR
-	_hud_hp_bar_fg.size     = Vector2(78, 7)
-	_hud_hp_bar_fg.position = Vector2(1, 1)
-	hp_bg.add_child(_hud_hp_bar_fg)
-
-	_hud_hp_label = Label.new()
-	_hud_hp_label.position = Vector2(92, 6)
-	_hud_hp_label.add_theme_color_override("font_color", UITheme.C_TEXT)
-	UITheme.apply_font(_hud_hp_label, 7)
-	_hud_layer.add_child(_hud_hp_label)
-
-	# ── Gold counter ────────────────────────────────────────────────────────
-	_hud_money_label = Label.new()
-	_hud_money_label.position = Vector2(8, 22)
-	_hud_money_label.add_theme_color_override("font_color", UITheme.C_GOLD)
-	UITheme.apply_font(_hud_money_label, 8)
-	_hud_layer.add_child(_hud_money_label)
-
-	# ── Lore / item panel ───────────────────────────────────────────────────
-	_lore_panel = Panel.new()
-	_lore_panel.add_theme_stylebox_override("panel", UITheme.panel_style(1))
-	_lore_panel.size     = Vector2(88, 14)
-	_lore_panel.position = Vector2(8, 36)
-	_lore_panel.visible  = false
-	_hud_layer.add_child(_lore_panel)
-
-	_lore_label = Label.new()
-	_lore_label.position  = Vector2(3, 1)
-	_lore_label.clip_text = true
-	_lore_label.add_theme_color_override("font_color", UITheme.C_TITLE)
-	UITheme.apply_font(_lore_label, 7)
-	_lore_panel.add_child(_lore_label)
+# --- Shop UI ---
 
 func _setup_shop():
 	_shop_layer = CanvasLayer.new()
@@ -387,21 +330,21 @@ func _setup_shop():
 func _upgrade_cost(current_level: int) -> int:
 	return 50 + current_level * 10
 
-func _update_hud():
-	_hud_money_label.text = "G: %d" % global.money
+func _update_hud() -> void:
+	var max_hp := global.get_max_health()
+	var pct := health / float(max_hp)
+	HUD.update_hp(pct, health, max_hp)
+	HUD.update_money(global.money)
 
-	var max_hp := float(global.get_max_health())
-	var pct    := clampf(float(health) / max_hp, 0.0, 1.0) if max_hp > 0 else 0.0
-	_hud_hp_bar_fg.size.x = 78.0 * pct
-	_hud_hp_label.text    = "%d/%d" % [health, int(max_hp)]
-
-	var has_lore := false
+	var lore_text := ""
 	for key in global.items:
-		if int(global.items[key]) > 0:
-			has_lore = true
-			_lore_label.text = String(key).replace("_", " ").capitalize()
+		if global.items[key]:
+			lore_text = String(key).replace("_", " ").capitalize()
 			break
-	_lore_panel.visible = has_lore
+	if lore_text.is_empty():
+		HUD.hide_lore()
+	else:
+		HUD.show_lore(lore_text)
 
 	if shop_open:
 		_shop_money_label.text = "Gold: %d g" % global.money
