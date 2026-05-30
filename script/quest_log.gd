@@ -116,6 +116,8 @@ func _build_entry(qid: String) -> void:
 
 	var name_lbl := _pa(Label.new()) as Label
 	name_lbl.text = "* " + name_text
+	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_lbl.add_theme_color_override("font_color", UITheme.C_TITLE)
 	UITheme.apply_font(name_lbl, 9)
 	entry.add_child(name_lbl)
@@ -126,7 +128,8 @@ func _build_entry(qid: String) -> void:
 		obj_text += " (Return!)"
 	var obj_lbl := _pa(Label.new()) as Label
 	obj_lbl.text = "  " + obj_text
-	obj_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+	obj_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	obj_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	obj_lbl.add_theme_color_override("font_color", UITheme.C_TEXT)
 	UITheme.apply_font(obj_lbl, 8)
 	entry.add_child(obj_lbl)

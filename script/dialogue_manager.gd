@@ -107,7 +107,7 @@ func _build_dialogue_panel() -> void:
 	_text_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_text_lbl.add_theme_color_override("font_color", UITheme.C_TEXT)
-	UITheme.apply_font(_text_lbl, 9)
+	UITheme.apply_font(_text_lbl, 7)
 	vbox.add_child(_text_lbl)
 
 	_choices_container = _pa(VBoxContainer.new()) as VBoxContainer
@@ -177,7 +177,7 @@ func _render_node() -> void:
 			btn.text = "> " + choice.get("label", "")
 			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			btn.pressed.connect(_on_choice_picked.bind(choice))
-			UITheme.style_button(btn, 8)
+			UITheme.style_button(btn, 7)
 			_choices_container.add_child(btn)
 
 func _on_choice_picked(choice: Dictionary) -> void:

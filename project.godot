@@ -39,6 +39,10 @@ window/stretch/scale=2.0
 
 enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
 
+[gui]
+
+theme/custom_font="res://art/fonts/Daydream.otf"
+
 [input]
 
 move_up={
