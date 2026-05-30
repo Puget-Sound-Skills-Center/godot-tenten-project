@@ -13,8 +13,8 @@ func _on_scene_change(path: String) -> void:
 func _load_scene(path: String) -> void:
 	var vp := $SubViewportContainer/SubViewport as SubViewport
 	for child in vp.get_children():
-		child.queue_free()
-	var packed = load(path)
+		child.free()
+	var packed := load(path) as PackedScene
 	if packed == null:
 		push_error("main.gd: cannot load scene: " + path)
 		return
