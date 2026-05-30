@@ -43,6 +43,8 @@ func _exit_tree():
 	global.player_current_health = health
 	global.player_current_attack = false
 	HUD.hide_hud()
+	if is_instance_valid(_shop_layer):
+		_shop_layer.queue_free()
 
 func _physics_process(delta):
 	player_movement(delta)
@@ -212,7 +214,10 @@ func _setup_shop():
 	_shop_layer = CanvasLayer.new()
 	_shop_layer.layer = 20
 	_shop_layer.visible = false
-	add_child(_shop_layer)
+	# Parent to the root viewport (not the player, which lives in the 960x540
+	# SubViewport) so the shop UI renders at full physical resolution. Freed in
+	# _exit_tree since it no longer auto-frees with the player.
+	get_tree().root.add_child(_shop_layer)
 
 	var bg := ColorRect.new()
 	bg.color = UITheme.C_OVERLAY

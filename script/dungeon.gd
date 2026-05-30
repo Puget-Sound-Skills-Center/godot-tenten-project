@@ -61,6 +61,7 @@ var room_h: int
 var rng := RandomNumberGenerator.new()
 
 var player_node: Node2D
+var _hud_canvas: CanvasLayer = null
 var floor_label: Label
 var save_prompt_label: Label
 var puzzle_label: Label
@@ -117,6 +118,12 @@ func _ready() -> void:
 		_setup_puzzle(floor_no, obstacles, exit_pos)
 	if not boss_floor_active and rng.randf() < HIDDEN_ROOM_PROBABILITY:
 		_spawn_hidden_room(floor_no, obstacles)
+
+func _exit_tree() -> void:
+	# The HUD canvas is parented to the root viewport, so free it explicitly
+	# when this dungeon scene is torn down (floor advance / exit).
+	if is_instance_valid(_hud_canvas):
+		_hud_canvas.queue_free()
 
 func _process(_delta: float) -> void:
 	if save_point_active and Input.is_action_just_pressed("interact"):
@@ -638,7 +645,11 @@ func _on_save_body_exited(body: Node2D) -> void:
 func _build_hud(floor_no: int) -> void:
 	var canvas := CanvasLayer.new()
 	canvas.layer = 5
-	add_child(canvas)
+	# Parent to the root viewport (not this dungeon node, which lives in the
+	# 960x540 SubViewport) so the HUD text renders at full physical resolution.
+	# Freed in _exit_tree since it no longer auto-frees with the scene.
+	get_tree().root.add_child(canvas)
+	_hud_canvas = canvas
 
 	# Floor label — centered at top so it never overlaps the player HUD (top-left corner)
 	floor_label = Label.new()
