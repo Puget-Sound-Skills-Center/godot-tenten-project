@@ -25,7 +25,6 @@ quest_data="*res://script/quest_data.gd"
 quest_manager="*res://script/quest_manager.gd"
 quest_log="*res://script/quest_log.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
-hud="*res://script/hud.gd"
 HUD="*res://script/hud.gd"
 
 [display]
