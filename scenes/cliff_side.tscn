@@ -112,6 +112,7 @@ script = ExtResource("1_v3mbj")
 
 [node name="TileMap" type="Node2D" parent="." unique_id=148638374]
 y_sort_enabled = true
+scale = Vector2(4, 4)
 
 [node name="Ground" type="TileMapLayer" parent="TileMap" unique_id=1418539196]
 use_parent_material = true
@@ -128,19 +129,16 @@ tile_set = SubResource("TileSet_5q6pw")
 [node name="collision_map" type="StaticBody2D" parent="." unique_id=1732108566]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="collision_map" unique_id=2060310542]
+scale = Vector2(4, 4)
 polygon = PackedVector2Array(403, 423, 303, 425, 304, 371, 301, 369, 299, 356, 287, 354, 287, 271, 418, 272, 419, 353, 409, 355, 403, 371, 450, 370, 439, 252, 275, 252, 277, 361, 295, 436, 415, 442, 406, 371, 403, 371)
 
 [node name="player" parent="." unique_id=1145790712 instance=ExtResource("6_ocn37")]
-position = Vector2(352, 360)
-
-[node name="cliffside_camera2" type="Camera2D" parent="player" unique_id=991502314]
-limit_smoothed = true
-drag_horizontal_enabled = true
-drag_vertical_enabled = true
+position = Vector2(1408, 1441)
 
 [node name="Cliffside_exit_point" type="Area2D" parent="." unique_id=856695562]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Cliffside_exit_point" unique_id=1894032277]
+visible = false
 position = Vector2(353.5, 399.375)
 shape = SubResource("RectangleShape2D_ocn37")
 

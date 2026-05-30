@@ -34,15 +34,15 @@ func _ready():
 	else:
 		health = global.get_max_health()
 	global.player_current_attack = false
-	hud.show_hud()
-	hud.update_money(global.money)
-	hud.update_hp(health / float(global.get_max_health()), health, global.get_max_health())
+	HUD.show_hud()
+	HUD.update_money(global.money)
+	HUD.update_hp(health / float(global.get_max_health()), health, global.get_max_health())
 	_setup_shop()
 
 func _exit_tree():
 	global.player_current_health = health
 	global.player_current_attack = false
-	hud.hide_hud()
+	HUD.hide_hud()
 
 func _physics_process(delta):
 	player_movement(delta)
@@ -333,8 +333,8 @@ func _upgrade_cost(current_level: int) -> int:
 func _update_hud() -> void:
 	var max_hp := global.get_max_health()
 	var pct: float = float(health) / float(max_hp)
-	hud.update_hp(pct, health, max_hp)
-	hud.update_money(global.money)
+	HUD.update_hp(pct, health, max_hp)
+	HUD.update_money(global.money)
 
 	var lore_text := ""
 	for key in global.items:
@@ -342,9 +342,9 @@ func _update_hud() -> void:
 			lore_text = String(key).replace("_", " ").capitalize()
 			break
 	if lore_text.is_empty():
-		hud.hide_lore()
+		HUD.hide_lore()
 	else:
-		hud.show_lore(lore_text)
+		HUD.show_lore(lore_text)
 
 	if shop_open:
 		_shop_money_label.text = "Gold: %d g" % global.money

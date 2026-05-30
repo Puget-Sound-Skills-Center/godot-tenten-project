@@ -420,6 +420,7 @@ animations = [{
 radius = 11.0
 
 [node name="player" type="CharacterBody2D" unique_id=1145790712]
+scale = Vector2(4, 4)
 collision_layer = 3
 script = ExtResource("1_g2els")
 
