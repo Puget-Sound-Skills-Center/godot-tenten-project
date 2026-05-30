@@ -7,6 +7,8 @@ commits:
   - "c3d7a6f fix(ui-scale): remove duplicate hud autoload, correct dead SubViewport size"
   - "b76bb32 feat(ui-scale): world camera zoom 2x + tilemap-bounds limits"
   - "52303d9 feat(ui-scale): add cliffside camera with zoom 2x + tilemap-bounds limits"
+  - "15733ad fix(ui-scale): force nearest texture filter on SubViewport canvas"
+  - "f76d41a feat(world): scale NPCs to 4x and respread spawns to match world scale"
 ---
 
 # Quick Task 260529-utn — Summary
@@ -48,3 +50,26 @@ Diagnosed and verified entirely live through the Godot MCP editor (run + screens
   scene, the player is the same on-screen size everywhere, so per-scene visual
   tuning gives a consistent cozy feel without that larger refactor. Flag for
   later if pixel-for-pixel world/dungeon consistency is ever wanted.
+
+## Follow-up (same session, from user feedback)
+6. **Blur fix** (`script/main.gd`) — pixel art was blurry at native window
+   resolution (my earlier MCP shots were downscaled to 960, which hid it). Root
+   cause: **SubViewports do NOT inherit the project `default_texture_filter`;
+   they default to linear**, so the 8×-magnified art (4× tilemap × 2× camera)
+   smeared. Added `RenderingServer.viewport_set_default_canvas_item_texture_filter(
+   vp.get_viewport_rid(), CANVAS_ITEM_TEXTURE_FILTER_NEAREST)`. Crisp at full
+   1920×1080. `15733ad`
+7. **World NPC scale/position** (`npc.gd`, `shop_npc.gd`, `blacksmith_npc.gd`,
+   `world.gd`) — NPCs built at scale 1 (tiny vs the 4× world); elder spawned on
+   the player's exact spawn `(167,110)`. Scaled visuals to 4×, raised labels,
+   interaction radius 20→36, respread spawns (shop `105,125` / elder `210,125` /
+   smith `285,125`). `f76d41a`
+
+## OPEN — paused for user decision (RE-ASK on resume)
+User answered "pause this session and ask me again" to both of these:
+- **SMITH appearance**: blacksmith is still a plain amber `ColorRect` placeholder
+  (`blacksmith_npc.gd._build_visual`). Decide: give it a `chest_01.png` sprite
+  like SHOP/elder (e.g. a different frame), or keep the distinct square.
+- **NPC exact layout / scale**: current spread + 4× scale is a reasonable default;
+  the elder currently sits fairly close to the player. Re-ask for precise x,y per
+  NPC (and/or a different scale) if the user wants a specific town layout.

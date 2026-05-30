@@ -1,6 +1,6 @@
-[gd_scene format=4 uid="uid://cn3vp82xh4ymg"]
+[gd_scene format=3 uid="uid://cn3vp82xh4ymg"]
 
-[ext_resource type="Script" uid="uid://djfk2mxqlpz74" path="res://script/dungeon.gd" id="1_dgn00"]
+[ext_resource type="Script" uid="uid://djfk2mxqlp074" path="res://script/dungeon.gd" id="1_dgn00"]
 
-[node name="dungeon" type="Node2D"]
+[node name="dungeon" type="Node2D" unique_id=340462560]
 script = ExtResource("1_dgn00")
