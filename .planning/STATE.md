@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-08)
 
 Phase: 4 of 4 (Dungeon Depth) — COMPLETE
 Status: All phases and plans complete. Milestone v1.0 fully implemented.
-Last activity: 2026-05-14
+Last activity: 2026-05-30 - Completed quick task 260529-utn: ui-scale finish (camera zoom, limits, hud dedupe)
 
 Progress: [██████████] 100% (4/4 phases complete, 3/3 Phase 4 plans done)
 
@@ -78,6 +78,12 @@ None yet.
 - Art assets for enemy variants not fully audited — each type needs a distinct sprite (LOW confidence)
 - Nav mesh bake radius: bake for largest agent (tank); set avoidance layers per enemy type
 - Fetch quest needs minimal item representation (string ID + count in global.gd) — no inventory system exists
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260529-utn | ui-scale finish: camera zoom, limits, hud dedupe | 2026-05-30 | 52303d9 | [260529-utn-ui-scale-finish-camera-zoom-limits-hud-d](./quick/260529-utn-ui-scale-finish-camera-zoom-limits-hud-d/) |
 
 ## Deferred Items
 
