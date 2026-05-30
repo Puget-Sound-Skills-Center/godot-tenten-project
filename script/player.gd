@@ -34,7 +34,7 @@ func _ready():
 	else:
 		health = global.get_max_health()
 	global.player_current_attack = false
-	HUD.show()
+	HUD.show_hud()
 	HUD.update_money(global.money)
 	HUD.update_hp(health / float(global.get_max_health()), health, global.get_max_health())
 	_setup_shop()
@@ -42,7 +42,7 @@ func _ready():
 func _exit_tree():
 	global.player_current_health = health
 	global.player_current_attack = false
-	HUD.hide()
+	HUD.hide_hud()
 
 func _physics_process(delta):
 	player_movement(delta)

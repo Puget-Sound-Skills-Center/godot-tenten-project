@@ -66,10 +66,10 @@ func _build() -> void:
 	UITheme.apply_font(_lore_label, 11)
 	_lore_panel.add_child(_lore_label)
 
-func show() -> void:
+func show_hud() -> void:
 	visible = true
 
-func hide() -> void:
+func hide_hud() -> void:
 	visible = false
 
 func update_hp(pct: float, current: int, maximum: int) -> void:
