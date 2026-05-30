@@ -42,6 +42,6 @@ func change_scene():
 	if global.transition_scene == true:
 		if global.current_scene == "world":
 			dialogue_manager.force_close()
-			get_tree().change_scene_to_file("res://scenes/cliff_side.tscn")
+			global.go_to("res://scenes/cliff_side.tscn")
 			global.game_first_loading = false
 			global.finish_changescenes()

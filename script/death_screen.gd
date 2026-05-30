@@ -68,11 +68,11 @@ func _on_load_last_save() -> void:
 	match global.current_scene:
 		"cliff_side": scene_file = "res://scenes/cliff_side.tscn"
 		"dungeon":    scene_file = "res://scenes/dungeon.tscn"
-	get_tree().change_scene_to_file(scene_file)
+	global.go_to(scene_file)
 
 func _on_home_screen() -> void:
 	global.player_dead = false
 	global.reset_for_new_game()
 	get_tree().paused = false
 	visible = false
-	get_tree().change_scene_to_file("res://scenes/home_screen.tscn")
+	global.go_to("res://scenes/home_screen.tscn")

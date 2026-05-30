@@ -154,7 +154,7 @@ func _check_next_floor() -> void:
 		return
 	global.current_floor += 1
 	dialogue_manager.force_close()
-	get_tree().reload_current_scene()
+	global.go_to("res://scenes/dungeon.tscn")
 
 func _save_and_exit() -> void:
 	quest_manager.on_floor_reached(global.current_floor)
@@ -168,7 +168,7 @@ func _exit_to_cliffside(resume_floor: int) -> void:
 	global.came_from_dungeon = true
 	global.current_floor = 0
 	global.current_scene = "cliff_side"
-	get_tree().change_scene_to_file("res://scenes/cliff_side.tscn")
+	global.go_to("res://scenes/cliff_side.tscn")
 
 # --- Build helpers ---
 

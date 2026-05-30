@@ -233,7 +233,7 @@ func _refresh_load_slots() -> void:
 
 func _on_new_game() -> void:
 	global.reset_for_new_game()
-	get_tree().change_scene_to_file("res://scenes/world.tscn")
+	global.go_to("res://scenes/world.tscn")
 
 func _on_open_load() -> void:
 	_refresh_load_slots()
@@ -251,7 +251,7 @@ func _on_load_slot(slot: int) -> void:
 	match global.current_scene:
 		"cliff_side": scene_file = "res://scenes/cliff_side.tscn"
 		"dungeon":    scene_file = "res://scenes/dungeon.tscn"
-	get_tree().change_scene_to_file(scene_file)
+	global.go_to(scene_file)
 
 func _on_exit() -> void:
 	get_tree().quit()

@@ -218,4 +218,4 @@ func _go_home() -> void:
 	_pause_panel.visible = false
 	_save_panel.visible = false
 	global.current_scene = "home"
-	get_tree().change_scene_to_file("res://scenes/home_screen.tscn")
+	global.go_to("res://scenes/home_screen.tscn")

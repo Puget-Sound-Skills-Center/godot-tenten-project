@@ -34,14 +34,14 @@ func change_scene():
 	if global.transition_scene == true:
 		if global.current_scene == "cliff_side":
 			dialogue_manager.force_close()
-			get_tree().change_scene_to_file("res://scenes/world.tscn")
+			global.go_to("res://scenes/world.tscn")
 			global.finish_changescenes()
 	if global.enter_dungeon == true:
 		global.enter_dungeon = false
 		global.current_floor = clampi(global.dungeon_resume_floor, 1, global.DUNGEON_MAX_FLOOR)
 		global.current_scene = "dungeon"
 		dialogue_manager.force_close()
-		get_tree().change_scene_to_file("res://scenes/dungeon.tscn")
+		global.go_to("res://scenes/dungeon.tscn")
 
 func _build_secret_door() -> void:
 	if bool(global.unlocks.get("cliff_secret_door", false)):
