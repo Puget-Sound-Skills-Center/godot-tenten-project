@@ -32,6 +32,11 @@ var player_defense_level = 0
 var player_current_health = -1
 var active_save_slot := 1
 var player_dead := false
+var game_viewport: SubViewport = null
+signal scene_change_requested(path: String)
+
+func go_to(path: String) -> void:
+	scene_change_requested.emit(path)
 
 var npc_state: Dictionary = {}
 var quest_state: Dictionary = {}
