@@ -17,7 +17,18 @@ func _ready() -> void:
 func _on_scene_change(path: String) -> void:
 	_load_scene.call_deferred(path)
 
+# Pure-UI scenes render in the root canvas (full physical resolution, so TTF
+# text stays crisp). Pixel-art game scenes render inside the 960x540 SubViewport
+# for the chunky upscaled look.
+const UI_SCENES := ["res://scenes/home_screen.tscn"]
+
+var _current: Node = null
+
 func _load_scene(path: String) -> void:
+	if is_instance_valid(_current):
+		_current.free()
+		_current = null
+	# Defensive: clear anything still parented under the SubViewport.
 	var vp := $SubViewportContainer/SubViewport as SubViewport
 	for child in vp.get_children():
 		child.free()
@@ -25,4 +36,9 @@ func _load_scene(path: String) -> void:
 	if packed == null:
 		push_error("main.gd: cannot load scene: " + path)
 		return
-	vp.add_child(packed.instantiate())
+	var inst := packed.instantiate()
+	_current = inst
+	if path in UI_SCENES:
+		add_child(inst)
+	else:
+		vp.add_child(inst)

@@ -133,7 +133,7 @@ scale = Vector2(4, 4)
 polygon = PackedVector2Array(403, 423, 303, 425, 304, 371, 301, 369, 299, 356, 287, 354, 287, 271, 418, 272, 419, 353, 409, 355, 403, 371, 450, 370, 439, 252, 275, 252, 277, 361, 295, 436, 415, 442, 406, 371, 403, 371)
 
 [node name="player" parent="." unique_id=1145790712 instance=ExtResource("6_ocn37")]
-position = Vector2(1408, 1441)
+position = Vector2(1407, 1266)
 
 [node name="Cliffside_exit_point" type="Area2D" parent="." unique_id=856695562]
 

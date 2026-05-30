@@ -106,7 +106,7 @@ sources/2 = SubResource("TileSetAtlasSource_w7kh3")
 sources/3 = SubResource("TileSetAtlasSource_e3hyu")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4mrxx"]
-size = Vector2(35, 15)
+size = Vector2(140.5, 64.5)
 
 [node name="world" type="Node2D" unique_id=1132998546]
 y_sort_enabled = true
@@ -154,7 +154,7 @@ polygon = PackedVector2Array(290, 158, 291, 187, 297, 191, 330, 191, 335, 186, 3
 [node name="Cliffside_trasition_point" type="Area2D" parent="." unique_id=88907879]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Cliffside_trasition_point" unique_id=826356014]
-position = Vector2(171.5, -8.5)
+position = Vector2(685.75, -32.25)
 shape = SubResource("RectangleShape2D_4mrxx")
 
 [connection signal="body_entered" from="Cliffside_trasition_point" to="." method="_on_cliffside_trasition_point_body_entered"]

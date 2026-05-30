@@ -20,7 +20,7 @@ func _setup_camera() -> void:
 	var cam := $player/Camera2D as Camera2D
 	if cam == null:
 		return
-	cam.zoom = Vector2(2, 2)
+	cam.zoom = Vector2(1, 1)
 	cam.position_smoothing_enabled = true
 	cam.limit_smoothed = true
 	_apply_map_limits(cam, $TileMap/Ground)

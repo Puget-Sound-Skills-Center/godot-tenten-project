@@ -284,7 +284,7 @@ func _spawn_player() -> void:
 	player_node.position = Vector2(2 * TILE + TILE / 2, 2 * TILE + TILE / 2)
 	add_child(player_node)
 	var cam := Camera2D.new()
-	cam.zoom = Vector2(2, 2)
+	cam.zoom = Vector2(1, 1)
 	cam.limit_left = 0
 	cam.limit_top = 0
 	cam.limit_right = room_w

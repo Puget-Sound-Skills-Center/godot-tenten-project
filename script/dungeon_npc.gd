@@ -13,12 +13,13 @@ func _build_visual():
 	sprite.texture = load("res://art/objects/chest_02.png")
 	sprite.hframes = 4
 	sprite.frame = 0
-	sprite.position = Vector2(0, -8)
+	sprite.scale = Vector2(4, 4)
+	sprite.position = Vector2(0, -32)
 	add_child(sprite)
 
 	_prompt_label = Label.new()
 	_prompt_label.text = "E: Enter Dungeon"
-	_prompt_label.position = Vector2(-22, -22)
+	_prompt_label.position = Vector2(-22, -76)
 	_prompt_label.add_theme_font_size_override("font_size", 6)
 	_prompt_label.add_theme_color_override("font_color", Color.WHITE)
 	_prompt_label.visible = false
@@ -28,7 +29,7 @@ func _build_interaction_area():
 	var area = Area2D.new()
 	var shape_node = CollisionShape2D.new()
 	var circle = CircleShape2D.new()
-	circle.radius = 20.0
+	circle.radius = 36.0
 	shape_node.shape = circle
 	area.add_child(shape_node)
 	area.body_entered.connect(_on_body_entered)

@@ -17,7 +17,7 @@ func _ready() -> void:
 
 func _setup_camera() -> void:
 	var cam := Camera2D.new()
-	cam.zoom = Vector2(2, 2)
+	cam.zoom = Vector2(1, 1)
 	cam.position_smoothing_enabled = true
 	cam.limit_smoothed = true
 	$player.add_child(cam)
@@ -42,7 +42,7 @@ func _apply_map_limits(cam: Camera2D, layer: TileMapLayer) -> void:
 
 func _spawn_dungeon_npc():
 	var npc = load("res://script/dungeon_npc.gd").new()
-	npc.position = Vector2(352, 315)
+	npc.position = Vector2(1407, 1266)
 	add_child(npc)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
