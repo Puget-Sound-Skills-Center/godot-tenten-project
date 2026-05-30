@@ -4,6 +4,13 @@ func _ready() -> void:
 	var vp := $SubViewportContainer/SubViewport as SubViewport
 	global.game_viewport = vp
 	$SubViewportContainer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	# SubViewports do NOT inherit the project's default_texture_filter (they
+	# default to linear), which blurs the magnified pixel art. Force nearest on
+	# the SubViewport's canvas so all inheriting sprites/tilemaps stay crisp.
+	RenderingServer.viewport_set_default_canvas_item_texture_filter(
+		vp.get_viewport_rid(),
+		RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	)
 	global.scene_change_requested.connect(_on_scene_change)
 	_load_scene("res://scenes/home_screen.tscn")
 
