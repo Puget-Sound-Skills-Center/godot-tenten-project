@@ -12,13 +12,13 @@ func _ready() -> void:
 func _build_visual() -> void:
 	var visual := ColorRect.new()
 	visual.color = Color(0.55, 0.40, 0.20)
-	visual.size = Vector2(20, 20)
-	visual.position = Vector2(-10, -10)
+	visual.size = Vector2(64, 64)
+	visual.position = Vector2(-32, -32)
 	add_child(visual)
 
 	_prompt_label = Label.new()
 	_prompt_label.text = "[E] Inspect"
-	_prompt_label.position = Vector2(-16, -26)
+	_prompt_label.position = Vector2(-16, -52)
 	_prompt_label.add_theme_font_size_override("font_size", 7)
 	_prompt_label.add_theme_color_override("font_color", Color.WHITE)
 	_prompt_label.visible = false
@@ -26,7 +26,7 @@ func _build_visual() -> void:
 
 	var name_lbl := Label.new()
 	name_lbl.text = "LORE"
-	name_lbl.position = Vector2(-8, -8)
+	name_lbl.position = Vector2(-8, -44)
 	name_lbl.add_theme_font_size_override("font_size", 5)
 	name_lbl.add_theme_color_override("font_color", Color(1.0, 1.0, 0.7))
 	add_child(name_lbl)
@@ -35,7 +35,7 @@ func _build_interaction_area() -> void:
 	var area := Area2D.new()
 	var shape_node := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
-	circle.radius = 20.0
+	circle.radius = 36.0
 	shape_node.shape = circle
 	area.add_child(shape_node)
 	area.body_entered.connect(_on_body_entered)

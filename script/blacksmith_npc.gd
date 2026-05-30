@@ -13,11 +13,13 @@ func _ready() -> void:
 	_build_interaction_area()
 
 func _build_visual() -> void:
-	var placeholder := ColorRect.new()
-	placeholder.color = Color(0.5, 0.35, 0.15, 1.0)  # dark amber — distinct from chest brown
-	placeholder.size = Vector2(64, 64)
-	placeholder.position = Vector2(-32, -64)
-	add_child(placeholder)
+	var sprite := Sprite2D.new()
+	sprite.texture = load("res://art/objects/chest_01.png")
+	sprite.hframes = 4
+	sprite.frame = 3  # distinct frame from elder (0) and shop (2)
+	sprite.scale = Vector2(4, 4)
+	sprite.position = Vector2(0, -32)
+	add_child(sprite)
 
 	var name_lbl := Label.new()
 	name_lbl.text = "SMITH"

@@ -2,9 +2,11 @@ extends Node2D
 
 const UITheme = preload("res://script/ui_theme.gd")
 
-const TILE := 16
-const ROOM_W_BASE := 480
-const ROOM_H_BASE := 320
+# World geometry is scaled 4x to match the 4x-scaled player/enemy scenes
+# (player.tscn and enemy.tscn both bake scale = Vector2(4, 4)).
+const TILE := 64
+const ROOM_W_BASE := 1920
+const ROOM_H_BASE := 1280
 const PLAYER_SCENE := "res://scenes/player.tscn"
 const ENEMY_SCENE := "res://scenes/enemy.tscn"
 const ENEMY_SCRIPT_BASE   := "res://script/enemy_base.gd"
@@ -88,8 +90,8 @@ func _ready() -> void:
 	_theme = _get_dungeon_theme(floor_no)
 	global.current_scene = "dungeon"
 
-	room_w = ROOM_W_BASE + floor_no * 8
-	room_h = ROOM_H_BASE + floor_no * 8
+	room_w = ROOM_W_BASE + floor_no * 32
+	room_h = ROOM_H_BASE + floor_no * 32
 
 	_build_floor_background()
 	_build_outer_walls()
@@ -193,7 +195,7 @@ func _setup_navigation(obstacles: Array) -> void:
 		]))
 
 	var nav_poly := NavigationPolygon.new()
-	nav_poly.agent_radius = 10.0
+	nav_poly.agent_radius = 40.0
 	NavigationServer2D.bake_from_source_geometry_data(nav_poly, geo)
 
 	var nav_region := NavigationRegion2D.new()
@@ -263,7 +265,7 @@ func _build_random_obstacles(floor_no: int) -> Array:
 		_make_wall(r)
 	return rects
 
-func _is_position_clear(pos: Vector2, obstacles: Array, radius: int = 8) -> bool:
+func _is_position_clear(pos: Vector2, obstacles: Array, radius: int = 32) -> bool:
 	var pad := Rect2(pos - Vector2(radius, radius), Vector2(radius * 2, radius * 2))
 	if pad.position.x < TILE or pad.position.y < TILE:
 		return false
@@ -279,7 +281,7 @@ func _is_position_clear(pos: Vector2, obstacles: Array, radius: int = 8) -> bool
 func _spawn_player() -> void:
 	var packed: PackedScene = load(PLAYER_SCENE)
 	player_node = packed.instantiate()
-	player_node.position = Vector2(2 * TILE + 8, 2 * TILE + 8)
+	player_node.position = Vector2(2 * TILE + TILE / 2, 2 * TILE + TILE / 2)
 	add_child(player_node)
 	var cam := Camera2D.new()
 	cam.zoom = Vector2(2, 2)
@@ -303,7 +305,7 @@ func _spawn_enemies(floor_no: int, obstacles: Array) -> void:
 		var x := rng.randi_range(3, room_w / TILE - 3) * TILE
 		var y := rng.randi_range(3, room_h / TILE - 3) * TILE
 		var pos := Vector2(x, y)
-		if not _is_position_clear(pos, obstacles, 14):
+		if not _is_position_clear(pos, obstacles, 56):
 			continue
 		var enemy: Node2D = packed.instantiate()
 		enemy.set_script(load(_pick_enemy_script(floor_no)))
@@ -326,7 +328,7 @@ func _spawn_boss_enemies(floor_no: int, obstacles: Array) -> void:
 		var x := rng.randi_range(3, room_w / TILE - 3) * TILE
 		var y := rng.randi_range(3, room_h / TILE - 3) * TILE
 		var pos := Vector2(x, y)
-		if not _is_position_clear(pos, obstacles, 14):
+		if not _is_position_clear(pos, obstacles, 56):
 			continue
 		var enemy: Node2D = packed.instantiate()
 		var script_path: String = [ENEMY_SCRIPT_TANK, ENEMY_SCRIPT_RANGED].pick_random()
@@ -357,7 +359,7 @@ func _spawn_dungeon_dialogue_npc(_floor_no: int, obstacles: Array) -> void:
 	var pos := _pick_save_position(obstacles)
 	if pos == Vector2.ZERO:
 		return
-	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
+	obstacles.append(Rect2(pos - Vector2(64, 64), Vector2(128, 128)))
 	var npc: Node2D = load("res://script/dungeon_dialogue_npc.gd").new()
 	npc.position = pos
 	add_child(npc)
@@ -368,7 +370,7 @@ func _spawn_lore_object(floor_no: int, obstacles: Array) -> void:
 	var pos := _pick_save_position(obstacles)
 	if pos == Vector2.ZERO:
 		return
-	obstacles.append(Rect2(pos - Vector2(16, 16), Vector2(32, 32)))
+	obstacles.append(Rect2(pos - Vector2(64, 64), Vector2(128, 128)))
 	var lore: Node2D = load("res://script/lore_object.gd").new()
 	lore.lore_id = _pick_lore_node(floor_no)
 	lore.position = pos
@@ -437,9 +439,9 @@ func _pick_hidden_room_position(obstacles: Array) -> Vector2:
 		var x := rng.randi_range(min_tx, max_tx) * TILE + TILE / 2
 		var y := rng.randi_range(min_ty, max_ty) * TILE + TILE / 2
 		var p := Vector2(x, y)
-		if not _is_position_clear(p, obstacles, 10):
+		if not _is_position_clear(p, obstacles, 40):
 			continue
-		var pad := Rect2(p - Vector2(10, 10), Vector2(20, 20))
+		var pad := Rect2(p - Vector2(40, 40), Vector2(80, 80))
 		if pad.intersects(_exit_zone()):
 			continue
 		return p
@@ -518,7 +520,7 @@ func _pick_exit_position(obstacles: Array) -> Vector2:
 		var p := Vector2(x, y)
 		# Radius 24 ensures a full tile of clearance from every wall so the
 		# player body can physically reach the exit Area2D trigger zone.
-		if _is_position_clear(p, obstacles, 24):
+		if _is_position_clear(p, obstacles, 96):
 			return p
 	return ez.position + ez.size / 2.0
 
@@ -617,7 +619,7 @@ func _pick_save_position(obstacles: Array) -> Vector2:
 		var x := rng.randi_range(min_tx, max_tx) * TILE + TILE / 2
 		var y := rng.randi_range(min_ty, max_ty) * TILE + TILE / 2
 		var p := Vector2(x, y)
-		if _is_position_clear(p, obstacles, 10):
+		if _is_position_clear(p, obstacles, 40):
 			return p
 	return Vector2.ZERO  # sentinel: no valid position found
 
@@ -716,7 +718,7 @@ func _pick_puzzle_tile_position(obstacles: Array, exit_pos: Vector2) -> Vector2:
 		var x := rng.randi_range(4, maxi(4, room_w / TILE - 4)) * TILE + TILE / 2
 		var y := rng.randi_range(4, maxi(4, room_h / TILE - 4)) * TILE + TILE / 2
 		var p := Vector2(x, y)
-		if not _is_position_clear(p, obstacles, 10):
+		if not _is_position_clear(p, obstacles, 40):
 			continue
 		if p.distance_to(exit_pos) < min_tile_dist:
 			continue
@@ -1033,19 +1035,19 @@ func _spawn_fetch_chest_if_needed(obstacles: Array) -> void:
 	chest.position = pos
 	var shape_node := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
-	circle.radius = 12.0
+	circle.radius = 48.0
 	shape_node.shape = circle
 	chest.add_child(shape_node)
 	var visual := ColorRect.new()
 	visual.color = Color(0.55, 0.40, 0.10, 1.0)
-	visual.size = Vector2(24, 24)
-	visual.position = Vector2(-12, -12)
+	visual.size = Vector2(96, 96)
+	visual.position = Vector2(-48, -48)
 	chest.add_child(visual)
 	var lbl := Label.new()
 	lbl.text = "[E] Open"
 	lbl.add_theme_font_size_override("font_size", 8)
 	lbl.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
-	lbl.position = Vector2(-12, -24)
+	lbl.position = Vector2(-48, -96)
 	lbl.visible = false
 	chest.add_child(lbl)
 	chest.set_meta("item_id", item_id)
@@ -1054,7 +1056,7 @@ func _spawn_fetch_chest_if_needed(obstacles: Array) -> void:
 	chest.body_entered.connect(_on_fetch_chest_body_entered.bind(chest))
 	chest.body_exited.connect(_on_fetch_chest_body_exited.bind(chest))
 	add_child(chest)
-	obstacles.append(Rect2(pos - Vector2(12, 12), Vector2(24, 24)))
+	obstacles.append(Rect2(pos - Vector2(48, 48), Vector2(96, 96)))
 
 func _on_fetch_chest_body_entered(body: Node2D, chest: Area2D) -> void:
 	if not body.has_method("player"):

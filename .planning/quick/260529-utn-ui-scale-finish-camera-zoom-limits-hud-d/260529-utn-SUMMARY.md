@@ -9,6 +9,8 @@ commits:
   - "52303d9 feat(ui-scale): add cliffside camera with zoom 2x + tilemap-bounds limits"
   - "15733ad fix(ui-scale): force nearest texture filter on SubViewport canvas"
   - "f76d41a feat(world): scale NPCs to 4x and respread spawns to match world scale"
+  - "ddf3ba6 (wip) fix dungeon scene script UID corruption"
+  - "<pending> feat(ui-scale): scale dungeon geometry 4x + blacksmith sprite"
 ---
 
 # Quick Task 260529-utn — Summary
@@ -65,11 +67,27 @@ Diagnosed and verified entirely live through the Godot MCP editor (run + screens
    interaction radius 20→36, respread spawns (shop `105,125` / elder `210,125` /
    smith `285,125`). `f76d41a`
 
-## OPEN — paused for user decision (RE-ASK on resume)
-User answered "pause this session and ask me again" to both of these:
-- **SMITH appearance**: blacksmith is still a plain amber `ColorRect` placeholder
-  (`blacksmith_npc.gd._build_visual`). Decide: give it a `chest_01.png` sprite
-  like SHOP/elder (e.g. a different frame), or keep the distinct square.
-- **NPC exact layout / scale**: current spread + 4× scale is a reasonable default;
-  the elder currently sits fairly close to the player. Re-ask for precise x,y per
-  NPC (and/or a different scale) if the user wants a specific town layout.
+## Resume session (2026-05-30) — resolved the paused decisions + dungeon scale
+User chose: scale the dungeon to match 4× world, give the smith a sprite, keep
+the current NPC layout.
+
+8. **Dungeon scene UID corruption** (`scenes/dungeon.tscn`) — the prior WIP commit
+   `ddf3ba6` had rewritten the file with a corrupted script UID
+   (`djfk2mxqlp074`, should be `djfk2mxqlpz74`) and downgraded `format=4`→`3`.
+   Path fallback still loaded it, but restored the correct UID + `format=4`.
+9. **Dungeon geometry 4×** (`script/dungeon.gd`) — root cause of the dungeon
+   scale mismatch: `player.tscn` and `enemy.tscn` both bake `scale=(4,4)`, but the
+   procedural dungeon was built with `TILE=16` at scale 1, so entities dwarfed the
+   tiles/walls. Scaled the world geometry 4×: `TILE 16→64`, `ROOM_W/H_BASE ×4`,
+   floor-growth increment `×4`, nav `agent_radius 10→40`, all clearance radii
+   (`8/10/14/24 → 32/40/56/96`), obstacle pads, and the fetch chest (`radius 12→48`,
+   visual `24→96`). Camera zoom stays 2× to match world's effective magnification.
+10. **Dungeon NPC / lore object 4×** (`dungeon_dialogue_npc.gd`, `lore_object.gd`) —
+    scaled their visuals 4× and bumped interaction radius `20→36`, same as the
+    world NPCs, so they're proportional inside the now-4× dungeon.
+11. **Blacksmith sprite** (`blacksmith_npc.gd`) — replaced the amber `ColorRect`
+    placeholder with a `chest_01.png` sprite at `scale=(4,4)`, frame 3 (distinct
+    from elder frame 0 and shop frame 2), matching the shop NPC pattern.
+
+Verified live via Godot MCP: ran `dungeon.tscn`, floor 1 generates with no
+parse/runtime errors and the player is now proportional (~1 tile) to the room.
