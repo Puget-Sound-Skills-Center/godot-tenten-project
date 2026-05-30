@@ -15,20 +15,20 @@ func _ready() -> void:
 func _build_visual() -> void:
 	var placeholder := ColorRect.new()
 	placeholder.color = Color(0.5, 0.35, 0.15, 1.0)  # dark amber — distinct from chest brown
-	placeholder.size = Vector2(16, 16)
-	placeholder.position = Vector2(-8, -16)
+	placeholder.size = Vector2(64, 64)
+	placeholder.position = Vector2(-32, -64)
 	add_child(placeholder)
 
 	var name_lbl := Label.new()
 	name_lbl.text = "SMITH"
-	name_lbl.position = Vector2(-10, -26)
+	name_lbl.position = Vector2(-10, -90)
 	name_lbl.add_theme_font_size_override("font_size", 6)
 	name_lbl.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
 	add_child(name_lbl)
 
 	_prompt_label = Label.new()
 	_prompt_label.text = "E: Talk"
-	_prompt_label.position = Vector2(-12, -22)
+	_prompt_label.position = Vector2(-12, -76)
 	_prompt_label.add_theme_font_size_override("font_size", 6)
 	_prompt_label.add_theme_color_override("font_color", Color.WHITE)
 	_prompt_label.visible = false
@@ -38,7 +38,7 @@ func _build_interaction_area() -> void:
 	var area := Area2D.new()
 	var shape_node := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
-	circle.radius = 20.0
+	circle.radius = 36.0
 	shape_node.shape = circle
 	area.add_child(shape_node)
 	area.body_entered.connect(_on_body_entered)

@@ -43,17 +43,17 @@ func _apply_map_limits(cam: Camera2D, layer: TileMapLayer) -> void:
 
 func _spawn_elder_npc() -> void:
 	var npc = load("res://script/npc.gd").new()
-	npc.position = Vector2(167, 110)
+	npc.position = Vector2(210, 125)
 	add_child(npc)
 
 func _spawn_blacksmith_npc() -> void:
 	var npc = load("res://script/blacksmith_npc.gd").new()
-	npc.position = Vector2(240, 110)
+	npc.position = Vector2(285, 125)
 	add_child(npc)
 
 func _spawn_merchant_npc() -> void:
 	var npc = load("res://script/shop_npc.gd").new()
-	npc.position = Vector2(110, 130)
+	npc.position = Vector2(105, 125)
 	add_child(npc)
 
 func _process(_delta):
