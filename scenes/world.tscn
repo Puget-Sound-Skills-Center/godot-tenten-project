@@ -135,12 +135,12 @@ tile_map_data = PackedByteArray("AAAFAAIAAgAAAAAAAAAMAAcAAgAFAAAAAAAKAAQAAgAAAAU
 tile_set = SubResource("TileSet_q5onr")
 
 [node name="player" parent="." unique_id=1145790712 instance=ExtResource("5_71j4m")]
-position = Vector2(167, 110)
+position = Vector2(460, 298)
 
 [node name="Camera2D" type="Camera2D" parent="player" unique_id=1938284768]
 
 [node name="enemy" parent="." unique_id=915246282 instance=ExtResource("6_qfnet")]
-position = Vector2(58, 78)
+position = Vector2(225, 347)
 
 [node name="collisions_map" type="StaticBody2D" parent="." unique_id=21408436]
 
@@ -149,6 +149,8 @@ scale = Vector2(4, 4)
 polygon = PackedVector2Array(-1, 0, 154, 0, 154, -16, 189, -16, 189, 0, 257, 0, 258, 41, 261, 46, 265, 47, 400, 46, 400, 165, 427, 165, 427, 193, 400, 192, 400, 209, 240, 208, 239, 172, 233, 163, 0, 164, 0, 44, -17, 44, -17, 19, 0, 19, 0, -13, -50, 16, -38, 238, 199, 293, 426, 269, 455, 216, 446, 56, 439, -1, 425, -43, 196, -43, 61, -29)
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="collisions_map" unique_id=1988973342]
+position = Vector2(1, 0)
+scale = Vector2(4, 4)
 polygon = PackedVector2Array(290, 158, 291, 187, 297, 191, 330, 191, 335, 186, 335, 166, 334, 157, 329, 147, 295, 148)
 
 [node name="Cliffside_trasition_point" type="Area2D" parent="." unique_id=88907879]

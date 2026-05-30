@@ -91,6 +91,7 @@ func _build_pause_panel() -> void:
 	panel.add_child(margin)
 
 	var vbox := _pa(VBoxContainer.new()) as VBoxContainer
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 8)
 	margin.add_child(vbox)
 
@@ -151,6 +152,7 @@ func _build_save_panel() -> void:
 	panel.add_child(margin)
 
 	var vbox := _pa(VBoxContainer.new()) as VBoxContainer
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 6)
 	margin.add_child(vbox)
 

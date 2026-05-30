@@ -105,7 +105,7 @@ sources/2 = SubResource("TileSetAtlasSource_axhr3")
 sources/3 = SubResource("TileSetAtlasSource_pb76u")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ocn37"]
-size = Vector2(101, 53.25)
+size = Vector2(396.5, 145.625)
 
 [node name="cliff_side" type="Node2D" unique_id=1842069381]
 script = ExtResource("1_v3mbj")
@@ -133,13 +133,12 @@ scale = Vector2(4, 4)
 polygon = PackedVector2Array(403, 423, 303, 425, 304, 371, 301, 369, 299, 356, 287, 354, 287, 271, 418, 272, 419, 353, 409, 355, 403, 371, 450, 370, 439, 252, 275, 252, 277, 361, 295, 436, 415, 442, 406, 371, 403, 371)
 
 [node name="player" parent="." unique_id=1145790712 instance=ExtResource("6_ocn37")]
-position = Vector2(1407, 1266)
+position = Vector2(1414, 1445)
 
 [node name="Cliffside_exit_point" type="Area2D" parent="." unique_id=856695562]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Cliffside_exit_point" unique_id=1894032277]
-visible = false
-position = Vector2(353.5, 399.375)
+position = Vector2(1413.75, 1558.1875)
 shape = SubResource("RectangleShape2D_ocn37")
 
 [connection signal="body_entered" from="Cliffside_exit_point" to="." method="_on_cliffside_exit_point_body_entered"]

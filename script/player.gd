@@ -12,7 +12,7 @@ var attack_ip = false
 var shop_open = false
 
 const MAX_UPGRADE_LEVEL = 50
-const speed = 100
+const speed = 300
 var current_dir = "none"
 
 var _attacking_enemy: Node2D = null
@@ -263,6 +263,7 @@ func _setup_shop():
 	panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 8)
 	margin.add_child(vbox)
 
