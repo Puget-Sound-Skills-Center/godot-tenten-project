@@ -332,7 +332,7 @@ func _upgrade_cost(current_level: int) -> int:
 
 func _update_hud() -> void:
 	var max_hp := global.get_max_health()
-	var pct := health / float(max_hp)
+	var pct: float = float(health) / float(max_hp)
 	hud.update_hp(pct, health, max_hp)
 	hud.update_money(global.money)
 
