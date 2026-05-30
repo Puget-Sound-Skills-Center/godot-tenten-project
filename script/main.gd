@@ -8,7 +8,7 @@ func _ready() -> void:
 	_load_scene("res://scenes/home_screen.tscn")
 
 func _on_scene_change(path: String) -> void:
-	_load_scene(path)
+	_load_scene.call_deferred(path)
 
 func _load_scene(path: String) -> void:
 	var vp := $SubViewportContainer/SubViewport as SubViewport
