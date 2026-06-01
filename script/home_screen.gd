@@ -62,7 +62,7 @@ func _build_ui() -> void:
 
 	# ── Title ───────────────────────────────────────────────────────────────
 	var title := Label.new()
-	title.text = "TENTEN"
+	title.text = "Pixel Dungeon"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	title.offset_top = 14
